@@ -17,5 +17,5 @@
  - [ ] Hotfix (critical fix deployed directly to production branch)
 
 ## Screenshots
-
+_No screenshots available yet._
 <img src="" width="400"  alt="image name"/>
