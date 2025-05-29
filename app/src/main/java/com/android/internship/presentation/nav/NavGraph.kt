@@ -10,7 +10,7 @@ import com.android.internship.presentation.screens.SplashScreen
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     NavHost(navController = navController, startDestination = "splashScreen") {
         composable("splashScreen") {
