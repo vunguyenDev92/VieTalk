@@ -1,7 +1,5 @@
 [versions]
 agp = "8.9.3"
-coreSplashscreen = "1.0.1"
-jetbrainsKotlinxSerializationJson = "1.6.3"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -10,7 +8,6 @@ espressoCore = "3.6.1"
 androidLifecycle = "2.9.0"
 activityCompose = "1.10.1"
 composeBom = "2025.05.01"
-kotlinxSerializationJson = "1.8.0"
 ktlint = "12.3.0"
 navigationCompose = "2.9.0"
 
@@ -30,8 +27,6 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-kotlinx-serialization-json-v163 = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "jetbrainsKotlinxSerializationJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
