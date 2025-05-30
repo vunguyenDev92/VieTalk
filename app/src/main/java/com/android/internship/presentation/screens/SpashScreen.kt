@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.presentation.navigation.Screen
 import kotlinx.coroutines.delay
 
 @Composable
@@ -28,7 +29,7 @@ fun SplashScreen(
 ) {
     LaunchedEffect(Unit) {
         delay(2000)
-        navController.navigate("signInScreen") {
+        navController.navigate(Screen.SignIn) {
             popUpTo(navController.graph.startDestinationId) { inclusive = true }
         }
     }
