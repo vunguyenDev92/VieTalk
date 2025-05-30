@@ -1,4 +1,4 @@
-package com.android.internship.ui.theme
+package com.android.internship.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
