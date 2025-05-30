@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">android_internship_2025_final_project</string>
+    <string name="app_name">ChatFun</string>
+    <!--  Splash Screen  -->
+    <string name="app_logo">ChatFun Logo</string>
+    <string name="splash_description">The world\'s fastest messaging app.\nIt is free and secure.</string>
+    <!--  Sign In Screen  -->
+    <string name="sign_in">Sign in</string>
 </resources>

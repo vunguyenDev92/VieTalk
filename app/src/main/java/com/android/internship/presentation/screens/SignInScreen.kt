@@ -8,9 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.android.internship.R
 
 @Composable
 fun SignInScreen(
@@ -24,7 +26,7 @@ fun SignInScreen(
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "Sign in",
+            text = stringResource(R.string.sign_in),
             fontSize = 32.sp,
             textAlign = TextAlign.Center,
             color = Color.Black,

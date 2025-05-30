@@ -11,7 +11,7 @@
         android:theme="@style/Theme.Android_internship_2025_final_project"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Android_internship_2025_final_project">
             <intent-filter>

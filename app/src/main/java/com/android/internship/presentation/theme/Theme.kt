@@ -1,4 +1,4 @@
-package com.android.internship.ui.theme
+package com.android.internship.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
