@@ -5,7 +5,7 @@ import com.android.internship.data.datasource.remote.AuthRemoteDataSource
 import com.android.internship.data.model.SignInResponse
 import com.android.internship.domain.repository.AuthRepository
 
-class AuthRepositoryIml(
+class AuthRepositoryImpl(
     private val authRemoteDataSource: AuthRemoteDataSource,
     private val authLocalDataSource: AuthLocalDataSource,
 ) : AuthRepository {

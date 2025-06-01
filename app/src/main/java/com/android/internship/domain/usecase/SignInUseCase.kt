@@ -5,6 +5,6 @@ import com.android.internship.domain.repository.AuthRepository
 
 class SignInUseCase(private val repository: AuthRepository) {
     suspend operator fun invoke(username: String, password: String): SignInResponse {
-        return repository.signIn(username, password)
+        TODO("Sign in use case")
     }
 }
