@@ -11,25 +11,17 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     override suspend fun signIn(email: String, password: String): SignInResponse {
-        return try {
-            val user = remoteDataSource.signInWithEmailAndPassword(email, password)
-            if (user != null) {
-                SignInResponse(
-                    success = true,
-                    message = "Sign in successful",
-                )
-            } else {
-                SignInResponse(
-                    success = false,
-                    message = "Invalid credentials",
-                )
-            }
-        } catch (e: Exception) {
-            SignInResponse(
+        val result = remoteDataSource.signInWithEmailAndPassword(email, password)
+        if (result.isFailure) {
+            return SignInResponse(
                 success = false,
-                message = e.message ?: "Sign-in failed",
+                message = result.exceptionOrNull()?.message ?: "Sign-in failed",
             )
         }
+        return SignInResponse(
+            success = true,
+            message = "Sign-in successful",
+        )
     }
 
     override fun isSignedIn(): Boolean? {
