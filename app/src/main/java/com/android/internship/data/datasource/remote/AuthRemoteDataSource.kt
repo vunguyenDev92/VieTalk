@@ -10,13 +10,12 @@ class AuthRemoteDataSource {
     private val auth = FirebaseAuth.getInstance()
     private val fireStore = FirebaseFirestore.getInstance()
 
-    suspend fun signInWithEmailAndPassword(email: String, password: String): User? {
-        val result = auth.signInWithEmailAndPassword(email, password).await()
-        val firebaseUser = result.user
-        return if (firebaseUser != null) {
-            getUserFromFireStore(firebaseUser.uid)
-        } else {
-            null
+    suspend fun signInWithEmailAndPassword(email: String, password: String): Result<String> {
+        try {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            return Result.success(result.user?.uid ?: "")
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
     }
 
@@ -52,7 +51,7 @@ class AuthRemoteDataSource {
                     if (item is Map<*, *>) {
                         UserRoom(
                             rid = item["rid"] as? String ?: "",
-                            mute = item["mute"] as? Boolean ?: false,
+                            mute = item["mute"] as? Boolean == true,
                             turnOnTime = item["turnOnTime"] as? String ?: "",
                         )
                     } else {
