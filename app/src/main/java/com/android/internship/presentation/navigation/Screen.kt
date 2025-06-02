@@ -10,4 +10,10 @@ sealed class Screen {
 
     @Serializable
     data object SignIn : Screen()
+
+    @Serializable
+    data object SignUp : Screen()
+
+    @Serializable
+    data object Chat : Screen()
 }
