@@ -52,7 +52,7 @@ class SignInViewModel(
             }
 
             val response = signInUseCase(
-                username = state.value.emailState.value,
+                email = state.value.emailState.value,
                 password = state.value.passwordState.value,
             )
 

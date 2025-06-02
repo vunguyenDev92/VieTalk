@@ -6,24 +6,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class AuthRemoteDataSource(
-    private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
-) {
+class AuthRemoteDataSource {
+    private val auth = FirebaseAuth.getInstance()
+    private val fireStore = FirebaseFirestore.getInstance()
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): User? {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val firebaseUser = result.user
         return if (firebaseUser != null) {
-            getUserFromFirestore(firebaseUser.uid)
+            getUserFromFireStore(firebaseUser.uid)
         } else {
             null
         }
     }
 
-    private suspend fun getUserFromFirestore(uid: String): User? {
+    private suspend fun getUserFromFireStore(uid: String): User? {
         return try {
-            val userDoc = firestore.collection("users")
+            val userDoc = fireStore.collection("users")
                 .document(uid)
                 .get()
                 .await()
@@ -33,7 +32,7 @@ class AuthRemoteDataSource(
                     uid = userDoc.id,
                     username = userDoc.getString("username") ?: "",
                     email = userDoc.getString("email") ?: "",
-                    active = userDoc.getBoolean("active") ?: false,
+                    active = userDoc.getBoolean("active") == true,
                     avatar = userDoc.getString("avatar"),
                     block = userDoc.get("block") as? List<String>,
                     userRooms = parseUserRooms(userDoc.get("userRooms")),
