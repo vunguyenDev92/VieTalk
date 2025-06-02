@@ -25,7 +25,7 @@ fun NavGraphBuilder.main(navController: NavHostController) {
         }
 
         composable<Screen.Chat> {
-            // TODO: Navigate to chat screen
+            // TODO: Navigate to chat screen - this branch
         }
     }
 }
