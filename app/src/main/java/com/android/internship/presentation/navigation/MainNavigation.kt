@@ -4,8 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.android.internship.presentation.screens.SignInScreen
 import com.android.internship.presentation.screens.SplashScreen
+import com.android.internship.presentation.screens.signin.SignInScreen
 
 fun NavGraphBuilder.main(navController: NavHostController) {
     navigation(
@@ -18,6 +18,14 @@ fun NavGraphBuilder.main(navController: NavHostController) {
 
         composable<Screen.SignIn> {
             SignInScreen(navController)
+        }
+
+        composable<Screen.SignUp> {
+            // TODO: Navigate to sign up screen
+        }
+
+        composable<Screen.Chat> {
+            // TODO: Navigate to chat screen
         }
     }
 }

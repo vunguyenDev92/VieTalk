@@ -60,7 +60,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    
     // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
