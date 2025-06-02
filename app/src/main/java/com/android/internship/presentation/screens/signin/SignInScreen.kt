@@ -82,7 +82,9 @@ fun SignInScreen(
                     label = stringResource(R.string.your_password),
                     textFieldState = signInState.passwordState,
                     onValueChange = signInViewModel::updatePasswordState,
-                    modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 20.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 20.dp),
                     imeAction = ImeAction.Done,
                     isTextObscured = true,
                 )
@@ -104,6 +106,15 @@ fun SignInScreen(
                     SignInButton(
                         isDisable = signInState.emailState.isError || signInState.passwordState.isError,
                         onClick = { signInViewModel.signIn() },
+                    )
+                }
+            }
+            signInState.errorMessage?.let {
+                item {
+                    Text(
+                        text = it,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
             }
