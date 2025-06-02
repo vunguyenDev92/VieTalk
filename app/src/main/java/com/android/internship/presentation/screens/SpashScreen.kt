@@ -18,6 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.di.AppContainer
+import com.android.internship.domain.usecase.GetSignInStatus
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.Black35
@@ -29,9 +31,15 @@ fun SplashScreen(
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(Unit) {
-        delay(2000)
-        navController.navigate(Screen.SignIn) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        delay(1000)
+        if (GetSignInStatus(AppContainer(navController.context).authRepository).invoke() == true) {
+            navController.navigate(Screen.Chat) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        } else {
+            navController.navigate(Screen.SignIn) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
         }
     }
 
