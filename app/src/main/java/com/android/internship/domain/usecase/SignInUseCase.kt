@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class SignInUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) {
     suspend operator fun invoke(email: String, password: String): SignInResponse {
         return withContext(Dispatchers.IO) {
@@ -16,7 +16,6 @@ class SignInUseCase(
                 SignInResponse(
                     success = false,
                     message = e.message ?: "Sign-in failed",
-                    user = null
                 )
             }
         }

@@ -4,5 +4,5 @@ import com.android.internship.data.model.SignInResponse
 
 interface AuthRepository {
     suspend fun signIn(username: String, password: String): SignInResponse
-    suspend fun isSignedIn(): Boolean?
+    fun isSignedIn(): Boolean?
 }

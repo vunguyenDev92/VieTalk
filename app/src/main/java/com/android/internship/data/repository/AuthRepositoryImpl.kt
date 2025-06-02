@@ -17,25 +17,22 @@ class AuthRepositoryImpl(
                 SignInResponse(
                     success = true,
                     message = "Sign in successful",
-                    user = user,
                 )
             } else {
                 SignInResponse(
                     success = false,
                     message = "Invalid credentials",
-                    user = null,
                 )
             }
         } catch (e: Exception) {
             SignInResponse(
                 success = false,
                 message = e.message ?: "Sign-in failed",
-                user = null,
             )
         }
     }
 
-    override suspend fun isSignedIn(): Boolean? {
+    override fun isSignedIn(): Boolean? {
         return localDataSource.isUserSignedIn()
     }
 }
