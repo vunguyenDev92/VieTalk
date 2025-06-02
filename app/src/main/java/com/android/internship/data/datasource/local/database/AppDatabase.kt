@@ -20,6 +20,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     companion object {
+        private const val DATABASE_NAME = "app_database"
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -28,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "app_database",
+                    DATABASE_NAME,
                 ).build()
                 Companion.instance = instance
                 instance

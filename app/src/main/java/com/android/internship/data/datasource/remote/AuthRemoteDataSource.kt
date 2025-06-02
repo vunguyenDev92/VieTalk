@@ -12,17 +12,12 @@ class AuthRemoteDataSource(
 ) {
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): User? {
-        return try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
-            val firebaseUser = result.user
-
-            if (firebaseUser != null) {
-                getUserFromFirestore(firebaseUser.uid)
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            throw e
+        val result = auth.signInWithEmailAndPassword(email, password).await()
+        val firebaseUser = result.user
+        return if (firebaseUser != null) {
+            getUserFromFirestore(firebaseUser.uid)
+        } else {
+            null
         }
     }
 
@@ -47,59 +42,26 @@ class AuthRemoteDataSource(
                 null
             }
         } catch (e: Exception) {
-            throw e
-        }
-    }
-
-    private fun parseUserRooms(userRoomsData: Any?): List<UserRoom>? {
-        return try {
-            when (userRoomsData) {
-                is List<*> -> {
-                    userRoomsData.mapNotNull { item ->
-                        if (item is Map<*, *>) {
-                            UserRoom(
-                                rid = item["rid"] as? String ?: "",
-                                mute = item["mute"] as? Boolean ?: false,
-                                turnOnTime = item["turnOnTime"] as? String ?: "",
-                            )
-                        } else {
-                            null
-                        }
-                    }
-                }
-                else -> null
-            }
-        } catch (e: Exception) {
             null
         }
     }
 
-    fun signOut() {
-        auth.signOut()
+    private fun parseUserRooms(userRoomsData: Any?): List<UserRoom>? {
+        return when (userRoomsData) {
+            is List<*> -> {
+                userRoomsData.mapNotNull { item ->
+                    if (item is Map<*, *>) {
+                        UserRoom(
+                            rid = item["rid"] as? String ?: "",
+                            mute = item["mute"] as? Boolean ?: false,
+                            turnOnTime = item["turnOnTime"] as? String ?: "",
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }
+            else -> null
+        }
     }
-
-    fun isUserSignedIn(): Boolean {
-        return auth.currentUser != null
-    }
-
-    fun getCurrentUserId(): String? {
-        return auth.currentUser?.uid
-    }
-}
-
-private fun User.toMap(): Map<String, Any?> {
-    return mapOf(
-        "username" to username,
-        "email" to email,
-        "active" to active,
-        "avatar" to avatar,
-        "block" to block,
-        "userRooms" to userRooms?.map { userRoom ->
-            mapOf(
-                "rid" to userRoom.rid,
-                "mute" to userRoom.mute,
-                "turnOnTime" to userRoom.turnOnTime,
-            )
-        },
-    )
 }

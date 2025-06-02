@@ -14,7 +14,7 @@ composeBom = "2025.05.01"
 ktlint = "12.3.0"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
-
+ksp = "2.0.21-1.0.27"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -45,3 +45,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 google-service = { id = "com.google.gms.google-services", version.ref = "google-service"}
+google-devtools-ksp = {id= "com.google.devtools.ksp", version.ref = "ksp"}
