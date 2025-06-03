@@ -7,17 +7,24 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.android.internship.data.datasource.local.converter.ListStringConverter
 import com.android.internship.data.datasource.local.converter.UserRoomConverter
+import com.android.internship.data.datasource.local.dao.MessageDao
+import com.android.internship.data.datasource.local.dao.RoomDao
 import com.android.internship.data.datasource.local.dao.UserDao
+import com.android.internship.data.datasource.local.entity.MessageEntity
+import com.android.internship.data.datasource.local.entity.RoomEntity
 import com.android.internship.data.datasource.local.entity.UserEntity
+import com.android.internship.data.datasource.local.entity.UserRoomEntity
 
 @Database(
-    entities = [UserEntity::class],
+    entities = [UserEntity::class, RoomEntity::class, UserRoomEntity::class, MessageEntity::class],
     version = 1,
     exportSchema = false,
 )
 @TypeConverters(ListStringConverter::class, UserRoomConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
+    abstract fun messageDao(): MessageDao
+    abstract fun roomDao(): RoomDao
 
     companion object {
         private const val DATABASE_NAME = "app_database"
