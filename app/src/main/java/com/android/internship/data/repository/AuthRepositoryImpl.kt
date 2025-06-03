@@ -37,7 +37,7 @@ class AuthRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun setMuteGroup(rid: String, uid: String) {
+    override fun setMuteGroup(rid: String, uid: String, time: String?) {
         TODO("Not yet implemented")
     }
 
