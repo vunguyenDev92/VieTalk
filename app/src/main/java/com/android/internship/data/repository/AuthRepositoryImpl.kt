@@ -3,6 +3,7 @@ package com.android.internship.data.repository
 import com.android.internship.data.datasource.local.AuthLocalDataSource
 import com.android.internship.data.datasource.remote.AuthRemoteDataSource
 import com.android.internship.data.model.SignInResponse
+import com.android.internship.data.model.User
 import com.android.internship.domain.repository.AuthRepository
 
 class AuthRepositoryImpl(
@@ -26,5 +27,21 @@ class AuthRepositoryImpl(
 
     override fun isSignedIn(): Boolean? {
         return localDataSource.isUserSignedIn()
+    }
+
+    override suspend fun getActiveUser(uid: String): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun setActiveUser(uid: String, isActive: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMuteGroup(rid: String, uid: String, time: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getUserInfo(uid: String): User {
+        TODO("Not yet implemented")
     }
 }
