@@ -8,6 +8,6 @@ interface AuthRepository {
     fun isSignedIn(): Boolean?
     suspend fun getActiveUser(uid: String): Boolean
     fun setActiveUser(uid: String, isActive: Boolean)
-    fun setMuteGroup(rid: String, uid: String)
+    fun setMuteGroup(rid: String, uid: String, time: String?)
     fun getUserInfo(uid: String): User
 }
