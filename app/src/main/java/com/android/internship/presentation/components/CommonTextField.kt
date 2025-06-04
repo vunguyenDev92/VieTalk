@@ -3,6 +3,7 @@ package com.android.internship.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -86,7 +87,10 @@ fun CommonTextField(
                         contentDescription = if (isTextVisible) StringConstants.SHOW_PASSWORD else StringConstants.HIDE_PASSWORD,
                         modifier = Modifier
                             .size(24.dp)
-                            .clickable { isTextVisible = !isTextVisible },
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                            ) { isTextVisible = !isTextVisible },
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                 }
@@ -94,7 +98,7 @@ fun CommonTextField(
         }
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
             color = if (isError) MaterialTheme.colorScheme.error else Grey,
             modifier = Modifier
                 .padding(start = 20.dp)
@@ -125,6 +129,7 @@ private fun EditTextField(
     TextField(
         value = textFieldState.value,
         onValueChange = onValueChange,
+        textStyle = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.fillMaxWidth().padding(end = if (isTextObscured) 40.dp else 0.dp),
         singleLine = true,
         visualTransformation = if (isTextVisible && isTextObscured) {

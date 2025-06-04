@@ -116,7 +116,7 @@ fun SignInScreen(
         }
         item {
             Text(
-                text = stringResource(R.string.login),
+                text = stringResource(R.string.log_in),
                 textAlign = TextAlign.Start,
                 color = Black,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
@@ -226,7 +226,11 @@ private fun NavToSignUpButton(
         text = stringResource(R.string.sign_up),
         textAlign = TextAlign.Start,
         color = Blue,
-        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-        modifier = modifier.clickable(onClick = onClick),
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = modifier.clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = onClick,
+        ),
     )
 }
