@@ -33,15 +33,19 @@ class AuthRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun setActiveUser(uid: String, isActive: Boolean) {
+    override suspend fun setActiveUser(uid: String, isActive: Boolean) {
         TODO("Not yet implemented")
     }
 
-    override fun setMuteGroup(rid: String, uid: String, time: String?) {
+    override suspend fun setMuteGroup(rid: String, uid: String, time: String?) {
         TODO("Not yet implemented")
     }
 
-    override fun getUserInfo(uid: String): User {
+    override suspend fun getUserInfo(uid: String): User {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCurrentUserId(): String {
         TODO("Not yet implemented")
     }
 }

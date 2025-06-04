@@ -6,7 +6,8 @@ import com.android.internship.domain.repository.RoomRepository
 class RemoveTypingUseCase(
     private val roomRepository: RoomRepository,
 ) {
-    operator fun invoke(): Room {
-        TODO("Provide the return value")
+    suspend operator fun invoke(uid: String, rid: String): Room? {
+        roomRepository.removeTyping(rid, uid)
+        return roomRepository.getRoomRemote(rid)
     }
 }

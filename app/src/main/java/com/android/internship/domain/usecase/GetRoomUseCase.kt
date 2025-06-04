@@ -6,7 +6,20 @@ import com.android.internship.domain.repository.RoomRepository
 class GetRoomUseCase(
     private val roomRepository: RoomRepository,
 ) {
-    operator fun invoke(): Room {
-        TODO("Provide the return value")
+    suspend operator fun invoke(rid: String): Room? {
+        val roomRemote = roomRepository.getRoomRemote(rid)
+        val roomLocal = roomRepository.getRoomLocal(rid)
+        return if (roomRemote != null) {
+            if (roomLocal == null) {
+                roomRepository.saveLocalRoom(
+                    roomRemote.copy(
+                        messages = roomRemote.messages.subList(0, 20),
+                    ),
+                )
+            }
+            roomRemote
+        } else {
+            roomLocal
+        }
     }
 }

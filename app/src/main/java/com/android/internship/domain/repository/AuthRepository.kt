@@ -7,7 +7,8 @@ interface AuthRepository {
     suspend fun signIn(email: String, password: String): SignInResponse
     fun isSignedIn(): Boolean?
     suspend fun getActiveUser(uid: String): Boolean
-    fun setActiveUser(uid: String, isActive: Boolean)
-    fun setMuteGroup(rid: String, uid: String, time: String?)
-    fun getUserInfo(uid: String): User
+    suspend fun setActiveUser(uid: String, isActive: Boolean)
+    suspend fun setMuteGroup(rid: String, uid: String, time: String?)
+    suspend fun getUserInfo(uid: String): User
+    fun getCurrentUserId(): String
 }
