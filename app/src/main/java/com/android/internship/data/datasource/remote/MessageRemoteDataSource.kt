@@ -18,27 +18,6 @@ class MessageRemoteDataSource {
     suspend fun saveMessage(message: MessageEntity) {
         if (!isUserSignedIn()) throw SecurityException("User is not signed in")
 
-        val messageCount = firestore.collection("messages")
-            .whereEqualTo("rid", message.rid)
-            .get()
-            .await()
-            .size()
-
-        if (messageCount >= 20) {
-            val oldestMessage = firestore.collection("messages")
-                .whereEqualTo("rid", message.rid)
-                .orderBy("time", Query.Direction.ASCENDING)
-                .limit(1)
-                .get()
-                .await()
-                .documents
-                .firstOrNull()
-
-            oldestMessage?.id?.let { messageId ->
-                firestore.collection("messages").document(messageId).delete().await()
-            }
-        }
-
         firestore.collection("messages")
             .document(message.mid)
             .set(message)

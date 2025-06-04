@@ -11,10 +11,6 @@ class MessageLocalDataSource(context: Context) {
 
     suspend fun saveMessage(message: MessageEntity) {
         if (!authLocalDataSource.isUserSignedIn()) throw SecurityException("User is not signed in")
-        val messageCount = messageDao.getMessageCountForRoom(message.rid)
-        if (messageCount >= 20) {
-            messageDao.deleteOldestMessage(message.rid)
-        }
         messageDao.insertMessage(message)
     }
 
