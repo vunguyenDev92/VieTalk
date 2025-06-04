@@ -17,8 +17,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.android.internship.presentation.theme.Black10
-import com.android.internship.presentation.theme.Black35
+import com.android.internship.presentation.theme.GreenLight
+import com.android.internship.presentation.theme.Grey
 
 @Composable
 fun CommonTextField(
@@ -46,10 +46,10 @@ fun CommonTextField(
             ),
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Black10,
-                unfocusedBorderColor = Black10,
-                focusedLabelColor = Black35,
-                unfocusedLabelColor = Black35,
+                focusedBorderColor = GreenLight,
+                unfocusedBorderColor = GreenLight,
+                focusedLabelColor = Grey,
+                unfocusedLabelColor = Grey,
             ),
         )
         if (textFieldState.isError && textFieldState.errorMessage != null) {
