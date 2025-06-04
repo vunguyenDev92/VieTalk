@@ -12,4 +12,7 @@ interface RoomRepository {
     suspend fun removeTyping(rid: String, uid: String): Boolean
     suspend fun seenMessage(rid: String, uid: String, mid: String)
     suspend fun getTypingUsersInRoom(rid: String): List<UserRoom>
+    suspend fun saveMessage(message: Message)
+    suspend fun getLatestMessagesForRoom(rid: String)
+    suspend fun getOlderMessagesForRoom(rid: String, lastMessTime: String): List<Message>
 }
