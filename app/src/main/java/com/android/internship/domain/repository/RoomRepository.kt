@@ -15,4 +15,5 @@ interface RoomRepository {
     suspend fun saveMessage(message: Message)
     suspend fun getLatestMessagesForRoom(rid: String)
     suspend fun getOlderMessagesForRoom(rid: String, lastMessTime: String): List<Message>
+    suspend fun deleteMessage(message: Message)
 }
