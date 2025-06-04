@@ -33,7 +33,7 @@ import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.presentation.components.CommonTextField
 import com.android.internship.presentation.navigation.Screen
-import com.android.internship.presentation.theme.Accent
+import com.android.internship.presentation.theme.BlueLight
 
 @Composable
 fun SignInScreen(
@@ -132,7 +132,7 @@ private fun SignInHeader() {
     Text(
         text = stringResource(R.string.sign_in),
         textAlign = TextAlign.Center,
-        color = Accent,
+        color = BlueLight,
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(bottom = 20.dp),
     )
@@ -171,7 +171,7 @@ private fun DontHaveAnAccountButton(
     Text(
         text = stringResource(R.string.don_t_have_an_account),
         textAlign = TextAlign.Start,
-        color = Accent,
+        color = BlueLight,
         style = MaterialTheme.typography.labelLarge,
         modifier = modifier.clickable(onClick = onClick),
     )
