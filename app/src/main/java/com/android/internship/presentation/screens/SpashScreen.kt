@@ -18,8 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.android.internship.R
-import com.android.internship.di.AppContainer
-import com.android.internship.domain.usecase.GetSignInStatus
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.Black35
@@ -32,14 +30,8 @@ fun SplashScreen(
 ) {
     LaunchedEffect(Unit) {
         delay(1000)
-        if (GetSignInStatus(AppContainer(navController.context).authRepository).invoke() == true) {
-            navController.navigate(Screen.Chat) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        } else {
-            navController.navigate(Screen.SignIn) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
+        navController.navigate(Screen.SignIn) {
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
         }
     }
 
@@ -47,28 +39,10 @@ fun SplashScreen(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = stringResource(R.string.app_logo),
-                modifier = Modifier.size(150.dp),
-            )
-            Text(
-                text = stringResource(R.string.app_name),
-                textAlign = TextAlign.Center,
-                color = Black,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Text(
-                text = stringResource(R.string.splash_description),
-                textAlign = TextAlign.Center,
-                color = Black35,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
+        Image(
+            painter = painterResource(id = R.drawable.ic_vietalk),
+            contentDescription = stringResource(R.string.app_logo),
+            modifier = Modifier.size(224.dp),
+        )
     }
 }
