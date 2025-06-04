@@ -16,10 +16,4 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE rid = :rid AND time < :lastMessageTime ORDER BY time DESC LIMIT 20")
     suspend fun getOlderMessagesForRoom(rid: String, lastMessageTime: String): List<MessageEntity>
-
-    @Query("SELECT COUNT(*) FROM messages WHERE rid = :rid")
-    suspend fun getMessageCountForRoom(rid: String): Int
-
-    @Query("DELETE FROM messages WHERE mid IN (SELECT mid FROM messages WHERE rid = :rid ORDER BY time ASC LIMIT 1)")
-    suspend fun deleteOldestMessage(rid: String)
 }
