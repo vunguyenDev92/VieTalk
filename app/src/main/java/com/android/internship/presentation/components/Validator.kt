@@ -13,6 +13,7 @@ class Validator(private val context: Context) {
                 min = 8,
                 errorText = context.getString(R.string.invalid_password),
             ),
+            PasswordValidator(errorText = context.getString(R.string.password_must_contain_at_least_one_letter_and_one_number)),
         ),
     ).invoke(password)
 

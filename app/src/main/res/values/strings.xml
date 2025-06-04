@@ -11,4 +11,5 @@
     <string name="your_password">Your password</string>
     <string name="password_is_required">Password is required</string>
     <string name="invalid_password">Password must be at least 8 characters long</string>
+    <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one number</string>
 </resources>
