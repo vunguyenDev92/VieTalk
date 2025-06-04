@@ -53,6 +53,8 @@ class AuthRemoteDataSource {
                             rid = item["rid"] as? String ?: "",
                             mute = item["mute"] as? Boolean == true,
                             turnOnTime = item["turnOnTime"] as? String ?: "",
+                            uid = item["uid"] as? String ?: "",
+                            lastSeenMessages = item["lastSeenMessages"] as? String ?: "",
                         )
                     } else {
                         null
