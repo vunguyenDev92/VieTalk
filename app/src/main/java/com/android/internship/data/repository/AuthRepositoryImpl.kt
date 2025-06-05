@@ -29,7 +29,7 @@ class AuthRepositoryImpl(
         return localDataSource.isUserSignedIn()
     }
 
-    override suspend fun getActiveUser(uid: String): Boolean {
+    override suspend fun getLastActiveTimeUser(uid: String): String {
         return remoteDataSource.getActiveUser(uid)
     }
 
