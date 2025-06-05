@@ -5,8 +5,8 @@ import com.android.internship.domain.repository.AuthRepository
 class SetActiveUserUseCase(
     private val authRepository: AuthRepository,
 ) {
-    suspend operator fun invoke(isActive: Boolean) {
+    operator fun invoke(isActive: Boolean) {
         val uid = authRepository.getCurrentUserId()
-        authRepository.setActiveUser(uid, isActive)
+        uid?.let { authRepository.setActiveUser(uid, isActive) }
     }
 }

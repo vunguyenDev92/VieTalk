@@ -9,7 +9,8 @@ class AddTypingUseCase(
 ) {
     suspend operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
-
-        roomRepository.addTyping(rid, uid)
+        uid?.let {
+            roomRepository.addTyping(rid, uid)
+        }
     }
 }

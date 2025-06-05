@@ -9,6 +9,9 @@ class SeenMessageUseCase(
 ) {
     suspend operator fun invoke(rid: String, mid: String) {
         val uid = authRepository.getCurrentUserId()
-        roomRepository.seenMessage(rid, uid, mid)
+
+        uid?.let {
+            roomRepository.seenMessage(rid, uid, mid)
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.android.internship.data.datasource.remote
 
 import com.android.internship.data.model.User
-import com.android.internship.data.model.UserRoom
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -19,7 +18,7 @@ class AuthRemoteDataSource {
         }
     }
 
-    private suspend fun getUserFromFireStore(uid: String): User? {
+    suspend fun getUserFromFireStore(uid: String): User? {
         return try {
             val userDoc = fireStore.collection("users")
                 .document(uid)
@@ -27,41 +26,34 @@ class AuthRemoteDataSource {
                 .await()
 
             if (userDoc.exists()) {
-                User(
-                    uid = userDoc.id,
-                    username = userDoc.getString("username") ?: "",
-                    email = userDoc.getString("email") ?: "",
-                    active = userDoc.getBoolean("active") == true,
-                    avatar = userDoc.getString("avatar"),
-                    block = userDoc.get("block") as? List<String>,
-                    userRooms = parseUserRooms(userDoc.get("userRooms")),
-                )
+                userDoc.toObject(User::class.java)
             } else {
                 null
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
 
-    private fun parseUserRooms(userRoomsData: Any?): List<UserRoom>? {
-        return when (userRoomsData) {
-            is List<*> -> {
-                userRoomsData.mapNotNull { item ->
-                    if (item is Map<*, *>) {
-                        UserRoom(
-                            rid = item["rid"] as? String ?: "",
-                            mute = item["mute"] as? Boolean == true,
-                            turnOnTime = item["turnOnTime"] as? String ?: "",
-                            uid = item["uid"] as? String ?: "",
-                            lastSeenMessages = item["lastSeenMessages"] as? String ?: "",
-                        )
-                    } else {
-                        null
-                    }
-                }
-            }
-            else -> null
-        }
+    suspend fun getActiveUser(uid: String): Boolean {
+        return fireStore.collection("users")
+            .document(uid)
+            .get()
+            .await()
+            .getBoolean("active") == true
+    }
+
+    fun setActiveUser(uid: String, isActive: Boolean) {
+        fireStore.collection("users")
+            .document(uid)
+            .update("active", isActive)
+    }
+
+    fun setMuteGroup(rid: String, uid: String, time: String?) {
+        fireStore.collection("rooms")
+            .document(rid)
+            .collection("users")
+            .document(uid)
+            .update("mute", time != null, "turnOnTime", time)
     }
 }
