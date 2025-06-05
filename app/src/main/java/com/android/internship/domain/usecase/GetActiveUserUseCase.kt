@@ -6,6 +6,12 @@ class GetActiveUserUseCase(
     private val authRepository: AuthRepository,
 ) {
     suspend operator fun invoke(uid: String): Boolean {
-        return authRepository.getActiveUser(uid)
+        val currentTime = System.currentTimeMillis()
+        val lastActiveTime = authRepository.getLastActiveTimeUser(uid)?.toLongOrNull() ?: 0L
+        return currentTime - lastActiveTime <= DEFAULT_TIMEOUT_MS
+    }
+
+    companion object {
+        private const val DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
     }
 }

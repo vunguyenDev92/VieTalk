@@ -12,11 +12,8 @@ class GetRoomUseCase(
 
         return if (roomRemote != null) {
             if (roomLocal == null) {
-                roomRepository.saveLocalRoom(
-                    roomRemote.copy(
-                        messages = roomRemote.messages.subList(0, 20),
-                    ),
-                )
+                roomRepository.saveLocalRoom(roomRemote)
+                roomRemote
             }
             roomRemote
         } else {

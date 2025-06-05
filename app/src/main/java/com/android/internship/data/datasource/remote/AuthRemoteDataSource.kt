@@ -35,11 +35,16 @@ class AuthRemoteDataSource {
         }
     }
 
-    suspend fun getActiveUser(uid: String): Boolean {
+    suspend fun getActiveUser(uid: String): String {
         return try {
-            fireStore.collection("users").document(uid).get().await().getBoolean("active") == true
+            val userDoc = fireStore.collection("users")
+                .document(uid)
+                .get()
+                .await()
+
+            userDoc.getString("lastActiveTime") ?: ""
         } catch (_: Exception) {
-            false
+            ""
         }
     }
 
