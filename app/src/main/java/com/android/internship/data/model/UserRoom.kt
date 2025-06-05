@@ -6,4 +6,6 @@ data class UserRoom(
     val mute: Boolean,
     val turnOnTime: String?,
     val lastSeenMessages: String?,
+    val messages: List<Message>,
+    val typingTime: String?,
 )

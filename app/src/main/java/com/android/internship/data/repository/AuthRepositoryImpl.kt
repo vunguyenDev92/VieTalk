@@ -25,23 +25,28 @@ class AuthRepositoryImpl(
         )
     }
 
-    override fun isSignedIn(): Boolean? {
+    override fun isSignedIn(): Boolean {
         return localDataSource.isUserSignedIn()
     }
 
     override suspend fun getActiveUser(uid: String): Boolean {
-        TODO("Not yet implemented")
+        return remoteDataSource.getActiveUser(uid)
     }
 
-    override fun setActiveUser(uid: String, isActive: Boolean) {
-        TODO("Not yet implemented")
+    override fun updateActiveUser(uid: String, lastActiveTime: String) {
+        remoteDataSource.updateActiveUser(uid = uid, lastActiveTime = lastActiveTime)
     }
 
     override fun setMuteGroup(rid: String, uid: String, time: String?) {
-        TODO("Not yet implemented")
+        remoteDataSource.updateMuteUser(rid = rid, uid = uid, time = time)
     }
 
-    override fun getUserInfo(uid: String): User {
-        TODO("Not yet implemented")
+    override suspend fun getUserInfo(uid: String): User? {
+        return remoteDataSource.getUserFromFireStore(uid)
+    }
+
+    override fun getCurrentUserId(): String? {
+        val user = localDataSource.getCurrentUser()
+        return user?.uid
     }
 }
