@@ -9,7 +9,7 @@ class SendMessagesUseCase(
     private val authRepository: AuthRepository,
     private val roomRepository: RoomRepository,
 ) {
-    suspend operator fun invoke(content: String, rid: String): List<Message>? {
+    operator fun invoke(content: String, rid: String) {
         val uid = authRepository.getCurrentUserId()
         val mid = UUID.randomUUID().toString()
 
@@ -17,27 +17,15 @@ class SendMessagesUseCase(
             val message = Message(
                 mid = mid,
                 uid = uid,
+                rid = rid,
                 content = content,
                 time = System.currentTimeMillis().toString(),
             )
+
             roomRepository.addRemoteMessage(
                 rid = rid,
                 message = message,
             )
-
-            val localRoom = roomRepository.getRoomLocal(rid)
-
-            localRoom?.let {
-                val messages = it.messages.toMutableList()
-
-                messages.add(message)
-
-                roomRepository.saveLocalRoom(it.copy(messages = messages))
-            }
-
-            return localRoom?.messages
         }
-
-        return null
     }
 }

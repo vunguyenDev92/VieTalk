@@ -33,12 +33,12 @@ class AuthRepositoryImpl(
         return remoteDataSource.getActiveUser(uid)
     }
 
-    override fun setActiveUser(uid: String, isActive: Boolean) {
-        remoteDataSource.setActiveUser(uid = uid, isActive = isActive)
+    override fun updateActiveUser(uid: String, lastActiveTime: String) {
+        remoteDataSource.updateActiveUser(uid = uid, lastActiveTime = lastActiveTime)
     }
 
     override fun setMuteGroup(rid: String, uid: String, time: String?) {
-        remoteDataSource.setMuteGroup(rid = rid, uid = uid, time = time)
+        remoteDataSource.updateMuteUser(rid = rid, uid = uid, time = time)
     }
 
     override suspend fun getUserInfo(uid: String): User? {

@@ -36,24 +36,23 @@ class AuthRemoteDataSource {
     }
 
     suspend fun getActiveUser(uid: String): Boolean {
-        return fireStore.collection("users")
-            .document(uid)
-            .get()
-            .await()
-            .getBoolean("active") == true
+        return try {
+            fireStore.collection("users").document(uid).get().await().getBoolean("active") == true
+        } catch (_: Exception) {
+            false
+        }
     }
 
-    fun setActiveUser(uid: String, isActive: Boolean) {
-        fireStore.collection("users")
-            .document(uid)
-            .update("active", isActive)
+    fun updateActiveUser(uid: String, lastActiveTime: String) {
+        try {
+            fireStore.collection("users").document(uid).update("lastActiveTime", lastActiveTime)
+        } catch (_: Exception) {}
     }
 
-    fun setMuteGroup(rid: String, uid: String, time: String?) {
-        fireStore.collection("rooms")
-            .document(rid)
-            .collection("users")
-            .document(uid)
-            .update("mute", time != null, "turnOnTime", time)
+    fun updateMuteUser(rid: String, uid: String, time: String?) {
+        try {
+            fireStore.collection("rooms").document(rid).collection("users").document(uid)
+                .update("mute", time != null, "turnOnTime", time)
+        } catch (_: Exception) {}
     }
 }

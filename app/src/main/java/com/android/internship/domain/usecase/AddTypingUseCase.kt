@@ -7,7 +7,7 @@ class AddTypingUseCase(
     private val authRepository: AuthRepository,
     private val roomRepository: RoomRepository,
 ) {
-    suspend operator fun invoke(rid: String) {
+    operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
         uid?.let {
             roomRepository.addTyping(rid, uid)
