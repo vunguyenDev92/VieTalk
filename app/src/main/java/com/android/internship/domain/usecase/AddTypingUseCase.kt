@@ -9,8 +9,10 @@ class AddTypingUseCase(
 ) {
     operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
+        val time = System.currentTimeMillis().toString()
+
         uid?.let {
-            roomRepository.addTyping(rid, uid)
+            roomRepository.addTyping(rid, uid, time)
         }
     }
 }
