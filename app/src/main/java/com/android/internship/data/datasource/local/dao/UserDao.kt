@@ -6,9 +6,9 @@ import com.android.internship.data.datasource.local.entity.UserEntity
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM users WHERE isCurrentUser = 1 LIMIT 1")
+    @Query("SELECT * FROM users LIMIT 1")
     suspend fun getCurrentUser(): UserEntity?
 
-    @Query("SELECT uid FROM users WHERE isCurrentUser = 1 LIMIT 1")
+    @Query("SELECT uid FROM users LIMIT 1")
     suspend fun getCurrentUserId(): String?
 }
