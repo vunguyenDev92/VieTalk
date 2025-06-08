@@ -24,7 +24,7 @@ class SignInViewModel(
         _state.update {
             it.copy(
                 emailState = it.emailState.copy(
-                    value = email,
+                    value = email.trim(),
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
@@ -37,7 +37,7 @@ class SignInViewModel(
         _state.update {
             it.copy(
                 passwordState = it.passwordState.copy(
-                    value = password,
+                    value = password.trim(),
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
