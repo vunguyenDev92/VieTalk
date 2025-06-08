@@ -24,9 +24,17 @@ class MinLengthValidator(
 class EmailValidator(
     errorText: String,
 ) : EditTextValidator<String>(errorText) {
-    private val emailPattern: String = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}"
+    private val emailPattern: String = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$"
 
-    override fun isValid(value: String): Boolean = Regex(emailPattern).containsMatchIn(value)
+    override fun isValid(value: String): Boolean = Regex(emailPattern).matches(value)
+}
+
+class PasswordValidator(
+    errorText: String,
+) : EditTextValidator<String>(errorText) {
+    private val passwordPattern: String = "(?=.*?[A-Za-z])(?=.*?[0-9])"
+
+    override fun isValid(value: String): Boolean = Regex(passwordPattern).containsMatchIn(value) && !value.contains(' ')
 }
 
 class MultiValidator(
