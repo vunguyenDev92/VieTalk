@@ -50,7 +50,7 @@ class AuthRepositoryImpl(
         return user?.uid
     }
 
-	override suspend fun getUsersInfo(uids: List<String>): List<User> {
-		return remoteDataSource.getUsersFromFirestore(uids)
-	}
+    override suspend fun getUsersInfo(uids: List<String>): List<User> {
+        return remoteDataSource.getUsersFromFirestore(uids)
+    }
 }
