@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/screens/chat/ChatViewModelFactory.kt
 package com.android.internship.presentation.screens.chat
 
 import androidx.lifecycle.ViewModel
@@ -26,7 +25,6 @@ class ChatViewModelFactory(
         if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
             val savedStateHandle = extras.createSavedStateHandle()
 
-            // Tạo các UseCase ngay tại đây, sử dụng repositories đã được cung cấp
             val getRoomUseCase = GetRoomUseCase(roomRepository)
             val getUserRoomUseCase = GetUserRoomUseCase(roomRepository)
             val getUserInfoUseCase = GetAllUsersInfoUseCase(authRepository)

@@ -1,0 +1,315 @@
+package com.android.internship.presentation.components.chat
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.android.internship.R
+import com.android.internship.presentation.theme.ButtonSend
+
+@Composable
+fun MessageInputComponent(
+    messageText: String,
+    onMessageChange: (String) -> Unit,
+    onSendMessage: () -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "Message",
+    isEnabled: Boolean = true,
+    onEmojiClick: () -> Unit,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var showEmojiPicker by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                showEmojiPicker = true
+                                keyboardController?.hide()
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_emoji),
+                            contentDescription = "Emoji",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Box(modifier = Modifier.weight(1f)) {
+                        BasicTextField(
+                            value = messageText,
+                            onValueChange = onMessageChange,
+                            enabled = isEnabled,
+                            textStyle = TextStyle(
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Sentences,
+                                imeAction = ImeAction.Send,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onSend = {
+                                    if (messageText.isNotBlank()) {
+                                        onSendMessage()
+                                        keyboardController?.hide()
+                                    }
+                                },
+                            ),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+
+                        if (messageText.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                fontSize = 16.sp,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Send button
+            IconButton(
+                onClick = {
+                    if (messageText.isNotBlank()) {
+                        onSendMessage()
+                    }
+                },
+                enabled = isEnabled && messageText.isNotBlank(),
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (messageText.isNotBlank()) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            ButtonSend
+                        },
+                    ),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_send),
+                    contentDescription = "Send",
+                    tint = if (messageText.isNotBlank()) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    },
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+
+        // Emoji Picker inline (alternative to dialog)
+        if (showEmojiPicker) {
+            EmojiPickerInline(
+                onEmojiSelected = { emoji ->
+                    onMessageChange(messageText + emoji)
+                },
+                onDismiss = { showEmojiPicker = false },
+            )
+        }
+    }
+
+    // Emoji Picker Dialog (alternative approach)
+    if (showEmojiPicker) {
+        EmojiPickerDialog(
+            onEmojiSelected = { emoji ->
+                onMessageChange(messageText + emoji)
+            },
+            onDismiss = { showEmojiPicker = false },
+        )
+    }
+}
+
+@Composable
+fun EmojiPickerDialog(
+    onEmojiSelected: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Chọn emoji",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
+                            contentDescription = "Close",
+                        )
+                    }
+                }
+
+                EmojiGrid(
+                    onEmojiSelected = { emoji ->
+                        onEmojiSelected(emoji)
+                        onDismiss()
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EmojiPickerInline(
+    onEmojiSelected: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Chọn emoji",
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(24.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
+                        contentDescription = "Close",
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+
+            EmojiGrid(onEmojiSelected = onEmojiSelected)
+        }
+    }
+}
+
+@Composable
+fun EmojiGrid(
+    onEmojiSelected: (String) -> Unit,
+) {
+    val emojis = remember {
+        listOf(
+            "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣",
+            "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰",
+            "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜",
+            "🤪", "🤨", "🧐", "🤓", "😎", "🤩", "🥳", "😏",
+            "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣",
+            "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠",
+            "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨",
+            "😰", "😥", "😓", "🤗", "🤔", "🤭", "🤫", "🤥",
+            "😶", "😐", "😑", "😬", "🙄", "😯", "😦", "😧",
+            "😮", "😲", "🥱", "😴", "🤤", "😪", "😵", "🤐",
+            "👍", "👎", "👌", "✌️", "🤞", "🤟", "🤘", "🤙",
+            "👈", "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐",
+            "🖖", "👋", "🤏", "💪", "🦾", "🖕", "✍️", "🙏",
+            "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍",
+        )
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(8),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
+        contentPadding = PaddingValues(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        items(emojis) { emoji ->
+            Text(
+                text = emoji,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable { onEmojiSelected(emoji) }
+                    .padding(4.dp),
+            )
+        }
+    }
+}

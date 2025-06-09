@@ -15,5 +15,5 @@ sealed class Screen {
     data object SignUp : Screen()
 
     @Serializable
-    data object Chat : Screen()
+    data class Chat(val rid: String) : Screen()
 }

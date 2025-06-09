@@ -28,11 +28,9 @@ fun NavGraphBuilder.main(navController: NavHostController) {
 
         composable<Screen.Chat> {
             val args = it.toRoute<Screen.Chat>()
-//            ChatScreen(
-//                navController = navController,
-//                roomId = args.roomId,
-//                currentUserId = args.userId,
-//            )
+            ChatScreen(
+                navController = navController,
+            )
         }
     }
 }

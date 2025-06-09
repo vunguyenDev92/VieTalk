@@ -72,6 +72,10 @@ dependencies {
 
     // GSON
     implementation(libs.gson)
+
+    // image
+    implementation(libs.coil.compose)
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 }
 
 // KtLint configuration
