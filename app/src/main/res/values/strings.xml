@@ -11,4 +11,5 @@
     <string name="your_password">Your password</string>
     <string name="password_is_required">Password is required</string>
     <string name="invalid_password">Password must be at least 8 characters long</string>
+    <string name="connect_with_others">Connect with Others</string>
 </resources>

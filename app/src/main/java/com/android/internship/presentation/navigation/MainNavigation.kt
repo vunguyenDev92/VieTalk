@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.android.internship.presentation.screens.SplashScreen
+import com.android.internship.presentation.screens.listchats.ListChatsScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
 
 fun NavGraphBuilder.main(navController: NavHostController) {
@@ -26,6 +27,15 @@ fun NavGraphBuilder.main(navController: NavHostController) {
 
         composable<Screen.Chat> {
             // TODO: Navigate to chat screen
+        }
+
+        composable<Screen.ListChat> {
+            ListChatsScreen(
+                navController = navController,
+                onChatClick = { chatId ->
+                    navController.navigate("chat/$chatId")
+                }
+            )
         }
     }
 }

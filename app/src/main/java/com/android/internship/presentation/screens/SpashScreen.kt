@@ -26,7 +26,7 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         delay(1000)
         if (GetSignInStatus(AppContainer(navController.context).authRepository).invoke() == true) {
-            navController.navigate(Screen.Chat) {
+            navController.navigate(Screen.ListChat) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         } else {
