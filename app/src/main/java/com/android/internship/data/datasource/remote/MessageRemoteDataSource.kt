@@ -34,8 +34,10 @@ class MessageRemoteDataSource {
                 if (snapshot != null) {
                     val messages = snapshot.documents.mapNotNull { it.toObject<Message>() }
                     trySend(messages)
+                } else {
                 }
             }
+
             awaitClose {
                 listenerRegistration.remove()
             }

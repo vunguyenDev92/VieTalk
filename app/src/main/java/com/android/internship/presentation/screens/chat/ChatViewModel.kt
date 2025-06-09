@@ -1,30 +1,30 @@
-package com.android.internship.presentation.screens.chat
+ package com.android.internship.presentation.screens.chat
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.android.internship.domain.repository.AuthRepository
-import com.android.internship.domain.usecase.AddTypingUseCase
-import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
-import com.android.internship.domain.usecase.GetRoomUseCase
-import com.android.internship.domain.usecase.GetUserRoomUseCase
-import com.android.internship.domain.usecase.ObserveMessagesUseCase
-import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
-import com.android.internship.domain.usecase.SeenMessageUseCase
-import com.android.internship.domain.usecase.SendMessagesUseCase
-import com.android.internship.presentation.components.MessageState
-import com.android.internship.presentation.components.utils.processMessagesToItems
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+ import androidx.lifecycle.SavedStateHandle
+ import androidx.lifecycle.ViewModel
+ import androidx.lifecycle.viewModelScope
+ import com.android.internship.domain.repository.AuthRepository
+ import com.android.internship.domain.usecase.AddTypingUseCase
+ import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
+ import com.android.internship.domain.usecase.GetRoomUseCase
+ import com.android.internship.domain.usecase.GetUserRoomUseCase
+ import com.android.internship.domain.usecase.ObserveMessagesUseCase
+ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
+ import com.android.internship.domain.usecase.SeenMessageUseCase
+ import com.android.internship.domain.usecase.SendMessagesUseCase
+ import com.android.internship.presentation.components.MessageState
+ import com.android.internship.presentation.components.utils.processMessagesToItems
+ import kotlinx.coroutines.flow.MutableStateFlow
+ import kotlinx.coroutines.flow.asStateFlow
+ import kotlinx.coroutines.flow.catch
+ import kotlinx.coroutines.flow.collect
+ import kotlinx.coroutines.flow.combine
+ import kotlinx.coroutines.flow.distinctUntilChanged
+ import kotlinx.coroutines.flow.map
+ import kotlinx.coroutines.flow.update
+ import kotlinx.coroutines.launch
 
-class ChatViewModel(
+ class ChatViewModel(
     savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
     private val getRoomUseCase: GetRoomUseCase,
@@ -35,11 +35,11 @@ class ChatViewModel(
     private val sendMessageUseCase: SendMessagesUseCase,
     private val seenMessageUseCase: SeenMessageUseCase,
     private val addTypingUseCase: AddTypingUseCase,
-) : ViewModel() {
+ ) : ViewModel() {
 
-    private val roomId: String = checkNotNull(savedStateHandle["roomId"])
+
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
-
+    private val roomId: String = checkNotNull(savedStateHandle["rid"])
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
 
@@ -128,4 +128,4 @@ class ChatViewModel(
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
     }
-}
+ }

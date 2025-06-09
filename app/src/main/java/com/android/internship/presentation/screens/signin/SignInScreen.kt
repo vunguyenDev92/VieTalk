@@ -64,7 +64,7 @@ fun SignInScreen(
 
     if (signInState.signInSuccess) {
         SideEffect {
-            navController.navigate(route = Screen.Chat("PlJws3fYUG2iWaZYn7KO")) {
+            navController.navigate(route = Screen.Chat("room_1")) {
                 popUpTo(Screen.SignIn) { inclusive = true }
                 launchSingleTop = true
             }
