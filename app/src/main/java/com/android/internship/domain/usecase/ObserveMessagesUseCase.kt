@@ -1,0 +1,11 @@
+package com.android.internship.domain.usecase
+
+import com.android.internship.data.model.Message
+import com.android.internship.domain.repository.RoomRepository
+import kotlinx.coroutines.flow.Flow
+
+class ObserveMessagesUseCase(private val roomRepository: RoomRepository) {
+    operator fun invoke(roomId: String): Flow<List<Message>> {
+        return roomRepository.observeMessages(roomId)
+    }
+}

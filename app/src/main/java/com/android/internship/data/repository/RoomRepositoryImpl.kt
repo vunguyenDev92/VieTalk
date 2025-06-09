@@ -10,6 +10,7 @@ import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.UserRoom
 import com.android.internship.domain.repository.RoomRepository
+import kotlinx.coroutines.flow.Flow
 
 class RoomRepositoryImpl(
     private val roomLocalDataSource: RoomLocalDataSource,
@@ -26,6 +27,14 @@ class RoomRepositoryImpl(
 
     override suspend fun getUserRoomRemote(rid: String): List<UserRoom> {
         return userRoomRemoteDataSource.getUserRoomsForRoom(rid)
+    }
+
+    override fun observeMessages(rid: String): Flow<List<Message>> {
+        return messageRemoteDataSource.observeMessages(rid)
+    }
+
+    override fun observeUserRoomDetails(rid: String): Flow<List<UserRoom>> {
+        return userRoomRemoteDataSource.observeUserRoomsForRoom(rid)
     }
 
     override fun addTyping(rid: String, uid: String, time: String) {

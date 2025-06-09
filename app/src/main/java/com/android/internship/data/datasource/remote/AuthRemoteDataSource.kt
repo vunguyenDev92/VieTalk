@@ -60,4 +60,21 @@ class AuthRemoteDataSource {
                 .update("mute", time != null, "turnOnTime", time)
         } catch (_: Exception) {}
     }
+
+	suspend fun getUsersFromFirestore(uids: List<String>): List<User> {
+		if (uids.isEmpty()) {
+			return emptyList()
+		}
+		return try {
+			val userDocs = fireStore.collection("users")
+				.whereIn("uid", uids)
+				.get()
+				.await()
+
+			userDocs.toObjects(User::class.java)
+		} catch (e: Exception) {
+			e.printStackTrace()
+			emptyList()
+		}
+	}
 }

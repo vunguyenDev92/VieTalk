@@ -11,4 +11,5 @@ interface AuthRepository {
     fun setMuteGroup(rid: String, uid: String, time: String?)
     suspend fun getUserInfo(uid: String): User?
     fun getCurrentUserId(): String?
+	suspend fun getUsersInfo(uids: List<String>): List<User>
 }
