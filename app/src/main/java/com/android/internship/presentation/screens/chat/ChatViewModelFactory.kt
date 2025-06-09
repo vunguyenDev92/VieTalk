@@ -14,6 +14,7 @@ import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
+import com.android.internship.domain.usecase.StopTypingUseCase
 
 class ChatViewModelFactory(
     private val authRepository: AuthRepository,
@@ -33,6 +34,7 @@ class ChatViewModelFactory(
             val sendMessageUseCase = SendMessagesUseCase(authRepository, roomRepository)
             val seenMessageUseCase = SeenMessageUseCase(authRepository, roomRepository)
             val addTypingUseCase = AddTypingUseCase(authRepository, roomRepository)
+            val stopTypingUseCase = StopTypingUseCase(authRepository, roomRepository)
 
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
@@ -45,6 +47,7 @@ class ChatViewModelFactory(
                 sendMessageUseCase = sendMessageUseCase,
                 seenMessageUseCase = seenMessageUseCase,
                 addTypingUseCase = addTypingUseCase,
+                stopTypingUseCase = stopTypingUseCase,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

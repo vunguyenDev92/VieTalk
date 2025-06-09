@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/utils/MessageProcessor.kt
 package com.android.internship.presentation.components.utils
 
 import com.android.internship.data.model.Message
@@ -28,7 +27,6 @@ fun processMessagesToItems(
     var lastDate: LocalDate? = null
 
     val sortedMessages = messages.sortedBy { it.time }
-    val lastMessageInList = sortedMessages.lastOrNull()
 
     sortedMessages.forEach { message ->
         val messageTime = try {
@@ -53,11 +51,18 @@ fun processMessagesToItems(
             null
         }
 
+        val messageTimestamp = message.time.toLongOrNull() ?: 0L
+
         val seenByUsers = usersInRoom.filter { user ->
-            if (user.uid == message.uid) return@filter false
+            // Một người không thể "tự xem" tin nhắn của chính họ.
+            if (user.uid == message.uid) {
+                return@filter false
+            }
+
             val userDetail = userRoomMap[user.uid]
-            val lastSeenId = userDetail?.lastSeenMessages
-            lastSeenId != null && lastSeenId == lastMessageInList?.mid
+            val lastSeenTimestamp = userDetail?.lastSeenMessages?.toLongOrNull() ?: 0L
+
+            lastSeenTimestamp >= messageTimestamp
         }
 
         items.add(

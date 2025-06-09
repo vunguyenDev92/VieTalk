@@ -1,18 +1,18 @@
 package com.android.internship.domain.usecase
 
-import com.android.internship.data.model.Message
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.repository.RoomRepository
+import javax.inject.Inject
 
-class SeenMessageUseCase(
+class StopTypingUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val roomRepository: RoomRepository,
 ) {
-    suspend operator fun invoke(rid: String, message: Message) {
+    operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
-
+        val pastTime = "0"
         uid?.let {
-            roomRepository.seenMessage(rid, uid, message.time)
+            roomRepository.addTyping(rid, it, pastTime)
         }
     }
 }

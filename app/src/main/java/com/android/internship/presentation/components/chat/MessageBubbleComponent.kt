@@ -1,6 +1,7 @@
 // file: com/android/internship/presentation/components/chat/MessageBubbleComponent.kt
 package com.android.internship.presentation.components.chat
 
+import android.util.Log // <-- Thêm import này
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,7 +29,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.android.internship.data.model.User
 import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.theme.GreenMess
@@ -45,6 +46,12 @@ fun MessageBubbleComponent(
     val alignment = if (item.isFromMe) Alignment.End else Alignment.Start
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
+    // --- LOG ĐỂ KIỂM TRA DỮ LIỆU ĐẦU VÀO ---
+    // Log này sẽ chạy mỗi khi Composable được recompose
+    if (item.isFromMe) {
+        Log.d("SeenUI", "Tin nhắn '${item.message.content}': isFromMe=true, seenByUsers=${item.seenByUsers.map { it.username }}, isExpanded=${item.isSeenByExpanded}")
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -58,6 +65,7 @@ fun MessageBubbleComponent(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
+// 			horizontalArrangement = if (item.isFromMe) Arrangement.End else Alignment.Start,
             horizontalArrangement = if (item.isFromMe) Arrangement.End else Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
         ) {
@@ -95,7 +103,14 @@ fun MessageBubbleComponent(
             }
         }
 
-        if (item.isSeenByExpanded && item.seenByUsers.isNotEmpty()) {
+        // --- LOG ĐỂ KIỂM TRA ĐIỀU KIỆN HIỂN THỊ ---
+        // Chúng ta đặt log ngay trước khối if để xem điều kiện có được thỏa mãn không
+        val shouldShowSeenIndicator = item.isSeenByExpanded && item.seenByUsers.isNotEmpty()
+        if (item.isFromMe) { // Chỉ log cho tin nhắn của mình để đỡ nhiễu
+            Log.d("SeenUI", "Điều kiện hiển thị cho tin nhắn '${item.message.content}': $shouldShowSeenIndicator")
+        }
+
+        if (shouldShowSeenIndicator) {
             Spacer(modifier = Modifier.padding(top = 8.dp))
             ExpandedSeenByIndicator(
                 seenByUsers = item.seenByUsers,
@@ -106,6 +121,8 @@ fun MessageBubbleComponent(
         }
     }
 }
+
+// ... (các Composable con giữ nguyên)
 
 @Composable
 private fun ExpandedSeenByIndicator(

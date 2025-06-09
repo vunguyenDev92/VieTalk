@@ -1,3 +1,5 @@
+// file: com/android/internship/presentation/screens/chat/ChatScreen.kt
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.android.internship.presentation.screens.chat
 
@@ -13,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -34,7 +37,7 @@ import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.MessageBubbleComponent
 import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
-import com.android.internship.presentation.screens.chat.components.TypingIndicatorComponent
+import com.android.internship.presentation.components.chat.TypingIndicatorComponent
 import kotlinx.coroutines.launch
 
 @Composable
@@ -119,9 +122,10 @@ fun ChatScreen(
                                 TimeHeaderComponent(timestamp = messageItem.timestamp)
                             }
                             is MessageItem.MessageBubbles -> {
+                                // Sử dụng LaunchedEffect theo yêu cầu của bạn
                                 if (!messageItem.isFromMe) {
                                     LaunchedEffect(messageItem.message.mid) {
-                                        viewModel.markAsSeen(messageItem.message.mid)
+                                        viewModel.markAsSeen(messageItem.message)
                                     }
                                 }
                                 MessageBubbleComponent(
