@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.presentation.CommonToastManager
+import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.CommonTextField
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
@@ -48,8 +49,6 @@ import com.android.internship.presentation.theme.Green
 import com.android.internship.presentation.theme.GreenDark
 import com.android.internship.presentation.theme.GreenLight
 import com.android.internship.presentation.theme.GreyLight
-import com.android.internship.presentation.theme.LightRed
-import com.android.internship.presentation.theme.Red
 import com.android.internship.presentation.theme.White
 import kotlinx.coroutines.delay
 
@@ -81,16 +80,14 @@ fun SignInScreen(
         }
     }
 
-    LaunchedEffect(signInState.isLoading) {
-        if (!signInState.isLoading && !signInState.signInSuccess) {
-            signInState.errorMessage?.let {
-                CommonToastManager.makeToast(
-                    icon = R.drawable.ic_error,
-                    iconColor = Red,
-                    borderColor = LightRed,
-                ).show(message = it)
-            }
-        }
+    signInState.errorMessage?.let {
+        CommonDialog(
+            title = stringResource(R.string.error),
+            content = it,
+            onDismissRequest = {
+                signInViewModel.clearErrorMessage()
+            },
+        )
     }
 
     LazyColumn(

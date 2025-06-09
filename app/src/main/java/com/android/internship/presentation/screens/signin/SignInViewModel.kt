@@ -66,6 +66,12 @@ class SignInViewModel(
         }
     }
 
+    fun clearErrorMessage() {
+        _state.update {
+            it.copy(errorMessage = null)
+        }
+    }
+
     companion object {
         fun factory(context: Context) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
