@@ -22,7 +22,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -81,24 +80,14 @@ fun SignInScreen(
         }
     }
 
-    var showDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(signInState.isLoading) {
-        if (!signInState.isLoading && !signInState.signInSuccess) {
-            showDialog = true
-        }
-    }
-
-    if (showDialog) {
-        signInState.errorMessage?.let {
-            CommonDialog(
-                title = stringResource(R.string.error),
-                content = it,
-                onDismissRequest = {
-                    showDialog = false
-                },
-            )
-        }
+    signInState.errorMessage?.let {
+        CommonDialog(
+            title = stringResource(R.string.error),
+            content = it,
+            onDismissRequest = {
+                signInViewModel.clearErrorMessage()
+            },
+        )
     }
 
     LazyColumn(
