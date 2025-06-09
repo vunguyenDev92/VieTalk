@@ -3,7 +3,7 @@
     <!--  Splash Screen  -->
     <string name="app_logo">VieTalk Logo</string>
     <!--  Sign In Screen  -->
-    <string name="log_in">Log in</string>
+    <string name="log_in">Log In</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign up</string>
     <string name="email">EMAIL</string>
