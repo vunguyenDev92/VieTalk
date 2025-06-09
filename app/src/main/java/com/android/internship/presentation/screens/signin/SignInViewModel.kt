@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.android.internship.di.AppContainer
 import com.android.internship.domain.usecase.SignInUseCase
 import com.android.internship.presentation.components.Validator
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -56,19 +57,21 @@ class SignInViewModel(
                 password = state.value.passwordState.value,
             )
 
+            delay(1000)
+
             _state.update {
                 it.copy(
                     isLoading = false,
                     signInSuccess = response.success,
-                    errorMessage = response.message,
+                    message = response.message,
                 )
             }
         }
     }
 
-    fun clearErrorMessage() {
+    fun clearMessage() {
         _state.update {
-            it.copy(errorMessage = null)
+            it.copy(message = null)
         }
     }
 

@@ -80,14 +80,16 @@ fun SignInScreen(
         }
     }
 
-    signInState.errorMessage?.let {
-        CommonDialog(
-            title = stringResource(R.string.error),
-            content = it,
-            onDismissRequest = {
-                signInViewModel.clearErrorMessage()
-            },
-        )
+    if (signInState.signInSuccess == false) {
+        signInState.message?.let {
+            CommonDialog(
+                title = stringResource(R.string.error),
+                content = it,
+                onDismissRequest = {
+                    signInViewModel.clearMessage()
+                },
+            )
+        }
     }
 
     LazyColumn(
@@ -174,8 +176,8 @@ private fun SignInButton(
 ) {
     var angle by remember { mutableFloatStateOf(0f) }
 
-    LaunchedEffect(angle) {
-        if (isLoading) {
+    LaunchedEffect(isLoading) {
+        while (isLoading) {
             angle = (angle - 20) % 360
             delay(pulseRateMs)
         }
