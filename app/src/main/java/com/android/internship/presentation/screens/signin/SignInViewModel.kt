@@ -64,8 +64,8 @@ class SignInViewModel(
             _state.update {
                 it.copy(
                     isLoading = false,
-                    signInSuccess = response.success,
-                    message = response.message,
+                    signInSuccess = response.isSuccess,
+                    message = response.exceptionOrNull()?.message,
                 )
             }
         }
