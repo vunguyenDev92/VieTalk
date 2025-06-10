@@ -16,7 +16,7 @@ android {
         applicationId = "com.android.internship"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -61,7 +61,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.coil.kt.coil.compose)
 
     // firebase
     implementation(platform(libs.firebase.bom))

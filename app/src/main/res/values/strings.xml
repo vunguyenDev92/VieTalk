@@ -1,15 +1,21 @@
 <resources>
-    <string name="app_name">ChatFun</string>
+    <string name="app_name">VieTalk</string>
     <!--  Splash Screen  -->
-    <string name="app_logo">ChatFun Logo</string>
+    <string name="app_logo">VieTalk Logo</string>
     <!--  Sign In Screen  -->
-    <string name="sign_in">Sign in</string>
-    <string name="don_t_have_an_account">Don\'t have an account?</string>
-    <string name="your_email">Your email</string>
-    <string name="email_is_required">Email is required</string>
-    <string name="invalid_email">Invalid email address</string>
-    <string name="your_password">Your password</string>
-    <string name="password_is_required">Password is required</string>
+    <string name="log_in">Log In</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign up</string>
+    <string name="email">EMAIL</string>
+    <string name="email_is_required">Please enter your email.</string>
+    <string name="invalid_email">Email address is not in the correct format.</string>
+    <string name="password">PASSWORD</string>
+    <string name="password_is_required">Please enter your password.</string>
     <string name="invalid_password">Password must be at least 8 characters long</string>
     <string name="connect_with_others">Connect with Others</string>
+    <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one number</string>
+    <string name="login_successful">Login successful!</string>
+    <!--  Dialog  -->
+    <string name="close">CLOSE</string>
+    <string name="error">Error</string>
 </resources>
