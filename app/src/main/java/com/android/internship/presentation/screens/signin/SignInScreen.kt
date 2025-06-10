@@ -17,17 +17,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +36,7 @@ import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.presentation.CommonToastManager
 import com.android.internship.presentation.components.CommonDialog
+import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.CommonTextField
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
@@ -50,7 +47,6 @@ import com.android.internship.presentation.theme.GreenDark
 import com.android.internship.presentation.theme.GreenLight
 import com.android.internship.presentation.theme.GreyLight
 import com.android.internship.presentation.theme.White
-import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(
@@ -80,14 +76,16 @@ fun SignInScreen(
         }
     }
 
-    signInState.errorMessage?.let {
-        CommonDialog(
-            title = stringResource(R.string.error),
-            content = it,
-            onDismissRequest = {
-                signInViewModel.clearErrorMessage()
-            },
-        )
+    if (signInState.signInSuccess == false) {
+        signInState.message?.let {
+            CommonDialog(
+                title = stringResource(R.string.error),
+                content = it,
+                onDismissRequest = {
+                    signInViewModel.clearMessage()
+                },
+            )
+        }
     }
 
     LazyColumn(
@@ -168,19 +166,9 @@ fun SignInScreen(
 private fun SignInButton(
     isDisable: Boolean,
     onClick: () -> Unit,
+    isLoading: Boolean,
     modifier: Modifier = Modifier,
-    isLoading: Boolean = false,
-    pulseRateMs: Long = 50,
 ) {
-    var angle by remember { mutableFloatStateOf(0f) }
-
-    LaunchedEffect(angle) {
-        if (isLoading) {
-            angle = (angle - 20) % 360
-            delay(pulseRateMs)
-        }
-    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -194,14 +182,7 @@ private fun SignInButton(
             ),
     ) {
         if (isLoading) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_loading_indicator),
-                contentDescription = stringResource(R.string.login),
-                modifier = Modifier
-                    .size(30.dp)
-                    .align(Alignment.Center)
-                    .rotate(angle),
-            )
+            CommonProgressIndicator(color = White)
         } else {
             Text(
                 text = stringResource(R.string.login),

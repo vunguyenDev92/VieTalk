@@ -3,11 +3,11 @@ package com.android.internship.data.datasource.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "users")
-data class UserEntity(
+@Entity(tableName = "rooms")
+data class RoomEntity(
     @PrimaryKey
-    val uid: String,
-    val username: String,
-    val lastActiveTime: String,
+    val rid: String,
+    val isGroup: Boolean,
     val avatar: String?,
+    val name: String?,
 )
