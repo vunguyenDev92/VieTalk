@@ -1,0 +1,8 @@
+package com.android.internship.data.model
+
+data class Room(
+    val rid: String = "",
+    val isGroup: Boolean = false,
+    val avatar: String? = null,
+    val name: String? = null,
+)
