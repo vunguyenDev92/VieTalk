@@ -1,3 +1,4 @@
+// file: com/android/internship/presentation/components/utils/MessageProcessingUtils.kt
 package com.android.internship.presentation.components.utils
 
 import com.android.internship.data.model.Message
@@ -5,8 +6,8 @@ import com.android.internship.data.model.Room
 import com.android.internship.data.model.User
 import com.android.internship.data.model.UserRoom
 import com.android.internship.presentation.components.MessageItem
+import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -16,54 +17,60 @@ fun processMessagesToItems(
     usersInRoom: List<User>,
     userRoomDetails: List<UserRoom>,
     currentUserId: String,
-    seenByExpandedState: Map<String, Boolean>,
+    expandedMessageId: String?,
 ): List<MessageItem> {
     val userMap = usersInRoom.associateBy { it.uid }
     val userRoomMap = userRoomDetails.associateBy { it.uid }
-
     val shouldShowSenderName = room.isGroup && usersInRoom.size > 2
-
     val items = mutableListOf<MessageItem>()
-    var lastDate: LocalDate? = null
-
+    var lastMessageTimestamp: LocalDateTime? = null
     val sortedMessages = messages.sortedBy { it.time }
 
-    sortedMessages.forEach { message ->
+    // Track which messages have TimeHeader above them
+    val messagesWithTimeHeader = mutableSetOf<String>()
+
+    sortedMessages.forEachIndexed { index, message ->
         val messageTime = try {
             val instant = Instant.ofEpochMilli(message.time.toLong())
             LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
         } catch (e: Exception) {
             LocalDateTime.now()
         }
-        val messageDate = messageTime.toLocalDate()
 
-        if (lastDate != messageDate) {
-            items.add(MessageItem.TimeHeader(messageTime))
-            lastDate = messageDate
+        val shouldShowTimeHeader = if (lastMessageTimestamp == null) {
+            true
+        } else {
+            Duration.between(lastMessageTimestamp, messageTime).toHours() >= 1
         }
+
+        if (shouldShowTimeHeader) {
+            items.add(MessageItem.TimeHeader(messageTime))
+            // Mark this message as having a TimeHeader above it
+            messagesWithTimeHeader.add(message.mid)
+        }
+        lastMessageTimestamp = messageTime
 
         val isFromMe = message.uid == currentUserId
         val senderInfo = userMap[message.uid]
-
         val senderName = if (shouldShowSenderName && !isFromMe) {
             senderInfo?.username ?: "Unknown User"
         } else {
             null
         }
 
-        val messageTimestamp = message.time.toLongOrNull() ?: 0L
+        val nextMessage = sortedMessages.getOrNull(index + 1)
+        val showAvatar = nextMessage == null || nextMessage.uid != message.uid
 
+        val lastMessageInList = sortedMessages.lastOrNull()
         val seenByUsers = usersInRoom.filter { user ->
-            // Một người không thể "tự xem" tin nhắn của chính họ.
-            if (user.uid == message.uid) {
-                return@filter false
-            }
-
+            if (user.uid == message.uid) return@filter false
             val userDetail = userRoomMap[user.uid]
-            val lastSeenTimestamp = userDetail?.lastSeenMessages?.toLongOrNull() ?: 0L
-
-            lastSeenTimestamp >= messageTimestamp
+            val lastSeenId = userDetail?.lastSeenMessages
+            lastSeenId != null && lastSeenId == lastMessageInList?.mid
         }
+
+        // LOGIC MỚI: Chỉ show expanded time header nếu tin nhắn này KHÔNG có TimeHeader phía trên
+        val isSeenByExpanded = message.mid == expandedMessageId && !messagesWithTimeHeader.contains(message.mid)
 
         items.add(
             MessageItem.MessageBubbles(
@@ -72,7 +79,7 @@ fun processMessagesToItems(
                 senderName = senderName,
                 senderAvatarUrl = senderInfo?.avatar,
                 seenByUsers = seenByUsers,
-                isSeenByExpanded = seenByExpandedState[message.mid] ?: false,
+                isSeenByExpanded = isSeenByExpanded,
             ),
         )
     }
@@ -81,7 +88,6 @@ fun processMessagesToItems(
     userRoomDetails.forEach { detail ->
         val typingTime = detail.typingTime?.toLongOrNull() ?: 0L
         val isRecent = (System.currentTimeMillis() - typingTime) < 5000
-
         if (detail.uid != currentUserId && isRecent) {
             userMap[detail.uid]?.let { typingUsers.add(it) }
         }

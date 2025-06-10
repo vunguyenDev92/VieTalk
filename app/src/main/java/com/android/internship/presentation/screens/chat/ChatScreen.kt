@@ -137,7 +137,7 @@ fun ChatScreen(
                     ) { messageItem ->
                         when (messageItem) {
                             is MessageItem.TimeHeader -> {
-                                TimeHeaderComponent(timestamp = messageItem.timestamp)
+                                TimeHeaderComponent(item = messageItem)
                             }
                             is MessageItem.MessageBubbles -> {
                                 if (!messageItem.isFromMe) {

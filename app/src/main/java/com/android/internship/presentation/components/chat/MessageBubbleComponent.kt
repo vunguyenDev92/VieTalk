@@ -1,6 +1,5 @@
 package com.android.internship.presentation.components.chat
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,9 +30,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.android.internship.data.model.User
 import com.android.internship.presentation.components.MessageItem
+import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.GreenMess
 import com.android.internship.presentation.theme.GreyMess
-import com.android.internship.presentation.theme.MessageText
+import com.android.internship.presentation.theme.White
+import com.android.internship.presentation.theme.robotoFamily
 
 @Composable
 fun MessageBubbleComponent(
@@ -45,10 +46,6 @@ fun MessageBubbleComponent(
     val backgroundColor = if (item.isFromMe) GreenMess else GreyMess
     val alignment = if (item.isFromMe) Alignment.End else Alignment.Start
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
-    if (item.isFromMe) {
-        Log.d("SeenUI", "Tin nhắn '${item.message.content}': isFromMe=true, seenByUsers=${item.seenByUsers.map { it.username }}, isExpanded=${item.isSeenByExpanded}")
-    }
 
     Column(
         modifier = modifier
@@ -94,8 +91,14 @@ fun MessageBubbleComponent(
                 ) {
                     Text(
                         text = item.message.content,
-                        color = MessageText,
-                        style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = robotoFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = if (!item.isFromMe) {
+                            Black
+                        } else {
+                            White
+                        },
                     )
                 }
             }
@@ -112,17 +115,13 @@ fun MessageBubbleComponent(
         }
 
         val shouldShowSeenIndicator = item.isSeenByExpanded && item.seenByUsers.isNotEmpty()
-        if (item.isFromMe) {
-            Log.d("SeenUI", "Điều kiện hiển thị cho tin nhắn '${item.message.content}': $shouldShowSeenIndicator")
-        }
-
         if (shouldShowSeenIndicator) {
             Spacer(modifier = Modifier.padding(top = 4.dp))
             ExpandedSeenByIndicator(
                 seenByUsers = item.seenByUsers,
                 modifier = Modifier.padding(
                     start = if (!item.isFromMe) 32.dp else 0.dp,
-                    end = if (item.isFromMe) 32.dp else 0.dp, // Thêm padding bên phải cho tin nhắn của tôi
+                    end = if (item.isFromMe) 32.dp else 0.dp,
                 ),
             )
         }

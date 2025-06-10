@@ -13,4 +13,9 @@ data class MessageState(
     val isLoadingMore: Boolean = false,
     val errorMessage: String? = null,
     val currentUser: User? = null,
+    val expandedMessageId: String? = null,
+    val topBarTitle: String = "",
+    val topBarSubtitle: String = "",
+    val topBarAvatarUrls: List<String> = emptyList(),
+    val isPeerActive: Boolean = false,
 )
