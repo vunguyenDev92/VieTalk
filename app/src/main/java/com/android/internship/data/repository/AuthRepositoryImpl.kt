@@ -49,4 +49,8 @@ class AuthRepositoryImpl(
         val user = localDataSource.getCurrentUser()
         return user?.uid
     }
+
+    override suspend fun getUsersInfo(uids: List<String>): List<User> {
+        return remoteDataSource.getUsersFromFirestore(uids)
+    }
 }

@@ -3,11 +3,14 @@ package com.android.internship.domain.repository
 import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.UserRoom
+import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
     // Room Remote
     suspend fun getRoomRemote(rid: String): Room?
     suspend fun getUserRoomRemote(rid: String): List<UserRoom>
+    fun observeMessages(rid: String): Flow<List<Message>>
+    fun observeUserRoomDetails(rid: String): Flow<List<UserRoom>>
 
     // Typing
     fun addTyping(rid: String, uid: String, time: String)
