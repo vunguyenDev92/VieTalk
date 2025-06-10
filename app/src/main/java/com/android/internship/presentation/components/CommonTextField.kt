@@ -64,7 +64,7 @@ fun CommonTextField(
     Box(
         modifier = modifier,
     ) {
-        Box(modifier = Modifier.border(1.dp, if (isError) MaterialTheme.colorScheme.error else Color(-3026479), RoundedCornerShape(5.dp))) {
+        Box(modifier = Modifier.border(1.dp, if (isError) MaterialTheme.colorScheme.error else Color(0xffd1d1d1), RoundedCornerShape(5.dp))) {
             EditTextField(
                 textFieldState = textFieldState,
                 onValueChange = onValueChange,
@@ -87,7 +87,7 @@ fun CommonTextField(
                     Icon(
                         painter = painterResource(id = if (isTextVisible) R.drawable.ic_visible else R.drawable.ic_invisible),
                         contentDescription = if (isTextVisible) StringConstants.SHOW_PASSWORD else StringConstants.HIDE_PASSWORD,
-                        tint = Color(-11053225),
+                        tint = Color(0xff575757),
                         modifier = Modifier
                             .size(24.dp)
                             .clickable(

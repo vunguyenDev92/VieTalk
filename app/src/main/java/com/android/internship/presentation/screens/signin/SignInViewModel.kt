@@ -21,11 +21,12 @@ class SignInViewModel(
     val state get() = _state.asStateFlow()
 
     fun updateEmailState(email: String) {
-        val errorMessage = validator.emailValidator(email = email)
+        val trimmedEmail = email.trim()
+        val errorMessage = validator.emailValidator(email = trimmedEmail)
         _state.update {
             it.copy(
                 emailState = it.emailState.copy(
-                    value = email.trim(),
+                    value = trimmedEmail,
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
@@ -34,11 +35,12 @@ class SignInViewModel(
     }
 
     fun updatePasswordState(password: String) {
-        val errorMessage = validator.passwordValidator(password = password)
+        val trimmedPassword = password.trim()
+        val errorMessage = validator.passwordValidator(password = trimmedPassword)
         _state.update {
             it.copy(
                 passwordState = it.passwordState.copy(
-                    value = password.trim(),
+                    value = trimmedPassword,
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
