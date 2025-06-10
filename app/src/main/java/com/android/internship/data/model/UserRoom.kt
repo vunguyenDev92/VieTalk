@@ -1,10 +1,10 @@
 package com.android.internship.data.model
 
 data class UserRoom(
-    val rid: String,
-    val uid: String,
-    val mute: Boolean,
-    val turnOnTime: String?,
-    val lastSeenMessages: String?,
-    val typingTime: String?,
+    val rid: String = "",
+    val uid: String = "",
+    val mute: Boolean = false,
+    val turnOnTime: String? = null,
+    val lastSeenMessages: String? = null,
+    val typingTime: String? = null,
 )

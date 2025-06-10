@@ -3,15 +3,16 @@ package com.android.internship.domain.usecase
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.repository.UserRoomRepository
 
-class SeenMessageUseCase(
+class UpdateTypingTimeUseCase(
     private val authRepository: AuthRepository,
     private val userRoomRepository: UserRoomRepository,
 ) {
-    suspend operator fun invoke(rid: String, lastSeenMessageId: String) {
+    operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
+        val time = System.currentTimeMillis().toString()
 
         uid?.let {
-            userRoomRepository.updateLastSeenMessages(rid, uid, lastSeenMessageId)
+            userRoomRepository.updateTypingTime(rid, uid, time)
         }
     }
 }

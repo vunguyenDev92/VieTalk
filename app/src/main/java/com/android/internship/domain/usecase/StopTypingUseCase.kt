@@ -1,18 +1,18 @@
 package com.android.internship.domain.usecase
 
 import com.android.internship.domain.repository.AuthRepository
-import com.android.internship.domain.repository.RoomRepository
+import com.android.internship.domain.repository.UserRoomRepository
+import javax.inject.Inject
 
-class AddTypingUseCase(
+class StopTypingUseCase @Inject constructor(
     private val authRepository: AuthRepository,
-    private val roomRepository: RoomRepository,
+    private val userRoomRepository: UserRoomRepository,
 ) {
     operator fun invoke(rid: String) {
         val uid = authRepository.getCurrentUserId()
-        val time = System.currentTimeMillis().toString()
-
+        val pastTime = "0"
         uid?.let {
-            roomRepository.addTyping(rid, uid, time)
+            userRoomRepository.updateTypingTime(rid, it, pastTime)
         }
     }
 }
