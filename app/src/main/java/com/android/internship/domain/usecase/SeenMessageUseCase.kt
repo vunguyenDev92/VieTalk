@@ -1,18 +1,17 @@
 package com.android.internship.domain.usecase
 
-import com.android.internship.data.model.Message
 import com.android.internship.domain.repository.AuthRepository
-import com.android.internship.domain.repository.RoomRepository
+import com.android.internship.domain.repository.UserRoomRepository
 
 class SeenMessageUseCase(
     private val authRepository: AuthRepository,
-    private val roomRepository: RoomRepository,
+    private val userRoomRepository: UserRoomRepository,
 ) {
-    suspend operator fun invoke(rid: String, message: Message) {
+    suspend operator fun invoke(rid: String, lastSeenMessageId: String) {
         val uid = authRepository.getCurrentUserId()
 
         uid?.let {
-            roomRepository.seenMessage(rid, uid, message.time)
+            userRoomRepository.updateLastSeenMessages(rid, uid, lastSeenMessageId)
         }
     }
 }

@@ -1,14 +1,14 @@
 package com.android.internship.domain.usecase
 
 import com.android.internship.data.model.UserRoom
-import com.android.internship.domain.repository.RoomRepository
+import com.android.internship.domain.repository.UserRoomRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 class ObserveUserRoomDetailsUseCase @Inject constructor(
-    private val roomRepository: RoomRepository,
+    private val repository: UserRoomRepository,
 ) {
     operator fun invoke(rid: String): Flow<List<UserRoom>> {
-        return roomRepository.observeUserRoomDetails(rid)
+        return repository.observeUserRoomDetails(rid)
     }
 }

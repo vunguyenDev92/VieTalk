@@ -1,18 +1,18 @@
 package com.android.internship.domain.usecase
 
 import com.android.internship.data.model.UserRoom
-import com.android.internship.domain.repository.RoomRepository
+import com.android.internship.domain.repository.UserRoomRepository
 
 class GetUserRoomUseCase(
-    private val roomRepository: RoomRepository,
+    private val repository: UserRoomRepository,
 ) {
     suspend operator fun invoke(rid: String): List<UserRoom> {
-        val userRoomsRemote = roomRepository.getUserRoomRemote(rid)
-        val userRoomsLocal = roomRepository.getUserRoomLocal(rid)
+        val userRoomsRemote = repository.getUserRoomRemote(rid)
+        val userRoomsLocal = repository.getUserRoomLocal(rid)
 
         return if (userRoomsRemote.isNotEmpty()) {
             if (userRoomsLocal == null) {
-                roomRepository.saveLocalUserRoom(userRoomsRemote)
+                repository.saveLocalUserRoom(userRoomsRemote)
                 userRoomsRemote
             } else {
                 userRoomsRemote
