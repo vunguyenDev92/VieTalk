@@ -33,39 +33,4 @@ class MessageLocalDataSource(context: Context) {
             )
         }
     }
-
-    suspend fun deleteLocalMessage(message: Message) {
-        val messageCount = messageDao.getMessageCountForRoom(message.rid)
-        if (messageCount >= 20) {
-            messageDao.clearMessagesForRoom(message.rid)
-        }
-    }
-
-    suspend fun getLatestMessagesForRoom(rid: String, limit: Int): List<Message> {
-        return messageDao.getLatestMessagesForRoom(rid, limit).sortedBy { it.time }.let {
-            it.map { message ->
-                Message(
-                    mid = message.mid,
-                    rid = message.rid,
-                    uid = message.uid,
-                    content = message.content,
-                    time = message.time,
-                )
-            }
-        }
-    }
-
-    suspend fun getOlderMessagesForRoom(rid: String, startMessageId: String, limit: Int): List<Message> {
-        return messageDao.getOlderMessagesForRoom(rid, startMessageId, limit).sortedBy { it.time }.let {
-            it.map { message ->
-                Message(
-                    mid = message.mid,
-                    rid = message.rid,
-                    uid = message.uid,
-                    content = message.content,
-                    time = message.time,
-                )
-            }
-        }
-    }
 }
