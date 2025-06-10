@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.navigation.Navigation
 import com.android.internship.presentation.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var appContainer: AppContainer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -19,7 +22,7 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 Scaffold {
                     Box(modifier = Modifier.padding(it)) {
-                        Navigation()
+                        Navigation(appContainer)
                         CommonToastManager.ToastHost()
                     }
                 }
