@@ -26,4 +26,20 @@ class AuthRepositoryImpl : AuthRepository {
     override fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
+
+    override suspend fun signUp(
+        email: String,
+        password: String,
+    ): Result<String> {
+        try {
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            return Result.success(result.user?.uid ?: "")
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun logout() {
+        auth.signOut()
+    }
 }
