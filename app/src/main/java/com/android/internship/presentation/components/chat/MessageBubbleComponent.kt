@@ -1,7 +1,6 @@
-// file: com/android/internship/presentation/components/chat/MessageBubbleComponent.kt
 package com.android.internship.presentation.components.chat
 
-import android.util.Log // <-- Thêm import này
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +38,7 @@ import com.android.internship.presentation.theme.MessageText
 @Composable
 fun MessageBubbleComponent(
     item: MessageItem.MessageBubbles,
+    currentUserAvatarUrl: String?,
     onMessageClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -46,8 +46,6 @@ fun MessageBubbleComponent(
     val alignment = if (item.isFromMe) Alignment.End else Alignment.Start
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
-    // --- LOG ĐỂ KIỂM TRA DỮ LIỆU ĐẦU VÀO ---
-    // Log này sẽ chạy mỗi khi Composable được recompose
     if (item.isFromMe) {
         Log.d("SeenUI", "Tin nhắn '${item.message.content}': isFromMe=true, seenByUsers=${item.seenByUsers.map { it.username }}, isExpanded=${item.isSeenByExpanded}")
     }
@@ -55,17 +53,17 @@ fun MessageBubbleComponent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onMessageClick),
+            .clickable(onClick = onMessageClick)
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = alignment,
     ) {
         if (item.isSeenByExpanded) {
             MessageTimeHeaderComponent(message = item.message)
-            Spacer(modifier = Modifier.padding(top = 8.dp))
+            Spacer(modifier = Modifier.padding(top = 4.dp))
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-// 			horizontalArrangement = if (item.isFromMe) Arrangement.End else Alignment.Start,
             horizontalArrangement = if (item.isFromMe) Arrangement.End else Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
         ) {
@@ -73,7 +71,7 @@ fun MessageBubbleComponent(
                 AsyncImage(
                     model = item.senderAvatarUrl,
                     contentDescription = "Sender Avatar",
-                    modifier = Modifier.size(32.dp).clip(CircleShape),
+                    modifier = Modifier.size(35.dp).clip(CircleShape),
                     contentScale = ContentScale.Crop,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -84,15 +82,15 @@ fun MessageBubbleComponent(
                     Text(
                         text = it,
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 4.dp),
+                        modifier = Modifier.padding(bottom = 2.dp),
                     )
                 }
                 Box(
                     modifier = Modifier
-                        .widthIn(max = screenWidth * 0.8f)
-                        .clip(RoundedCornerShape(18.dp))
+                        .widthIn(max = screenWidth * 0.75f)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(backgroundColor)
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                 ) {
                     Text(
                         text = item.message.content,
@@ -101,28 +99,35 @@ fun MessageBubbleComponent(
                     )
                 }
             }
+
+            if (item.isFromMe) {
+                Spacer(modifier = Modifier.width(8.dp))
+                AsyncImage(
+                    model = currentUserAvatarUrl,
+                    contentDescription = "My Avatar",
+                    modifier = Modifier.size(35.dp).clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            }
         }
 
-        // --- LOG ĐỂ KIỂM TRA ĐIỀU KIỆN HIỂN THỊ ---
-        // Chúng ta đặt log ngay trước khối if để xem điều kiện có được thỏa mãn không
         val shouldShowSeenIndicator = item.isSeenByExpanded && item.seenByUsers.isNotEmpty()
-        if (item.isFromMe) { // Chỉ log cho tin nhắn của mình để đỡ nhiễu
+        if (item.isFromMe) {
             Log.d("SeenUI", "Điều kiện hiển thị cho tin nhắn '${item.message.content}': $shouldShowSeenIndicator")
         }
 
         if (shouldShowSeenIndicator) {
-            Spacer(modifier = Modifier.padding(top = 8.dp))
+            Spacer(modifier = Modifier.padding(top = 4.dp))
             ExpandedSeenByIndicator(
                 seenByUsers = item.seenByUsers,
                 modifier = Modifier.padding(
-                    start = if (!item.isFromMe) 40.dp else 0.dp,
+                    start = if (!item.isFromMe) 32.dp else 0.dp,
+                    end = if (item.isFromMe) 32.dp else 0.dp, // Thêm padding bên phải cho tin nhắn của tôi
                 ),
             )
         }
     }
 }
-
-// ... (các Composable con giữ nguyên)
 
 @Composable
 private fun ExpandedSeenByIndicator(
@@ -145,7 +150,7 @@ private fun ExpandedSeenByIndicator(
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
             text = seenByText,
@@ -172,18 +177,18 @@ private fun SeenByAvatarRow(users: List<User>) {
                 model = user.avatar,
                 contentDescription = "Seen by ${user.username}",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clip(CircleShape)
                     .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
                 contentScale = ContentScale.Crop,
             )
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(2.dp))
         }
 
         if (remainingCount > 0) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center,
@@ -191,7 +196,7 @@ private fun SeenByAvatarRow(users: List<User>) {
                 Text(
                     text = "+$remainingCount",
                     style = MaterialTheme.typography.labelSmall,
-                    fontSize = 10.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

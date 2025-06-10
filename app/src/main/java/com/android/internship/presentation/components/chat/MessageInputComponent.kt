@@ -29,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -45,7 +47,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.android.internship.R
 import com.android.internship.presentation.theme.ButtonSend
 
@@ -58,9 +59,14 @@ fun MessageInputComponent(
     placeholder: String = "Message",
     isEnabled: Boolean = true,
     onEmojiClick: () -> Unit,
+    onEmojiPickerVisibilityChange: ((Boolean) -> Unit)? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var showEmojiPicker by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showEmojiPicker) {
+        onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
+    }
 
     Column {
         Row(
@@ -86,15 +92,22 @@ fun MessageInputComponent(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable {
-                                showEmojiPicker = true
-                                keyboardController?.hide()
+                                showEmojiPicker = !showEmojiPicker
+                                if (showEmojiPicker) {
+                                    keyboardController?.hide()
+                                }
+                                onEmojiClick()
                             },
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_emoji),
                             contentDescription = "Emoji",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (showEmojiPicker) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -137,7 +150,6 @@ fun MessageInputComponent(
                 }
             }
 
-            // Send button
             IconButton(
                 onClick = {
                     if (messageText.isNotBlank()) {
@@ -160,76 +172,24 @@ fun MessageInputComponent(
                     painter = painterResource(id = R.drawable.ic_send),
                     contentDescription = "Send",
                     tint = if (messageText.isNotBlank()) {
-                        MaterialTheme.colorScheme.onPrimary
+                        Color.White
                     } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        Color.White
                     },
                     modifier = Modifier.size(20.dp),
                 )
             }
         }
 
-        // Emoji Picker inline (alternative to dialog)
         if (showEmojiPicker) {
             EmojiPickerInline(
                 onEmojiSelected = { emoji ->
                     onMessageChange(messageText + emoji)
                 },
-                onDismiss = { showEmojiPicker = false },
+                onDismiss = {
+                    showEmojiPicker = false
+                },
             )
-        }
-    }
-
-    // Emoji Picker Dialog (alternative approach)
-    if (showEmojiPicker) {
-        EmojiPickerDialog(
-            onEmojiSelected = { emoji ->
-                onMessageChange(messageText + emoji)
-            },
-            onDismiss = { showEmojiPicker = false },
-        )
-    }
-}
-
-@Composable
-fun EmojiPickerDialog(
-    onEmojiSelected: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Chọn emoji",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
-                            contentDescription = "Close",
-                        )
-                    }
-                }
-
-                EmojiGrid(
-                    onEmojiSelected = { emoji ->
-                        onEmojiSelected(emoji)
-                        onDismiss()
-                    },
-                )
-            }
         }
     }
 }
@@ -243,7 +203,7 @@ fun EmojiPickerInline(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 0.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
         Column {
@@ -270,7 +230,9 @@ fun EmojiPickerInline(
                 }
             }
 
-            EmojiGrid(onEmojiSelected = onEmojiSelected)
+            EmojiGrid(
+                onEmojiSelected = onEmojiSelected,
+            )
         }
     }
 }
@@ -300,9 +262,7 @@ fun EmojiGrid(
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(8),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
         contentPadding = PaddingValues(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -315,7 +275,9 @@ fun EmojiGrid(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(4.dp))
-                    .clickable { onEmojiSelected(emoji) }
+                    .clickable {
+                        onEmojiSelected(emoji)
+                    }
                     .padding(4.dp),
             )
         }

@@ -40,7 +40,6 @@ class ChatViewModelFactory(
                 savedStateHandle = savedStateHandle,
                 authRepository = authRepository,
                 getRoomUseCase = getRoomUseCase,
-                getUserRoomUseCase = getUserRoomUseCase,
                 getUserInfoUseCase = getUserInfoUseCase,
                 observeMessagesUseCase = observeMessagesUseCase,
                 observeUserRoomDetailsUseCase = observeUserRoomDetailsUseCase,

@@ -8,7 +8,6 @@ import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.AddTypingUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
-import com.android.internship.domain.usecase.GetUserRoomUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
@@ -36,7 +35,6 @@ class ChatViewModel(
     authRepository: AuthRepository,
     private val getRoomUseCase: GetRoomUseCase,
     private val getUserInfoUseCase: GetAllUsersInfoUseCase,
-    private val getUserRoomUseCase: GetUserRoomUseCase, // Không cần UseCase này nữa
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
     private val sendMessageUseCase: SendMessagesUseCase,
@@ -63,15 +61,15 @@ class ChatViewModel(
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             try {
-                // Biến lời gọi suspend thành Flow để đưa vào combine
                 val roomFlow = flow { emit(getRoomUseCase(roomId)) }
 
-                // Luồng chính lắng nghe các thay đổi của UserRoom
                 val userRoomDetailsFlow = observeUserRoomDetailsUseCase(roomId)
 
-                // Sử dụng flatMapLatest để lấy thông tin user MỖI KHI userRoomDetails thay đổi
+                // Fetch current user info separately to ensure it's always available
+                val currentUserFlow = flow { emit(getUserInfoUseCase(listOf(currentUserId)).firstOrNull()) }
+
                 val usersInRoomFlow = userRoomDetailsFlow.flatMapLatest { userRooms ->
-                    val userIds = userRooms.map { it.uid }.distinct()
+                    val userIds = userRooms.map { it.uid }.distinct().filter { it != currentUserId }
                     if (userIds.isNotEmpty()) {
                         flow { emit(getUserInfoUseCase(userIds)) }
                     } else {
@@ -79,9 +77,14 @@ class ChatViewModel(
                     }
                 }.distinctUntilChanged()
 
+                // Combine current user with other users
+                val allUsersFlow = combine(currentUserFlow, usersInRoomFlow) { currentUser, otherUsers ->
+                    listOfNotNull(currentUser) + otherUsers
+                }
+
                 combine(
                     roomFlow,
-                    usersInRoomFlow,
+                    allUsersFlow,
                     observeMessagesUseCase(roomId),
                     userRoomDetailsFlow,
                     _uiState.map { it.seenByExpandedState }.distinctUntilChanged(),
@@ -105,8 +108,9 @@ class ChatViewModel(
                         currentState.copy(
                             isLoading = false,
                             room = room,
-                            messages = processedItems, // Khớp với MessageState
+                            messages = processedItems,
                             userMap = usersInRoom.associateBy { it.uid },
+                            currentUser = usersInRoom.find { it.uid == currentUserId },
                         )
                     }
                 }.catch { e ->

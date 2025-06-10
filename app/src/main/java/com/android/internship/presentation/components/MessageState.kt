@@ -12,4 +12,5 @@ data class MessageState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val errorMessage: String? = null,
+    val currentUser: User? = null,
 )
