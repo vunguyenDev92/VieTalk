@@ -1,4 +1,4 @@
-package com.android.internship.presentation.components
+package com.android.internship.presentation.components.chatlist
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +16,6 @@ import coil3.compose.AsyncImage
 @Composable
 fun ChatNonMessageItem(
     avatarUrl: String,
-    memberAvatars: List<String>,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -25,7 +24,7 @@ fun ChatNonMessageItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
-            model = memberAvatars.getOrNull(0),
+            model = avatarUrl,
             contentDescription = "Avatar member 1",
             modifier = Modifier
                 .padding(top = 17.dp)

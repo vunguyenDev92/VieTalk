@@ -1,5 +1,6 @@
-package com.android.internship.presentation.components
+package com.android.internship.presentation.components.chatlist
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,9 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,12 +30,12 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 
 @Composable
-fun ChatIsGroupItem(
+fun ChatIsNotGroupItem(
+    avatarUrl: String,
     name: String,
-    memberAvatars: List<String>,
     lastMessage: String,
-    lastSenderName: String,
     timestamp: String,
+    isOnline: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -44,29 +46,28 @@ fun ChatIsGroupItem(
             .padding(horizontal = 16.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box {
+        Box(contentAlignment = Alignment.BottomEnd) {
             AsyncImage(
-                model = memberAvatars.getOrNull(0),
-                contentDescription = "Avatar of group member 1",
+                model = avatarUrl,
+                contentDescription = "Avatar of $name",
                 modifier = Modifier
-                    .padding(top = 17.dp)
-                    .size(53.dp)
+                    .size(70.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
             )
-
-            if (memberAvatars.size > 1) {
-                AsyncImage(
-                    model = memberAvatars[1],
-                    contentDescription = "Avatar of group member 2",
-                    modifier = Modifier
-                        .padding(start = 15.dp, bottom = 5.dp)
-                        .size(56.dp)
-                        .padding(start = 5.dp, bottom = 5.dp)
-                        .clip(CircleShape),
-
-                    contentScale = ContentScale.Crop,
-                )
+            if (isOnline) {
+                Canvas(
+                    modifier = Modifier,
+                ) {
+                    drawCircle(
+                        color = Color.Green,
+                        radius = 4.dp.toPx(),
+                        center = Offset(
+                            this.size.width - 10.dp.toPx(),
+                            this.size.height - 10.dp.toPx(),
+                        ),
+                    )
+                }
             }
         }
 
@@ -84,19 +85,17 @@ fun ChatIsGroupItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+
             Spacer(modifier = Modifier.height(4.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = buildAnnotatedString {
-                        append(lastSenderName)
-                        append(": ")
-                        append(lastMessage)
-                    },
+                    text = lastMessage,
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.W400,

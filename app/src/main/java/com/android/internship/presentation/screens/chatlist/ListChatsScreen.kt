@@ -1,18 +1,14 @@
 package com.android.internship.presentation.screens.listchats
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.AccountCircle
 import androidx.compose.material.icons.sharp.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,9 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.android.internship.presentation.components.ChatIsGroupItem
-import com.android.internship.presentation.components.ChatIsNotGroupItem
-import com.android.internship.presentation.components.ChatNonMessageItem
+import com.android.internship.presentation.components.chatlist.ChatListUserComponent
+import com.android.internship.presentation.components.chatlist.ConnectWithOthersItem
+import com.android.internship.presentation.components.chatlist.EmptyChatList
+import com.android.internship.presentation.components.chatlist.chats
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,9 +38,6 @@ fun ListChatsScreen(
     navController: NavController,
     onChatClick: (String) -> Unit,
 ) {
-    val chats = emptyList<ChatData>()
-    val chatsNonData = emptyList<ChatNonData>()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -74,73 +69,36 @@ fun ListChatsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = Color.White,
                 ),
             )
         },
     ) { innerPadding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-        ) {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 8.dp),
+        if (chats.isEmpty()) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .background(Color.White),
             ) {
-                items(chatsNonData) { chat ->
-                    ChatNonMessageItem(
-                        avatarUrl = chat.avatarUrl,
-                        memberAvatars = chat.memberAvatars ?: emptyList(),
-                    )
-                }
-            }
-            HorizontalDivider(thickness = 2.dp)
+                ConnectWithOthersItem()
 
-            LazyColumn(
-                contentPadding = PaddingValues(vertical = 8.dp),
+                EmptyChatList()
+            }
+        } else {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .background(Color.White),
             ) {
-                items(chats) { chat ->
-                    if (chat.isGroupChat) {
-                        ChatIsGroupItem(
-                            name = chat.name,
-                            memberAvatars = chat.memberAvatars ?: emptyList(),
-                            lastMessage = chat.lastMessage,
-                            lastSenderName = chat.lastSenderName ?: "",
-                            timestamp = chat.timestamp,
-                            onClick = { onChatClick(chat.id) },
-                        )
-                    } else {
-                        ChatIsNotGroupItem(
-                            avatarUrl = chat.avatarUrl,
-                            name = chat.name,
-                            lastMessage = chat.lastMessage,
-                            timestamp = chat.timestamp,
-                            isOnline = chat.isOnline,
-                            onClick = { onChatClick(chat.id) },
-                        )
-                    }
-                }
+                ConnectWithOthersItem()
+
+                ChatListUserComponent(onChatClick)
             }
         }
     }
 }
-
-data class ChatData(
-    val id: String,
-    val name: String,
-    val avatarUrl: String,
-    val lastMessage: String,
-    val timestamp: String,
-    val isOnline: Boolean,
-    val isGroupChat: Boolean = false,
-    val memberAvatars: List<String>? = null,
-    val lastSenderName: String? = null,
-)
-
-data class ChatNonData(
-    val avatarUrl: String,
-    val memberAvatars: List<String>? = null,
-)
 
 @Preview(showBackground = true)
 @Composable
