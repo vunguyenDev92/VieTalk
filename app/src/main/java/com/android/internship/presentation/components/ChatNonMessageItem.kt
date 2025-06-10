@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 
 @Composable
 fun ChatNonMessageItem(
@@ -26,7 +26,7 @@ fun ChatNonMessageItem(
     ) {
         AsyncImage(
             model = memberAvatars.getOrNull(0),
-            contentDescription = "Avatar of group member 1",
+            contentDescription = "Avatar member 1",
             modifier = Modifier
                 .padding(top = 17.dp)
                 .size(53.dp)

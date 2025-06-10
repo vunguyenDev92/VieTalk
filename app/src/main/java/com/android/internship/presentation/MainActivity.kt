@@ -21,7 +21,6 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.padding(it)) {
                         Navigation()
                         CommonToastManager.ToastHost()
-                        // list chat base
                     }
                 }
             }

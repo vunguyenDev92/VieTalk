@@ -40,43 +40,8 @@ fun ListChatsScreen(
     navController: NavController,
     onChatClick: (String) -> Unit,
 ) {
-    val chats = listOf(
-        ChatData(
-            id = "1",
-            name = "Albert Flores",
-            avatarUrl = "https://randomuser.me/api/portraits/men/1.jpg",
-            lastMessage = "hello how are you today hhhhhhhhhhhhhhhhhhhhhhhhhh",
-            timestamp = "10:13 am",
-            isOnline = true,
-        ),
-        ChatData(
-            id = "2",
-            name = "Group gaming",
-            avatarUrl = "",
-            lastMessage = "Hi!",
-            timestamp = "10:13 am",
-            isOnline = false,
-            isGroupChat = true,
-            memberAvatars = listOf(
-                "https://randomuser.me/api/portraits/men/2.jpg",
-                "https://randomuser.me/api/portraits/women/3.jpg",
-                "https://randomuser.me/api/portraits/men/4.jpg",
-            ),
-            lastSenderName = "John",
-        ),
-    )
-
-    val chatsNonData = listOf(
-        ChatNonData(
-            avatarUrl = "https://randomuser.me/api/portraits/men/1.jpg",
-        ),
-        ChatNonData(
-            avatarUrl = "https://randomuser.me/api/portraits/men/2.jpg",
-        ),
-        ChatNonData(
-            avatarUrl = "https://randomuser.me/api/portraits/men/3.jpg",
-        ),
-    )
+    val chats = emptyList<ChatData>()
+    val chatsNonData = emptyList<ChatNonData>()
 
     Scaffold(
         topBar = {
