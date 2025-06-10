@@ -28,5 +28,7 @@ fun NavGraphBuilder.main(navController: NavHostController) {
         composable<Screen.Chat> {
             ChatScreen(navController)
         }
+
+        // Chat list
     }
 }
