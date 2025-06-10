@@ -3,11 +3,12 @@ package com.android.internship.data.datasource.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "users")
-data class UserEntity(
+@Entity(tableName = "messages")
+data class MessageEntity(
     @PrimaryKey
+    val mid: String,
+    val rid: String,
     val uid: String,
-    val username: String,
-    val lastActiveTime: String,
-    val avatar: String?,
+    val content: String,
+    val time: String,
 )
