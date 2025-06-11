@@ -43,6 +43,7 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
+import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
@@ -56,6 +57,9 @@ fun ChatScreen(
             authRepository = appContainer.authRepository,
             roomRepository = appContainer.roomRepository,
             connectivityObserver = appContainer.connectivityObserver,
+            userRepository = appContainer.userRepository,
+            messageRepository = appContainer.messageRepository,
+            userRoomRepository = appContainer.userRoomRepository,
         ),
     )
 
@@ -139,7 +143,7 @@ fun ChatScreen(
                         key = { item ->
                             when (item) {
                                 is MessageItem.MessageBubbles -> "msg_${item.message.mid}"
-                                is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(java.time.ZoneOffset.UTC)}"
+                                is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(ZoneOffset.UTC)}"
                                 is MessageItem.TypingIndicator -> "typing_indicator"
                             }
                         },
@@ -151,7 +155,7 @@ fun ChatScreen(
                             is MessageItem.MessageBubbles -> {
                                 if (!messageItem.isFromMe) {
                                     LaunchedEffect(messageItem.message.mid) {
-                                        viewModel.markAsSeen(messageItem.message)
+                                        viewModel.markAsSeen(messageItem.message.mid)
                                     }
                                 }
                                 MessageBubbleComponent(

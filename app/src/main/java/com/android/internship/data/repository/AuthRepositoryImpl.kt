@@ -1,56 +1,29 @@
 package com.android.internship.data.repository
 
-import com.android.internship.data.datasource.local.AuthLocalDataSource
-import com.android.internship.data.datasource.remote.AuthRemoteDataSource
-import com.android.internship.data.model.SignInResponse
-import com.android.internship.data.model.User
 import com.android.internship.domain.repository.AuthRepository
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl(
-    private val remoteDataSource: AuthRemoteDataSource,
-    private val localDataSource: AuthLocalDataSource,
-) : AuthRepository {
+class AuthRepositoryImpl : AuthRepository {
+    private val auth = FirebaseAuth.getInstance()
 
-    override suspend fun signIn(email: String, password: String): SignInResponse {
-        val result = remoteDataSource.signInWithEmailAndPassword(email, password)
-        if (result.isFailure) {
-            return SignInResponse(
-                success = false,
-                message = result.exceptionOrNull()?.message ?: "Sign-in failed",
-            )
+    override suspend fun signIn(
+        email: String,
+        password: String,
+    ): Result<String> {
+        try {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            return Result.success(result.user?.uid ?: "")
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
-        return SignInResponse(
-            success = true,
-            message = "Sign-in successful",
-        )
     }
 
     override fun isSignedIn(): Boolean {
-        return localDataSource.isUserSignedIn()
-    }
-
-    override suspend fun getLastActiveTimeUser(uid: String): String {
-        return remoteDataSource.getActiveUser(uid)
-    }
-
-    override fun updateActiveUser(uid: String, lastActiveTime: String) {
-        remoteDataSource.updateActiveUser(uid = uid, lastActiveTime = lastActiveTime)
-    }
-
-    override fun setMuteGroup(rid: String, uid: String, time: String?) {
-        remoteDataSource.updateMuteUser(rid = rid, uid = uid, time = time)
-    }
-
-    override suspend fun getUserInfo(uid: String): User? {
-        return remoteDataSource.getUserFromFireStore(uid)
+        return auth.currentUser != null
     }
 
     override fun getCurrentUserId(): String? {
-        val user = localDataSource.getCurrentUser()
-        return user?.uid
-    }
-
-    override suspend fun getUsersInfo(uids: List<String>): List<User> {
-        return remoteDataSource.getUsersFromFirestore(uids)
+        return auth.currentUser?.uid
     }
 }

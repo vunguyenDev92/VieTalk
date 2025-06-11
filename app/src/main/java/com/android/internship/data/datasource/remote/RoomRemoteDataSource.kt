@@ -8,6 +8,12 @@ import kotlinx.coroutines.tasks.await
 class RoomRemoteDataSource {
     private val firestore = FirebaseFirestore.getInstance()
 
+    fun addRoom(room: Room) {
+        firestore.collection("rooms")
+            .document(room.rid)
+            .set(room)
+    }
+
     suspend fun getRoomById(rid: String): Room? {
         val snapshot = firestore.collection("rooms")
             .document(rid)

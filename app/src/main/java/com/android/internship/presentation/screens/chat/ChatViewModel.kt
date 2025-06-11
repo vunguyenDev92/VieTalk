@@ -3,17 +3,17 @@ package com.android.internship.presentation.screens.chat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.android.internship.domain.repository.AuthRepository
-import com.android.internship.domain.usecase.AddTypingUseCase
+import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
-import com.android.internship.domain.usecase.UpdateActiveUserUseCase
+import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
@@ -40,8 +40,9 @@ class ChatViewModel(
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
     private val sendMessageUseCase: SendMessagesUseCase,
     private val seenMessageUseCase: SeenMessageUseCase,
-    private val addTypingUseCase: AddTypingUseCase,
-    private val updateActiveUserUseCase: UpdateActiveUserUseCase,
+    private val addTypingUseCase: UpdateTypingTimeUseCase,
+    private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
+    private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
     private val connectivityObserver: IConnectivityObserver,
 ) : ViewModel() {
 
@@ -82,7 +83,7 @@ class ChatViewModel(
         val usersInRoomFlow = userRoomDetailsFlow.flatMapLatest { userRooms ->
             val userIds = userRooms.map { it.uid }.distinct()
             if (userIds.isNotEmpty()) {
-                flow { emit(getUserInfoUseCase(userIds)) }
+                flow { emit(getAllUsersInRoomUseCase(userIds)) }
             } else {
                 flowOf(emptyList())
             }
@@ -213,9 +214,9 @@ class ChatViewModel(
         _uiState.update { it.copy(expandedMessageId = newExpandedId) }
     }
 
-    fun markAsSeen(message: Message) {
+    fun markAsSeen(messageId: String) {
         viewModelScope.launch {
-            seenMessageUseCase(rid = roomId, message = message)
+            seenMessageUseCase(rid = roomId, lastSeenMessageId = messageId)
         }
     }
 

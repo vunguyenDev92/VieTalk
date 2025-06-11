@@ -17,20 +17,18 @@ class UserRoomRemoteDataSource {
             .set(userRoom)
     }
 
-    suspend fun getUserRoomRemote(rid: String, uid: String): UserRoom? {
-        val snapshot = firestore.collection("userRooms")
-            .document("${rid}_$uid")
-            .get()
-            .await()
-        return snapshot.toObject<UserRoom>()
-    }
-
     suspend fun getUserRoomsForRoom(rid: String): List<UserRoom> {
         val snapshot = firestore.collection("userRooms")
             .whereEqualTo("rid", rid)
             .get()
             .await()
         return snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
+    }
+
+    fun updateMute(rid: String, uid: String, mute: Boolean, turnOnTime: String?) {
+        firestore.collection("userRooms")
+            .document("${rid}_$uid")
+            .update("mute", mute, "turnOnTime", turnOnTime)
     }
 
     fun updateTypingTime(rid: String, uid: String, time: String) {

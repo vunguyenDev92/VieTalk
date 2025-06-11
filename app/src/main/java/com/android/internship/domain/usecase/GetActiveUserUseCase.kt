@@ -1,13 +1,13 @@
 package com.android.internship.domain.usecase
 
-import com.android.internship.domain.repository.AuthRepository
+import com.android.internship.domain.repository.UserRepository
 
 class GetActiveUserUseCase(
-    private val authRepository: AuthRepository,
+    private val repository: UserRepository,
 ) {
     suspend operator fun invoke(uid: String): Boolean {
         val currentTime = System.currentTimeMillis()
-        val lastActiveTime = authRepository.getLastActiveTimeUser(uid)?.toLongOrNull() ?: 0L
+        val lastActiveTime = repository.getUserRemote(uid)?.lastActiveTime?.toLongOrNull() ?: 0L
         return currentTime - lastActiveTime <= DEFAULT_TIMEOUT_MS
     }
 

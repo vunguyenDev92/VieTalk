@@ -13,7 +13,7 @@ class MessageRemoteDataSource {
     private val firestore = FirebaseFirestore.getInstance()
     private val messagesCollection = firestore.collection("messages")
 
-    fun addRemoteMessage(rid: String, message: Message) {
+    fun addRemoteMessage(message: Message) {
         firestore.collection("messages")
             .document(message.mid)
             .set(message)
@@ -34,7 +34,6 @@ class MessageRemoteDataSource {
                 if (snapshot != null) {
                     val messages = snapshot.documents.mapNotNull { it.toObject<Message>() }
                     trySend(messages)
-                } else {
                 }
             }
 

@@ -36,25 +36,4 @@ class UserRoomLocalDataSource(context: Context) {
             )
         }
     }
-
-    suspend fun getUserRoom(rid: String, uid: String): UserRoom? {
-        return userRoomDao.getUserRoom(rid, uid)?.let {
-            UserRoom(
-                rid = it.rid,
-                uid = it.uid,
-                mute = it.mute,
-                turnOnTime = it.turnOnTime,
-                lastSeenMessages = it.lastSeenMessages,
-                typingTime = it.typingTime,
-            )
-        }
-    }
-
-    suspend fun updateIsTyping(rid: String, uid: String, typingTime: String) {
-        userRoomDao.updateTypingStatus(rid, uid, typingTime)
-    }
-
-    suspend fun updateLastSeenMessages(rid: String, uid: String, lastSeenMessages: String?) {
-        userRoomDao.updateLastSeenMessages(rid, uid, lastSeenMessages)
-    }
 }
