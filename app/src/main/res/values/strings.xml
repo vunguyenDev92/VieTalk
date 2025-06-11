@@ -16,6 +16,10 @@
     <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one number</string>
     <string name="login_successful">Login successful!</string>
     <!--  Dialog  -->
-    <string name="close">CLOSE</string>
+    <string name="close">Close</string>
     <string name="error">Error</string>
+    <string name="cancel">Cancel</string>
+    <!--  Drawer  -->
+    <string name="log_out">Log Out</string>
+    <string name="are_you_sure_you_want_to_log_out">Are you sure you want to log out?</string>
 </resources>
