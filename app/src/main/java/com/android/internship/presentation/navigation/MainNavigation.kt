@@ -7,15 +7,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.screens.SplashScreen
-import com.android.internship.presentation.screens.chatlist.ListChatsScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
-import com.android.internship.presentation.screens.signin.SignInScreen
 import com.android.internship.presentation.screens.chatlist.ChatListViewModel
 import com.android.internship.presentation.screens.chatlist.ChatListViewModelFactory
+import com.android.internship.presentation.screens.chatlist.ListChatsScreen
+import com.android.internship.presentation.screens.signin.SignInScreen
 
 fun NavGraphBuilder.main(
     navController: NavHostController,
-    appContainer: AppContainer
+    appContainer: AppContainer,
 ) {
     navigation(
         startDestination = Screen.Splash,
@@ -37,16 +37,16 @@ fun NavGraphBuilder.main(
             ChatScreen(navController)
         }
 
-        composable<Screen.ListChat> {
+        composable<Screen.ChatList> {
             val viewModel: ChatListViewModel = viewModel(
-                factory = ChatListViewModelFactory(appContainer)
+                factory = ChatListViewModelFactory(appContainer),
             )
             ListChatsScreen(
                 navController = navController,
                 viewModel = viewModel,
                 onChatClick = { chatId ->
                     navController.navigate("chat/$chatId")
-                }
+                },
             )
         }
     }

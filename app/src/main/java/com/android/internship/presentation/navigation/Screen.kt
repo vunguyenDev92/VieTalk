@@ -18,5 +18,5 @@ sealed class Screen {
     data object Chat : Screen()
 
     @Serializable
-    data object ListChat : Screen()
+    data object ChatList : Screen()
 }

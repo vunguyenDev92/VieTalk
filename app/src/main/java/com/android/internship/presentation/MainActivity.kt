@@ -17,12 +17,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        appContainer = AppContainer(applicationContext)
+
         enableEdgeToEdge()
         setContent {
             AppTheme {
                 Scaffold {
                     Box(modifier = Modifier.padding(it)) {
-                        Navigation(appContainer)
+                        Navigation(appContainer = appContainer)
                         CommonToastManager.ToastHost()
                     }
                 }

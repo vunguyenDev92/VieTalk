@@ -25,19 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.android.internship.data.model.User
-import com.android.internship.domain.repository.UserRepository
-import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.presentation.components.chatlist.ChatListUserComponent
 import com.android.internship.presentation.components.chatlist.ConnectWithOthersItem
 import com.android.internship.presentation.components.chatlist.EmptyChatList
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +46,10 @@ fun ListChatsScreen(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { /* TODO: Handle menu click */ }) {
                         Icon(
                             imageVector = Icons.Sharp.Menu,
-                            contentDescription = "Menu description",
+                            contentDescription = "Menu",
                             Modifier.size(30.dp),
                         )
                     }
@@ -71,10 +64,10 @@ fun ListChatsScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { /* TODO: Handle profile click */ }) {
                         Icon(
                             imageVector = Icons.Sharp.AccountCircle,
-                            contentDescription = "Edit Profile",
+                            contentDescription = "Profile",
                             Modifier.size(40.dp),
                         )
                     }
@@ -123,54 +116,54 @@ fun ListChatsScreen(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewListChatsScreen() {
-    val mockRepository = object : UserRepository {
-        override fun addUserRemote(uid: String, username: String, lastActiveTime: String, avatar: String?) {}
-        override suspend fun getUserRemote(uid: String): User? = null
-        override suspend fun getAllUserRemote(): List<User>? = null
-        override fun updateActiveTime(uid: String, lastActiveTime: String) {}
-        override fun updateAvatar(uid: String, avatar: String) {}
-        override suspend fun getUserLocal(uid: String): User? = null
-        override suspend fun getAllUserLocal(): List<User>? = null
-        override suspend fun saveLocalUser(user: User) {}
-        override suspend fun saveLocalUsers(users: List<User>) {}
-    }
-    val fakeChatEmptyItems = emptyList<ChatItemState>()
-    val fakeChatItems =
-    listOf(
-        ChatItemState(
-            id = "1",
-            name = "Preview User",
-            avatarUrl = "",
-            lastMessage = "Hello from preview!",
-            timestamp = "12:00",
-            isOnline = true,
-            isGroupChat = false,
-            memberAvatars = null,
-            lastSenderName = null,
-        ),
-        ChatItemState(
-            id = "2",
-            name = "Preview User",
-            avatarUrl = "",
-            lastMessage = "Hello from preview!",
-            timestamp = "12:00",
-            isOnline = true,
-            isGroupChat = false,
-            memberAvatars = null,
-            lastSenderName = null,
-        ),
-    )
-    val fakeState = ChatListState(chatItems = fakeChatItems)
-    val fakeViewModel = object : ChatListViewModel(GetAllUsersInfoUseCase(mockRepository)) {
-        override val state = MutableStateFlow(fakeState).asStateFlow()
-    }
-    ListChatsScreen(
-        onChatClick = { },
-        navController = rememberNavController(),
-        viewModel = fakeViewModel,
-    )
-}
+//
+// @Preview(showBackground = true)
+// @Composable
+// fun PreviewListChatsScreen() {
+//    val mockRepository = object : UserRepository {
+//        override fun addUserRemote(uid: String, username: String, lastActiveTime: String, avatar: String?) {}
+//        override suspend fun getUserRemote(uid: String): User? = null
+//        override suspend fun getAllUserRemote(): List<User>? = null
+//        override fun updateActiveTime(uid: String, lastActiveTime: String) {}
+//        override fun updateAvatar(uid: String, avatar: String) {}
+//        override suspend fun getUserLocal(uid: String): User? = null
+//        override suspend fun getAllUserLocal(): List<User>? = null
+//        override suspend fun saveLocalUser(user: User) {}
+//        override suspend fun saveLocalUsers(users: List<User>) {}
+//    }
+//    val fakeChatEmptyItems = emptyList<ChatItemState>()
+//    val fakeChatItems =
+//    listOf(
+//        ChatItemState(
+//            id = "1",
+//            name = "Preview User",
+//            avatarUrl = "",
+//            lastMessage = "Hello from preview!",
+//            timestamp = "12:00",
+//            isOnline = true,
+//            isGroupChat = false,
+//            memberAvatars = null,
+//            lastSenderName = null,
+//        ),
+//        ChatItemState(
+//            id = "2",
+//            name = "Preview User",
+//            avatarUrl = "",
+//            lastMessage = "Hello from preview!",
+//            timestamp = "12:00",
+//            isOnline = true,
+//            isGroupChat = false,
+//            memberAvatars = null,
+//            lastSenderName = null,
+//        ),
+//    )
+//    val fakeState = ChatListState(chatItems = fakeChatItems)
+//    val fakeViewModel = object : ChatListViewModel(GetAllUsersInfoUseCase(mockRepository)) {
+//        override val state = MutableStateFlow(fakeState).asStateFlow()
+//    }
+//    ListChatsScreen(
+//        onChatClick = { },
+//        navController = rememberNavController(),
+//        viewModel = fakeViewModel,
+//    )
+// }
