@@ -1,19 +1,26 @@
 package com.android.internship.presentation.screens.chatlist
 
-data class ChatItemState(
-    val isOnline: Boolean = false,
-    val isGroupChat: Boolean = false,
-    val memberAvatars: List<String>? = null,
-    val id: String = "",
-    val name: String = "",
-    val avatarUrl: String = "",
-    val lastMessage: String = "",
-    val timestamp: String = "",
-    val lastSenderName: String? = null,
-)
-
 data class ChatListState(
-    val chatItems: List<ChatItemState> = emptyList(),
+    val chatRoomItems: List<ChatRoomItemState> = emptyList(),
+    val chatUserItems: List<ChatUserItemState> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
-)
+    val error: String? = null,
+) {
+    data class ChatRoomItemState(
+        val isGroupChat: Boolean = false,
+        val isActive: Boolean = false,
+        val id: String = "",
+        val name: String = "",
+        val memberAvatars: List<String>? = null,
+        val lastMessage: String = "",
+        val lastMessageTime: String = "",
+        val lastSenderName: String? = null,
+    )
+
+    data class ChatUserItemState(
+        val isOnline: Boolean = false,
+        val id: String = "",
+        val name: String = "",
+        val avatar: String? = null,
+    )
+}

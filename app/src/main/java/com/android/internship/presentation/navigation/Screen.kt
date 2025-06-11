@@ -19,4 +19,7 @@ sealed class Screen {
 
     @Serializable
     data object ChatList : Screen()
+
+    @Serializable
+    data object GroupEditor : Screen()
 }

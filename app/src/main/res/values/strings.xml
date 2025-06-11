@@ -12,14 +12,24 @@
     <string name="password">PASSWORD</string>
     <string name="password_is_required">Please enter your password.</string>
     <string name="invalid_password">Password must be at least 8 characters long</string>
-    <string name="connect_with_others">Connect with Others</string>
     <string name="password_must_contain_at_least_one_letter_and_one_number">Password must contain at least one letter and one number</string>
     <string name="login_successful">Login successful!</string>
     <!--  Dialog  -->
     <string name="close">Close</string>
     <string name="error">Error</string>
     <string name="cancel">Cancel</string>
-    <!--  Drawer  -->
+    <!--  Chat List Screen  -->
+    <string name="connect_with_others">Connect with Others</string>
     <string name="log_out">Log Out</string>
+    <string name="open_drawer">Open Drawer</string>
     <string name="are_you_sure_you_want_to_log_out">Are you sure you want to log out?</string>
+    <string name="create_new_group">Create new group</string>
+    <string name="chats">Chats</string>
+    <string name="an_error_occurred">An error occurred</string>
+    <string name="empty_list_illustration">Empty list illustration</string>
+    <string name="it_looks_like_you_haven_t_added_anything_here">It looks like you haven\'t added anything here.</string>
+    <string name="tap_the">"Tap the "</string>
+    <string name="button_to_get_started">" button to get started."</string>
+    <string name="create_new_group_icon">Create new group icon</string>
+    <string name="no_internet_connection">No internet connection!</string>
 </resources>

@@ -1,16 +1,14 @@
 package com.android.internship.presentation.navigation
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.android.internship.di.AppContainer
+import com.android.internship.presentation.screens.GroupEditorScreen
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
-import com.android.internship.presentation.screens.chatlist.ChatListViewModel
-import com.android.internship.presentation.screens.chatlist.ChatListViewModelFactory
-import com.android.internship.presentation.screens.chatlist.ListChatsScreen
+import com.android.internship.presentation.screens.chatlist.ChatListScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
 
 fun NavGraphBuilder.main(
@@ -38,16 +36,11 @@ fun NavGraphBuilder.main(
         }
 
         composable<Screen.ChatList> {
-            val viewModel: ChatListViewModel = viewModel(
-                factory = ChatListViewModelFactory(appContainer),
-            )
-            ListChatsScreen(
-                navController = navController,
-                viewModel = viewModel,
-                onChatClick = { chatId ->
-                    navController.navigate("chat/$chatId")
-                },
-            )
+            ChatListScreen(navController)
+        }
+
+        composable<Screen.GroupEditor> {
+            GroupEditorScreen(navController)
         }
     }
 }

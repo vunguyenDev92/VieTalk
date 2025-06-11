@@ -11,7 +11,14 @@ class GetMessagesUseCase(
         val localMessages = repository.getLocalMessages(rid)
 
         return if (remoteMessages != null) {
-            if (localMessages == null || (startMessageId == null && remoteMessages.first().mid != localMessages.first().mid)) {
+            if (localMessages == null ||
+                (
+                    startMessageId == null &&
+                        remoteMessages.isNotEmpty() &&
+                        localMessages.isNotEmpty() &&
+                        remoteMessages.first().mid != localMessages.first().mid
+                    )
+            ) {
                 repository.saveLocalMessages(remoteMessages)
                 remoteMessages
             } else {

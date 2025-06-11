@@ -61,7 +61,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.coil.compose)
 
     // firebase
     implementation(platform(libs.firebase.bom))
@@ -74,6 +73,9 @@ dependencies {
 
     // GSON
     implementation(libs.gson)
+
+    // Coil
+    implementation(libs.coil.compose)
 }
 
 // KtLint configuration

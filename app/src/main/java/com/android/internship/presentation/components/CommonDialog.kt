@@ -37,14 +37,14 @@ fun CommonDialog(
     button: @Composable () -> Unit = {
         TextButtonDialog(
             text = stringResource(R.string.close).uppercase(),
-            onClick = { onDismissRequest },
+            onClick = { onDismissRequest() },
         )
     },
 ) {
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
-            dismissOnBackPress = false,
+            dismissOnBackPress = true,
             dismissOnClickOutside = true,
             usePlatformDefaultWidth = false,
         ),
