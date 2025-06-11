@@ -1,14 +1,22 @@
 package com.android.internship.data.datasource.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.android.internship.data.datasource.local.entity.UserEntity
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM users WHERE isCurrentUser = 1 LIMIT 1")
-    suspend fun getCurrentUser(): UserEntity?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: UserEntity)
 
-    @Query("SELECT uid FROM users WHERE isCurrentUser = 1 LIMIT 1")
-    suspend fun getCurrentUserId(): String?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUsers(users: List<UserEntity>)
+
+    @Query("SELECT * FROM users WHERE uid = :uid")
+    suspend fun getUser(uid: String): UserEntity?
+
+    @Query("SELECT * FROM users")
+    suspend fun getAllUsers(): List<UserEntity>
 }

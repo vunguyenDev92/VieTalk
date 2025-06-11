@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.di.AppContainer
-import com.android.internship.domain.usecase.GetSignInStatus
+import com.android.internship.domain.usecase.GetSignInStatusUseCase
 import com.android.internship.presentation.navigation.Screen
 import kotlinx.coroutines.delay
 
@@ -25,8 +25,8 @@ fun SplashScreen(
 ) {
     LaunchedEffect(Unit) {
         delay(1000)
-        if (GetSignInStatus(AppContainer(navController.context).authRepository).invoke() == true) {
-            navController.navigate(Screen.ListChat) {
+        if (GetSignInStatusUseCase(AppContainer(navController.context).authRepository).invoke() == true) {
+            navController.navigate(Screen.Chat) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         } else {
