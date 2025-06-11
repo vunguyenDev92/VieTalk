@@ -9,11 +9,11 @@ import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.usecase.AddTypingUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
-import com.android.internship.domain.usecase.GetUserRoomUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
+import com.android.internship.domain.usecase.UpdateActiveUserUseCase
 
 class ChatViewModelFactory(
     private val authRepository: AuthRepository,
@@ -25,27 +25,17 @@ class ChatViewModelFactory(
         if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
             val savedStateHandle = extras.createSavedStateHandle()
 
-            val getRoomUseCase = GetRoomUseCase(roomRepository)
-            val getUserRoomUseCase = GetUserRoomUseCase(roomRepository)
-            val getUserInfoUseCase = GetAllUsersInfoUseCase(authRepository)
-            val observeMessagesUseCase = ObserveMessagesUseCase(roomRepository)
-            val observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(roomRepository)
-            val sendMessageUseCase = SendMessagesUseCase(authRepository, roomRepository)
-            val seenMessageUseCase = SeenMessageUseCase(authRepository, roomRepository)
-            val addTypingUseCase = AddTypingUseCase(authRepository, roomRepository)
-//            val stopTypingUseCase = StopTypingUseCase(authRepository, roomRepository)
-
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
                 authRepository = authRepository,
-                getRoomUseCase = getRoomUseCase,
-                getUserInfoUseCase = getUserInfoUseCase,
-                observeMessagesUseCase = observeMessagesUseCase,
-                observeUserRoomDetailsUseCase = observeUserRoomDetailsUseCase,
-                sendMessageUseCase = sendMessageUseCase,
-                seenMessageUseCase = seenMessageUseCase,
-                addTypingUseCase = addTypingUseCase,
-//                stopTypingUseCase = stopTypingUseCase,
+                getRoomUseCase = GetRoomUseCase(roomRepository),
+                getUserInfoUseCase = GetAllUsersInfoUseCase(authRepository),
+                observeMessagesUseCase = ObserveMessagesUseCase(roomRepository),
+                observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(roomRepository),
+                sendMessageUseCase = SendMessagesUseCase(authRepository, roomRepository),
+                seenMessageUseCase = SeenMessageUseCase(authRepository, roomRepository),
+                addTypingUseCase = AddTypingUseCase(authRepository, roomRepository),
+                updateActiveUserUseCase = UpdateActiveUserUseCase(authRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

@@ -11,7 +11,7 @@ class GetRoomUseCase(
         val roomLocal = roomRepository.getRoomLocal(rid)
 
         return if (roomRemote != null) {
-            if (roomLocal == null) {
+            if (roomLocal == null || roomLocal != roomRemote) {
                 roomRepository.saveLocalRoom(roomRemote)
                 roomRemote
             }

@@ -74,7 +74,7 @@ dependencies {
     implementation(libs.gson)
 
     // image
-    implementation(libs.coil.compose)
+//    implementation(libs.coil.compose)
     implementation(libs.coil.kt.coil.compose)
 }
 

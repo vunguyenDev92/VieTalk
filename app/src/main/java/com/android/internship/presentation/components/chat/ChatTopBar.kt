@@ -1,3 +1,4 @@
+// file: com/android/internship/presentation/components/chat/ChatTopBar.kt
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.android.internship.presentation.components.chat
@@ -6,10 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
@@ -24,21 +23,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.android.internship.data.model.Room
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
-    room: Room,
-    memberAvatars: List<String> = emptyList(),
+    title: String,
+    subtitle: String,
+    avatarUrls: List<String>,
+    isSubtitleActive: Boolean,
     onBackClick: () -> Unit = {},
     onCallClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
@@ -47,24 +44,11 @@ fun ChatTopBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
             ) {
-                if (room.isGroup) {
-                    GroupAvatar(
-                        avatarUrls = memberAvatars,
-                        modifier = Modifier,
-                        size = 40.dp,
-                    )
-                } else {
-                    AsyncImage(
-                        model = room.avatar,
-                        contentDescription = "User Avatar",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
+                GroupAvatar(
+                    avatarUrls = avatarUrls,
+                    size = 40.dp,
+                )
 
                 Spacer(modifier = Modifier.width(12.dp))
 
@@ -72,15 +56,15 @@ fun ChatTopBar(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = room.name ?: "Unknown",
+                        text = title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = if (room.isGroup) "Group Chat" else "Active Now",
+                        text = subtitle,
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (isSubtitleActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
@@ -124,60 +108,49 @@ fun ChatTopBar(
                 )
             }
         },
-		colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
-		windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+        windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
     )
 }
 
-// Preview cho Single Chat
 @Preview(showBackground = true)
 @Composable
-fun ChatTopBarSinglePreview() {
+private fun ChatTopBarSingleActivePreview() {
     MaterialTheme {
         ChatTopBar(
-            room = Room(
-                rid = "1",
-                isGroup = false,
-                avatar = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                name = "John Doe",
-            ),
+            title = "John Doe",
+            subtitle = "Active Now",
+            avatarUrls = listOf("https://example.com/avatar.jpg"),
+            isSubtitleActive = true,
         )
     }
 }
 
-// Preview cho Group Chat
 @Preview(showBackground = true)
 @Composable
-fun ChatTopBarGroupPreview() {
+private fun ChatTopBarSingleOfflinePreview() {
     MaterialTheme {
         ChatTopBar(
-            room = Room(
-                rid = "2",
-                isGroup = true,
-                avatar = null,
-                name = "Team Discussion",
-            ),
-            memberAvatars = listOf(
-                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-            ),
+            title = "Jane Smith",
+            subtitle = "Offline",
+            avatarUrls = listOf("https://example.com/avatar2.jpg"),
+            isSubtitleActive = false,
         )
     }
 }
 
-// Preview cho Group Chat không có avatar
 @Preview(showBackground = true)
 @Composable
-fun ChatTopBarGroupEmptyAvatarPreview() {
+private fun ChatTopBarGroupPreview() {
     MaterialTheme {
         ChatTopBar(
-            room = Room(
-                rid = "3",
-                isGroup = true,
-                avatar = null,
-                name = "Empty Group",
+            title = "Team Discussion",
+            subtitle = "5 members",
+            avatarUrls = listOf(
+                "https://example.com/avatar1.jpg",
+                "https://example.com/avatar2.jpg",
             ),
-            memberAvatars = emptyList(),
+            isSubtitleActive = false,
         )
     }
 }

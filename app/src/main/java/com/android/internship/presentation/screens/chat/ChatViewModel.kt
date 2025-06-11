@@ -1,6 +1,5 @@
 package com.android.internship.presentation.screens.chat
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +13,7 @@ import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
+import com.android.internship.domain.usecase.UpdateActiveUserUseCase
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.Job
@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
@@ -41,6 +40,7 @@ class ChatViewModel(
     private val sendMessageUseCase: SendMessagesUseCase,
     private val seenMessageUseCase: SeenMessageUseCase,
     private val addTypingUseCase: AddTypingUseCase,
+    private val updateActiveUserUseCase: UpdateActiveUserUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -53,7 +53,9 @@ class ChatViewModel(
     private var typingTimeoutJob: Job? = null
 
     init {
+        updateActiveUserUseCase()
         loadChatData()
+        startPeriodicActiveUpdate()
     }
 
     private fun loadChatData() {
@@ -92,7 +94,8 @@ class ChatViewModel(
         ) { usersInRoom, messages, userRoomDetails, expandedId ->
 
             val totalMemberCount = usersInRoom.size
-            val isTrueGroup = room.isGroup && totalMemberCount > 2
+//            val isTrueGroup = room.isGroup && totalMemberCount > 2
+            val isTrueGroup = totalMemberCount > 2
             val otherUser = if (!isTrueGroup) usersInRoom.find { it.uid != currentUserId } else null
 
             val topBarTitle = if (isTrueGroup) {
@@ -102,12 +105,7 @@ class ChatViewModel(
             }
 
             val isPeerActive = otherUser?.let {
-                val lastActiveMillis = it.lastActiveTime.toLongOrNull() ?: 0L
-                val isActive = (System.currentTimeMillis() - lastActiveMillis) <= (5 * 60 * 1000)
-
-                Log.d("ChatViewModel", "lastActiveTime: $lastActiveMillis, isPeerActive: $isActive")
-
-                isActive
+                (System.currentTimeMillis() - (it.lastActiveTime.toLongOrNull() ?: 0L)) <= (3 * 60 * 1000)
             } ?: false
 
             val topBarSubtitle = if (isTrueGroup) {
@@ -120,7 +118,6 @@ class ChatViewModel(
                 usersInRoom
                     .filter { it.uid != currentUserId }
                     .mapNotNull { it.avatar }
-                    .shuffled()
                     .take(2)
             } else {
                 listOfNotNull(otherUser?.avatar)
@@ -153,6 +150,15 @@ class ChatViewModel(
                 )
             }
         }.catch { e -> _uiState.update { it.copy(isLoading = false, errorMessage = e.message) } }.collect()
+    }
+
+    private fun startPeriodicActiveUpdate() {
+        viewModelScope.launch {
+            while (true) {
+                delay(4 * 60 * 1000L)
+                updateActiveUserUseCase()
+            }
+        }
     }
 
     fun onMessageChange(text: String) {

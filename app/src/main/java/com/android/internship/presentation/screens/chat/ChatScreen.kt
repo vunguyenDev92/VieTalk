@@ -95,11 +95,14 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             uiState.room?.let { room ->
-                val memberAvatars = uiState.userMap.values.mapNotNull { it.avatar }
                 ChatTopBar(
-                    room = room,
-                    memberAvatars = memberAvatars,
+                    title = uiState.topBarTitle,
+                    subtitle = uiState.topBarSubtitle,
+                    avatarUrls = uiState.topBarAvatarUrls,
+                    isSubtitleActive = uiState.isPeerActive,
                     onBackClick = { navController.popBackStack() },
+                    onCallClick = { /* ... */ },
+                    onMoreClick = { /* ... */ },
                 )
             }
         },
