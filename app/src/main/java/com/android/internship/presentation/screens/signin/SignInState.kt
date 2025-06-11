@@ -7,5 +7,5 @@ data class SignInState(
     val passwordState: TextFieldState = TextFieldState(),
     val isLoading: Boolean = false,
     val signInSuccess: Boolean = false,
-    val errorMessage: String? = null,
+    val message: String? = null,
 )
