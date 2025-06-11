@@ -13,8 +13,8 @@ import com.android.internship.data.repository.AuthRepositoryImpl
 import com.android.internship.data.repository.RoomRepositoryImpl
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.repository.RoomRepository
-import com.android.internship.utils.ConnectivityObserver
-import com.android.internship.utils.IConnectivityObserver
+import com.android.internship.presentation.components.utils.ConnectivityObserver
+import com.android.internship.presentation.components.utils.IConnectivityObserver
 
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext

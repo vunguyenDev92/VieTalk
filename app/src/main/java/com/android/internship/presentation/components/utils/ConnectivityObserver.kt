@@ -1,4 +1,4 @@
-package com.android.internship.utils
+package com.android.internship.presentation.components.utils
 
 import android.content.Context
 import android.net.ConnectivityManager

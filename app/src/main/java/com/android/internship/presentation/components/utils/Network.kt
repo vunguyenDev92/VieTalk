@@ -1,3 +1,6 @@
+@file:Suppress("ktlint:standard:filename")
+
+package com.android.internship.presentation.components.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities

@@ -43,6 +43,7 @@ fun NetworkStatusBanner(
         ) {
             if (isRefreshing) {
                 CircularProgressIndicator(
+
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
                     color = MaterialTheme.colorScheme.primary,

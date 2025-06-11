@@ -14,7 +14,7 @@ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveUserUseCase
-import com.android.internship.utils.IConnectivityObserver
+import com.android.internship.presentation.components.utils.IConnectivityObserver
 
 class ChatViewModelFactory(
     private val authRepository: AuthRepository,

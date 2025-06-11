@@ -1,3 +1,4 @@
+// file: com/android/internship/presentation/components/utils/MessageProcessor.kt
 package com.android.internship.presentation.components.utils
 
 import com.android.internship.data.model.Message
@@ -19,14 +20,12 @@ fun processMessagesToItems(
     expandedMessageId: String?,
 ): List<MessageItem> {
     val userMap = usersInRoom.associateBy { it.uid }
-    val userRoomMap = userRoomDetails.associateBy { it.uid }
     val shouldShowSenderName = room.isGroup && usersInRoom.size > 2
     val items = mutableListOf<MessageItem>()
     var lastMessageTimestamp: LocalDateTime? = null
-    val sortedMessages = messages.sortedBy { it.time }
 
-    // Track which messages have TimeHeader above them
-    val messagesWithTimeHeader = mutableSetOf<String>()
+    val sortedMessages = messages.sortedBy { it.time }
+    val allMessagesMap = messages.associateBy { it.mid }
 
     sortedMessages.forEachIndexed { index, message ->
         val messageTime = try {
@@ -44,8 +43,6 @@ fun processMessagesToItems(
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
-            // Mark this message as having a TimeHeader above it
-            messagesWithTimeHeader.add(message.mid)
         }
         lastMessageTimestamp = messageTime
 
@@ -60,16 +57,23 @@ fun processMessagesToItems(
         val nextMessage = sortedMessages.getOrNull(index + 1)
         val showAvatar = nextMessage == null || nextMessage.uid != message.uid
 
-        val lastMessageInList = sortedMessages.lastOrNull()
-        val seenByUsers = usersInRoom.filter { user ->
-            if (user.uid == message.uid) return@filter false
-            val userDetail = userRoomMap[user.uid]
-            val lastSeenId = userDetail?.lastSeenMessages
-            lastSeenId != null && lastSeenId == lastMessageInList?.mid
+        val currentMessageTimestamp = message.time.toLongOrNull() ?: 0L
+
+        val seenByUsers = userRoomDetails.mapNotNull { userDetail ->
+            if (userDetail.uid == message.uid) return@mapNotNull null
+
+            val lastSeenMessageId = userDetail.lastSeenMessages ?: return@mapNotNull null
+            val lastSeenMessageObject = allMessagesMap[lastSeenMessageId] ?: return@mapNotNull null
+            val lastSeenTimestamp = lastSeenMessageObject.time.toLongOrNull() ?: 0L
+
+            if (lastSeenTimestamp >= currentMessageTimestamp) {
+                userMap[userDetail.uid]
+            } else {
+                null
+            }
         }
 
-        // LOGIC MỚI: Chỉ show expanded time header nếu tin nhắn này KHÔNG có TimeHeader phía trên
-        val isSeenByExpanded = message.mid == expandedMessageId && !messagesWithTimeHeader.contains(message.mid)
+        val isSeenByExpanded = message.mid == expandedMessageId
 
         items.add(
             MessageItem.MessageBubbles(
@@ -79,6 +83,7 @@ fun processMessagesToItems(
                 senderAvatarUrl = senderInfo?.avatar,
                 seenByUsers = seenByUsers,
                 isSeenByExpanded = isSeenByExpanded,
+// 				showAvatar = showAvatar
             ),
         )
     }
@@ -87,6 +92,7 @@ fun processMessagesToItems(
     userRoomDetails.forEach { detail ->
         val typingTime = detail.typingTime?.toLongOrNull() ?: 0L
         val isRecent = (System.currentTimeMillis() - typingTime) < 5000
+
         if (detail.uid != currentUserId && isRecent) {
             userMap[detail.uid]?.let { typingUsers.add(it) }
         }

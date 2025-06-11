@@ -124,15 +124,7 @@ fun ChatScreen(
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-            }
-// 			else if (!uiState.isNetworkAvailable) {
-//                NetworkErrorComponent(
-//                    isRefreshing = uiState.isRefreshing,
-//                    onRefreshClick = { viewModel.refreshData() },
-//                )
-//            }
-
-            else {
+            } else {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
