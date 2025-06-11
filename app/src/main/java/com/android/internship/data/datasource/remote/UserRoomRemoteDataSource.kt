@@ -1,5 +1,6 @@
 package com.android.internship.data.datasource.remote
 
+import android.util.Log
 import com.android.internship.data.model.UserRoom
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
@@ -11,18 +12,41 @@ import kotlinx.coroutines.tasks.await
 class UserRoomRemoteDataSource {
     private val firestore = FirebaseFirestore.getInstance()
     private val userRoomsCollection = firestore.collection("userRooms")
+
     fun addUserRoomRemote(userRoom: UserRoom) {
         firestore.collection("userRooms")
             .document("${userRoom.rid}_${userRoom.uid}")
             .set(userRoom)
     }
 
+    suspend fun getUserRoomsForUser(uid: String): List<UserRoom> {
+        try {
+            val snapshot = firestore.collection("userRooms")
+                .whereEqualTo("uid", uid)
+                .get()
+                .await()
+            val userRooms = snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
+            Log.d("UserRoomRemoteDataSource", "Found ${userRooms.size} rooms for user $uid")
+            return userRooms
+        } catch (e: Exception) {
+            Log.e("UserRoomRemoteDataSource", "Error getting user rooms: ${e.message}")
+            return emptyList()
+        }
+    }
+
     suspend fun getUserRoomsForRoom(rid: String): List<UserRoom> {
-        val snapshot = firestore.collection("userRooms")
-            .whereEqualTo("rid", rid)
-            .get()
-            .await()
-        return snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
+        try {
+            val snapshot = firestore.collection("userRooms")
+                .whereEqualTo("rid", rid)
+                .get()
+                .await()
+            val userRooms = snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
+            Log.d("UserRoomRemoteDataSource", "Found ${userRooms.size} users in room $rid")
+            return userRooms
+        } catch (e: Exception) {
+            Log.e("UserRoomRemoteDataSource", "Error getting room users: ${e.message}")
+            return emptyList()
+        }
     }
 
     fun updateMute(rid: String, uid: String, mute: Boolean, turnOnTime: String?) {

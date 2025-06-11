@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.Flow
 interface UserRoomRepository {
     // UserRoom Remote
     fun addUserRoomRemote(uid: String, rid: String)
-    suspend fun getUserRoomRemote(rid: String): List<UserRoom>
+    suspend fun getUserRoomRemote(uid: String): List<UserRoom>
+    suspend fun getUserRoomsForRoom(rid: String): List<UserRoom>
     fun updateTypingTime(rid: String, uid: String, time: String)
     fun updateMute(rid: String, uid: String, mute: Boolean, turnOnTime: String? = null)
     fun updateLastSeenMessages(rid: String, uid: String, lastSeenMessageId: String? = null)
