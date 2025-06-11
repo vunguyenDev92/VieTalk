@@ -40,7 +40,7 @@ import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.MessageBubbleComponent
 import com.android.internship.presentation.components.chat.MessageInputComponent
-import com.android.internship.presentation.components.chat.NetworkErrorComponent
+import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
 import kotlinx.coroutines.launch
@@ -115,16 +115,24 @@ fun ChatScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
+            NetworkStatusBanner(
+                isNetworkAvailable = uiState.isNetworkAvailable,
+                isRefreshing = uiState.isRefreshing,
+                onRefreshClick = viewModel::refreshData,
+            )
             if (uiState.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-            } else if (!uiState.isNetworkAvailable) {
-                NetworkErrorComponent(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefreshClick = { viewModel.refreshData() },
-                )
-            } else {
+            }
+// 			else if (!uiState.isNetworkAvailable) {
+//                NetworkErrorComponent(
+//                    isRefreshing = uiState.isRefreshing,
+//                    onRefreshClick = { viewModel.refreshData() },
+//                )
+//            }
+
+            else {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier

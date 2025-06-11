@@ -56,7 +56,6 @@ class ChatViewModel(
 
     init {
         observeNetworkStatus()
-        updateActiveUserUseCase()
         loadChatData()
         startPeriodicActiveUpdate()
     }
@@ -161,7 +160,6 @@ class ChatViewModel(
                 _uiState.update {
                     it.copy(
                         isNetworkAvailable = isAvailable,
-                        // Nếu mạng vừa có lại, xóa lỗi và trạng thái refreshing
                         errorMessage = if (isAvailable) null else it.errorMessage,
                         isRefreshing = if (isAvailable) false else it.isRefreshing,
                     )
@@ -179,8 +177,8 @@ class ChatViewModel(
     private fun startPeriodicActiveUpdate() {
         viewModelScope.launch {
             while (true) {
-                delay(4 * 60 * 1000L)
                 updateActiveUserUseCase()
+                delay(4 * 60 * 1000L)
             }
         }
     }

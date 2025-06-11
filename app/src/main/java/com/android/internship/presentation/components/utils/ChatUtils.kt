@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/utils/MessageProcessingUtils.kt
 package com.android.internship.presentation.components.utils
 
 import com.android.internship.data.model.Message
