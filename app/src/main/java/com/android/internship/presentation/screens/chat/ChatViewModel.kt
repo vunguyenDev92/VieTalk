@@ -16,6 +16,7 @@ import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveUserUseCase
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.processMessagesToItems
+import com.android.internship.utils.IConnectivityObserver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,7 @@ class ChatViewModel(
     private val seenMessageUseCase: SeenMessageUseCase,
     private val addTypingUseCase: AddTypingUseCase,
     private val updateActiveUserUseCase: UpdateActiveUserUseCase,
+    private val connectivityObserver: IConnectivityObserver,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -53,6 +55,7 @@ class ChatViewModel(
     private var typingTimeoutJob: Job? = null
 
     init {
+        observeNetworkStatus()
         updateActiveUserUseCase()
         loadChatData()
         startPeriodicActiveUpdate()
@@ -94,8 +97,7 @@ class ChatViewModel(
         ) { usersInRoom, messages, userRoomDetails, expandedId ->
 
             val totalMemberCount = usersInRoom.size
-//            val isTrueGroup = room.isGroup && totalMemberCount > 2
-            val isTrueGroup = totalMemberCount > 2
+            val isTrueGroup = usersInRoom.size > 2
             val otherUser = if (!isTrueGroup) usersInRoom.find { it.uid != currentUserId } else null
 
             val topBarTitle = if (isTrueGroup) {
@@ -150,6 +152,28 @@ class ChatViewModel(
                 )
             }
         }.catch { e -> _uiState.update { it.copy(isLoading = false, errorMessage = e.message) } }.collect()
+    }
+
+    private fun observeNetworkStatus() {
+        viewModelScope.launch {
+            connectivityObserver.observe().collect { status ->
+                val isAvailable = status == IConnectivityObserver.Status.Available
+                _uiState.update {
+                    it.copy(
+                        isNetworkAvailable = isAvailable,
+                        // Nếu mạng vừa có lại, xóa lỗi và trạng thái refreshing
+                        errorMessage = if (isAvailable) null else it.errorMessage,
+                        isRefreshing = if (isAvailable) false else it.isRefreshing,
+                    )
+                }
+            }
+        }
+    }
+
+    fun refreshData() {
+        if (!uiState.value.isNetworkAvailable) {
+            _uiState.update { it.copy(isRefreshing = true) }
+        }
     }
 
     private fun startPeriodicActiveUpdate() {

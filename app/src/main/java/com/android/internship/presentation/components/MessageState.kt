@@ -18,4 +18,6 @@ data class MessageState(
     val topBarSubtitle: String = "",
     val topBarAvatarUrls: List<String> = emptyList(),
     val isPeerActive: Boolean = false,
+    val isNetworkAvailable: Boolean = true,
+    val isRefreshing: Boolean = false,
 )

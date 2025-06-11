@@ -40,6 +40,7 @@ import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.MessageBubbleComponent
 import com.android.internship.presentation.components.chat.MessageInputComponent
+import com.android.internship.presentation.components.chat.NetworkErrorComponent
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
 import kotlinx.coroutines.launch
@@ -54,6 +55,7 @@ fun ChatScreen(
         factory = ChatViewModelFactory(
             authRepository = appContainer.authRepository,
             roomRepository = appContainer.roomRepository,
+            connectivityObserver = appContainer.connectivityObserver,
         ),
     )
 
@@ -63,7 +65,6 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
     val imePadding = WindowInsets.ime.asPaddingValues()
@@ -118,6 +119,11 @@ fun ChatScreen(
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
+            } else if (!uiState.isNetworkAvailable) {
+                NetworkErrorComponent(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefreshClick = { viewModel.refreshData() },
+                )
             } else {
                 LazyColumn(
                     state = listState,

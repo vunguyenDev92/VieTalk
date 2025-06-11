@@ -3,6 +3,7 @@ package com.android.internship.presentation.components.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,7 +51,11 @@ fun MessageBubbleComponent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onMessageClick)
+            .clickable(
+                onClick = onMessageClick,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            )
             .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = alignment,
     ) {
@@ -68,7 +73,7 @@ fun MessageBubbleComponent(
                 AsyncImage(
                     model = item.senderAvatarUrl,
                     contentDescription = "Sender Avatar",
-                    modifier = Modifier.size(35.dp).clip(CircleShape),
+                    modifier = Modifier.size(40.dp).clip(CircleShape),
                     contentScale = ContentScale.Crop,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -87,7 +92,7 @@ fun MessageBubbleComponent(
                         .widthIn(max = screenWidth * 0.75f)
                         .clip(RoundedCornerShape(12.dp))
                         .background(backgroundColor)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
                 ) {
                     Text(
                         text = item.message.content,
@@ -108,7 +113,7 @@ fun MessageBubbleComponent(
                 AsyncImage(
                     model = currentUserAvatarUrl,
                     contentDescription = "My Avatar",
-                    modifier = Modifier.size(35.dp).clip(CircleShape),
+                    modifier = Modifier.size(40.dp).clip(CircleShape),
                     contentScale = ContentScale.Crop,
                 )
             }

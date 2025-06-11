@@ -13,6 +13,8 @@ import com.android.internship.data.repository.AuthRepositoryImpl
 import com.android.internship.data.repository.RoomRepositoryImpl
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.repository.RoomRepository
+import com.android.internship.utils.ConnectivityObserver
+import com.android.internship.utils.IConnectivityObserver
 
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
@@ -55,5 +57,9 @@ class AppContainer(context: Context) {
 
     val roomRepository: RoomRepository by lazy {
         RoomRepositoryImpl(roomLocalDataSource, roomRemoteDataSource, messageLocalDataSource, messageRemoteDataSource, userRoomRemoteDataSource, userRoomLocalDataSource)
+    }
+
+    val connectivityObserver: IConnectivityObserver by lazy {
+        ConnectivityObserver(context.applicationContext)
     }
 }

@@ -14,10 +14,12 @@ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveUserUseCase
+import com.android.internship.utils.IConnectivityObserver
 
 class ChatViewModelFactory(
     private val authRepository: AuthRepository,
     private val roomRepository: RoomRepository,
+    private val connectivityObserver: IConnectivityObserver,
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -36,6 +38,7 @@ class ChatViewModelFactory(
                 seenMessageUseCase = SeenMessageUseCase(authRepository, roomRepository),
                 addTypingUseCase = AddTypingUseCase(authRepository, roomRepository),
                 updateActiveUserUseCase = UpdateActiveUserUseCase(authRepository),
+                connectivityObserver = connectivityObserver,
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
