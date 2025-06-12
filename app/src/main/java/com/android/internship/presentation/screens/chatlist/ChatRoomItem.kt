@@ -82,7 +82,7 @@ fun ChatRoomItem(
             ) {
                 Text(
                     text = buildAnnotatedString {
-                        if (isGroup) {
+                        if (isGroup && lastSenderName.isNotEmpty()) {
                             append(lastSenderName)
                             append(": ")
                         }
