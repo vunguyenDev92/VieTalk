@@ -20,12 +20,14 @@ fun processMessagesToItems(
     expandedMessageId: String?,
 ): List<MessageItem> {
     val userMap = usersInRoom.associateBy { it.uid }
-    val shouldShowSenderName = room.isGroup && usersInRoom.size > 2
+    val userRoomMap = userRoomDetails.associateBy { it.uid }
+    val isTrueGroup = room.isGroup && usersInRoom.size > 2
     val items = mutableListOf<MessageItem>()
     var lastMessageTimestamp: LocalDateTime? = null
 
     val sortedMessages = messages.sortedBy { it.time }
     val allMessagesMap = messages.associateBy { it.mid }
+    val messagesWithTimeHeaderAbove = mutableSetOf<String>()
 
     sortedMessages.forEachIndexed { index, message ->
         val messageTime = try {
@@ -43,19 +45,20 @@ fun processMessagesToItems(
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
+            messagesWithTimeHeaderAbove.add(message.mid)
         }
         lastMessageTimestamp = messageTime
 
         val isFromMe = message.uid == currentUserId
         val senderInfo = userMap[message.uid]
-        val senderName = if (shouldShowSenderName && !isFromMe) {
+        val nextMessage = sortedMessages.getOrNull(index + 1)
+        val showAvatar = nextMessage == null || nextMessage.uid != message.uid
+
+        val senderName = if (isTrueGroup && !isFromMe) {
             senderInfo?.username ?: "Unknown User"
         } else {
             null
         }
-
-        val nextMessage = sortedMessages.getOrNull(index + 1)
-        val showAvatar = nextMessage == null || nextMessage.uid != message.uid
 
         val currentMessageTimestamp = message.time.toLongOrNull() ?: 0L
 
@@ -73,7 +76,7 @@ fun processMessagesToItems(
             }
         }
 
-        val isSeenByExpanded = message.mid == expandedMessageId
+        val isSeenByExpanded = (message.mid == expandedMessageId) && !messagesWithTimeHeaderAbove.contains(message.mid)
 
         items.add(
             MessageItem.MessageBubbles(
@@ -88,13 +91,13 @@ fun processMessagesToItems(
         )
     }
 
-    val typingUsers = mutableListOf<User>()
-    userRoomDetails.forEach { detail ->
+    val typingUsers = userRoomDetails.mapNotNull { detail ->
         val typingTime = detail.typingTime?.toLongOrNull() ?: 0L
         val isRecent = (System.currentTimeMillis() - typingTime) < 5000
-
         if (detail.uid != currentUserId && isRecent) {
-            userMap[detail.uid]?.let { typingUsers.add(it) }
+            userMap[detail.uid]
+        } else {
+            null
         }
     }
 

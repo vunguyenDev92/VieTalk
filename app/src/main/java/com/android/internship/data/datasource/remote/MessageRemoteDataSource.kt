@@ -4,9 +4,11 @@ import com.android.internship.data.model.Message
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 
 class MessageRemoteDataSource {
@@ -64,5 +66,29 @@ class MessageRemoteDataSource {
         } catch (e: Exception) {
             return null
         }
+    }
+
+    fun observeNewMessages(roomId: String, afterTimestamp: Long): Flow<List<Message>> {
+        return callbackFlow {
+            val listener = firestore
+                .collection("messages")
+                .whereEqualTo("rid", roomId)
+                .whereGreaterThan("time", afterTimestamp)
+                .orderBy("time", Query.Direction.ASCENDING)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    val messages = snapshot?.documents?.mapNotNull { doc ->
+                        doc.toObject(Message::class.java)
+                    } ?: emptyList()
+
+                    trySend(messages)
+                }
+
+            awaitClose { listener.remove() }
+        }.flowOn(Dispatchers.IO)
     }
 }

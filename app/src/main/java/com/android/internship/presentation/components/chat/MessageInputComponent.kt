@@ -33,27 +33,35 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 import com.android.internship.presentation.theme.ButtonSend
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MessageInputComponent(
-    messageText: String,
-    onMessageChange: (String) -> Unit,
+    messageText: TextFieldValue,
+    onMessageChange: (TextFieldValue) -> Unit,
     onSendMessage: () -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "Message",
@@ -62,11 +70,19 @@ fun MessageInputComponent(
     onEmojiPickerVisibilityChange: ((Boolean) -> Unit)? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
     var showEmojiPicker by remember { mutableStateOf(false) }
+    var isInputFocused by remember { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+
+    // Notify parent about picker visibility changes
     LaunchedEffect(showEmojiPicker) {
         onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
     }
+
+    // FIXED: Remove the LaunchedEffect that was causing race condition
+    // Now user has full manual control over emoji picker state
 
     Column {
         Row(
@@ -92,11 +108,22 @@ fun MessageInputComponent(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable {
-                                showEmojiPicker = !showEmojiPicker
-                                if (showEmojiPicker) {
-                                    keyboardController?.hide()
-                                }
                                 onEmojiClick()
+
+                                scope.launch {
+                                    if (showEmojiPicker) {
+                                        // Hide picker and show keyboard
+                                        showEmojiPicker = false
+                                        delay(100) // Small delay to ensure state update
+                                        focusRequester.requestFocus()
+                                        keyboardController?.show()
+                                    } else {
+                                        // Hide keyboard and show picker
+                                        keyboardController?.hide()
+                                        delay(200) // Wait for keyboard to hide
+                                        showEmojiPicker = true
+                                    }
+                                }
                             },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -129,17 +156,26 @@ fun MessageInputComponent(
                             ),
                             keyboardActions = KeyboardActions(
                                 onSend = {
-                                    if (messageText.isNotBlank()) {
+                                    if (messageText.text.isNotBlank()) {
                                         onSendMessage()
                                         keyboardController?.hide()
                                     }
                                 },
                             ),
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                                .onFocusChanged { focusState ->
+                                    isInputFocused = focusState.isFocused
+                                    // FIXED: Hide emoji picker when text field gets focus
+                                    if (focusState.isFocused && showEmojiPicker) {
+                                        showEmojiPicker = false
+                                    }
+                                },
                         )
 
-                        if (messageText.isEmpty()) {
+                        if (messageText.text.isEmpty()) {
                             Text(
                                 text = placeholder,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -152,16 +188,16 @@ fun MessageInputComponent(
 
             IconButton(
                 onClick = {
-                    if (messageText.isNotBlank()) {
+                    if (messageText.text.isNotBlank()) {
                         onSendMessage()
                     }
                 },
-                enabled = isEnabled && messageText.isNotBlank(),
+                enabled = isEnabled && messageText.text.isNotBlank(),
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (messageText.isNotBlank()) {
+                        if (messageText.text.isNotBlank()) {
                             MaterialTheme.colorScheme.primary
                         } else {
                             ButtonSend
@@ -171,7 +207,7 @@ fun MessageInputComponent(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_send),
                     contentDescription = "Send",
-                    tint = if (messageText.isNotBlank()) {
+                    tint = if (messageText.text.isNotBlank()) {
                         Color.White
                     } else {
                         Color.White
@@ -184,7 +220,13 @@ fun MessageInputComponent(
         if (showEmojiPicker) {
             EmojiPickerInline(
                 onEmojiSelected = { emoji ->
-                    onMessageChange(messageText + emoji)
+                    val currentText = messageText.text
+                    val selection = messageText.selection
+                    val newText = currentText.substring(0, selection.start) +
+                        emoji +
+                        currentText.substring(selection.end)
+                    val newSelection = TextRange(selection.start + emoji.length)
+                    onMessageChange(TextFieldValue(newText, newSelection))
                 },
                 onDismiss = {
                     showEmojiPicker = false

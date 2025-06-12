@@ -1,5 +1,6 @@
 package com.android.internship.presentation.screens.chat
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import com.android.internship.data.model.Room
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
+import com.android.internship.domain.usecase.GetMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
@@ -44,6 +47,7 @@ class ChatViewModel(
     private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
     private val connectivityObserver: IConnectivityObserver,
+    getMessagesUseCase: GetMessagesUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -51,7 +55,7 @@ class ChatViewModel(
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
 
-    private val _messageText = MutableStateFlow("")
+    private val _messageText = MutableStateFlow(TextFieldValue(""))
     val messageText = _messageText.asStateFlow()
     private var typingTimeoutJob: Job? = null
 
@@ -184,10 +188,10 @@ class ChatViewModel(
         }
     }
 
-    fun onMessageChange(text: String) {
-        _messageText.value = text
+    fun onMessageChange(textFieldValue: TextFieldValue) {
+        _messageText.value = textFieldValue
         typingTimeoutJob?.cancel()
-        if (text.isNotBlank()) {
+        if (textFieldValue.text.isNotBlank()) {
             addTypingUseCase(rid = roomId, isTyping = true)
             typingTimeoutJob = viewModelScope.launch {
                 delay(3000L)
@@ -199,11 +203,11 @@ class ChatViewModel(
     }
 
     fun sendMessage() {
-        val content = _messageText.value.trim()
+        val content = _messageText.value.text.trim()
         if (content.isNotBlank()) {
             typingTimeoutJob?.cancel()
             sendMessageUseCase(content = content, rid = roomId)
-            _messageText.value = ""
+            _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
         }
     }

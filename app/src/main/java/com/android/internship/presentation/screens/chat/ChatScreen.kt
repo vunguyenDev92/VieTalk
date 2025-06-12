@@ -45,6 +45,7 @@ import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
+
 @Composable
 fun ChatScreen(
     navController: NavController,
