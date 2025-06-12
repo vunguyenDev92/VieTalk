@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +25,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,15 +74,6 @@ fun ChatScreen(
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
     val imePadding = WindowInsets.ime.asPaddingValues()
-    val customKeyboardPadding by remember {
-        derivedStateOf {
-            if (imePadding.calculateBottomPadding() > 0.dp) {
-                21.dp
-            } else {
-                0.dp
-            }
-        }
-    }
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
@@ -100,25 +92,27 @@ fun ChatScreen(
 
     Scaffold(
         topBar = {
-            uiState.room?.let { room ->
-                ChatTopBar(
-                    title = uiState.topBarTitle,
-                    subtitle = uiState.topBarSubtitle,
-                    avatarUrls = uiState.topBarAvatarUrls,
-                    isSubtitleActive = uiState.isPeerActive,
-                    onBackClick = { navController.popBackStack() },
-                    onCallClick = { /* ... */ },
-                    onMoreClick = { /* ... */ },
-                )
-            }
+            // TopBar luôn hiển thị với giá trị mặc định khi room chưa load
+            ChatTopBar(
+                title = uiState.topBarTitle ?: "Chat", // Giá trị mặc định
+                subtitle = uiState.topBarSubtitle,
+                avatarUrls = uiState.topBarAvatarUrls ?: emptyList(), // Giá trị mặc định
+                isSubtitleActive = uiState.isPeerActive,
+                onBackClick = { navController.popBackStack() },
+                onCallClick = { /* ... */ },
+                onMoreClick = { /* ... */ },
+            )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        // Chỉ loại bỏ insets dưới để keyboard không đẩy topbar
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                // Chỉ xử lý ime padding ở đây để MessageInput tự động dính keyboard
+                .padding(WindowInsets.ime.only(WindowInsetsSides.Bottom).asPaddingValues()),
         ) {
             NetworkStatusBanner(
                 isNetworkAvailable = uiState.isNetworkAvailable,
@@ -184,7 +178,8 @@ fun ChatScreen(
                     onEmojiPickerVisibilityChange = { isVisible ->
                         isEmojiPickerVisible = isVisible
                     },
-                    modifier = Modifier.padding(bottom = customKeyboardPadding),
+                    // Không có padding - để nó tự nhiên dính với keyboard
+                    modifier = Modifier,
                 )
             }
         }

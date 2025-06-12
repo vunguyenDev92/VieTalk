@@ -71,18 +71,22 @@ fun MessageInputComponent(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope() // <<< THAY ĐỔI 1: Thêm coroutine scope
+
     var showEmojiPicker by remember { mutableStateOf(false) }
     var isInputFocused by remember { mutableStateOf(false) }
 
-    val scope = rememberCoroutineScope()
+    // Effect này vẫn đúng: nếu người dùng nhấn vào TextField, hãy ẩn emoji picker.
+    LaunchedEffect(isInputFocused) {
+        if (isInputFocused && showEmojiPicker) {
+            showEmojiPicker = false
+        }
+    }
 
-    // Notify parent about picker visibility changes
+    // Effect này dùng để thông báo cho Composable cha về sự thay đổi visibility
     LaunchedEffect(showEmojiPicker) {
         onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
     }
-
-    // FIXED: Remove the LaunchedEffect that was causing race condition
-    // Now user has full manual control over emoji picker state
 
     Column {
         Row(
@@ -109,18 +113,18 @@ fun MessageInputComponent(
                             .size(24.dp)
                             .clickable {
                                 onEmojiClick()
-
-                                scope.launch {
-                                    if (showEmojiPicker) {
-                                        // Hide picker and show keyboard
-                                        showEmojiPicker = false
-                                        delay(100) // Small delay to ensure state update
-                                        focusRequester.requestFocus()
-                                        keyboardController?.show()
-                                    } else {
-                                        // Hide keyboard and show picker
+                                // <<< THAY ĐỔI 2: Đơn giản hóa toàn bộ logic click
+                                if (showEmojiPicker) {
+                                    // Nếu đang mở, chỉ cần đóng nó lại
+                                    showEmojiPicker = false
+                                } else {
+                                    // Nếu đang đóng, hãy thực hiện chuỗi: ẩn bàn phím -> chờ -> mở emoji picker
+                                    scope.launch {
+                                        // Luôn yêu cầu ẩn bàn phím trước
                                         keyboardController?.hide()
-                                        delay(200) // Wait for keyboard to hide
+                                        // Chờ một chút để bàn phím bắt đầu ẩn đi, tránh UI bị giật
+                                        delay(200)
+                                        // Sau đó mới hiển thị emoji picker
                                         showEmojiPicker = true
                                     }
                                 }
@@ -158,7 +162,6 @@ fun MessageInputComponent(
                                 onSend = {
                                     if (messageText.text.isNotBlank()) {
                                         onSendMessage()
-                                        keyboardController?.hide()
                                     }
                                 },
                             ),
@@ -168,10 +171,6 @@ fun MessageInputComponent(
                                 .focusRequester(focusRequester)
                                 .onFocusChanged { focusState ->
                                     isInputFocused = focusState.isFocused
-                                    // FIXED: Hide emoji picker when text field gets focus
-                                    if (focusState.isFocused && showEmojiPicker) {
-                                        showEmojiPicker = false
-                                    }
                                 },
                         )
 
@@ -207,11 +206,7 @@ fun MessageInputComponent(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_send),
                     contentDescription = "Send",
-                    tint = if (messageText.text.isNotBlank()) {
-                        Color.White
-                    } else {
-                        Color.White
-                    },
+                    tint = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -236,6 +231,7 @@ fun MessageInputComponent(
     }
 }
 
+// EmojiPickerInline và EmojiGrid không có gì thay đổi
 @Composable
 fun EmojiPickerInline(
     onEmojiSelected: (String) -> Unit,
