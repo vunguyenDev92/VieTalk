@@ -12,6 +12,7 @@ import com.android.internship.domain.usecase.GetMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
+import com.android.internship.domain.usecase.LogoutUserCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.presentation.utils.FormatTimeStamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ class ChatListViewModel(
     private val getAllUsersInfoUseCase: GetAllUsersInfoUseCase,
     private val getMessagesUseCase: GetMessagesUseCase,
     private val getActiveUserUseCase: GetActiveUserUseCase,
+    private val logoutUserCase: LogoutUserCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val currentUserId: String?,
 ) : ViewModel() {
@@ -129,6 +131,12 @@ class ChatListViewModel(
         }
     }
 
+    fun logout() {
+        viewModelScope.launch {
+            logoutUserCase()
+        }
+    }
+
     private fun observeRoomMessages(roomId: String, users: List<com.android.internship.data.model.User>) {
         viewModelScope.launch {
             try {
@@ -194,6 +202,10 @@ class ChatListViewModel(
                         repository = appContainer.messageRepository,
                     )
 
+                    val logoutUserCase = LogoutUserCase(
+                        authRepository = appContainer.authRepository,
+                    )
+
                     val currentUserId = appContainer.authRepository.getCurrentUserId()
 
                     return ChatListViewModel(
@@ -204,6 +216,7 @@ class ChatListViewModel(
                         getMessagesUseCase = getMessagesUseCase,
                         getActiveUserUseCase = getActiveUserUseCase,
                         observeMessagesUseCase = observeMessagesUseCase,
+                        logoutUserCase = logoutUserCase,
                         currentUserId = currentUserId,
                     ) as T
                 }

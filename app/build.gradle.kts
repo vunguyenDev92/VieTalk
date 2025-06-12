@@ -75,7 +75,7 @@ dependencies {
     implementation(libs.gson)
 
     // Coil
-    implementation(libs.coil.compose)
+    implementation(libs.coil.kt.coil.compose)
 }
 
 // KtLint configuration

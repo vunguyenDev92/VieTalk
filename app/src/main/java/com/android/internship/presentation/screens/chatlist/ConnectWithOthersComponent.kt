@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.android.internship.R
 
 @Composable
@@ -43,8 +43,8 @@ fun ConnectWithOthersItem(
                     model = item.avatar,
                     contentDescription = "Avatar member 1",
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(R.drawable.ic_vietalk),
-                    error = painterResource(R.drawable.ic_error),
+                    placeholder = painterResource(R.drawable.ic_person),
+                    error = painterResource(R.drawable.ic_person),
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape).clickable(

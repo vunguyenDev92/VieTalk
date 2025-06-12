@@ -5,10 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.android.internship.di.AppContainer
-import com.android.internship.presentation.screens.GroupEditorScreen
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
 import com.android.internship.presentation.screens.chatlist.ChatListScreen
+import com.android.internship.presentation.screens.groupeditor.GroupEditorScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
 
 fun NavGraphBuilder.main(
