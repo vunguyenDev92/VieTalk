@@ -8,4 +8,7 @@ class ObserveMessagesUseCase(private val repository: MessageRepository) {
     operator fun invoke(roomId: String): Flow<List<Message>> {
         return repository.observeMessages(roomId)
     }
+    fun observeNewMessages(roomId: String, afterTimestamp: Long): Flow<List<Message>> {
+        return repository.observeNewMessages(roomId, afterTimestamp)
+    }
 }

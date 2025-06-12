@@ -48,4 +48,11 @@ class MessageRepositoryImpl(
     override suspend fun saveLocalMessages(messages: List<Message>) {
         return messageLocalDataSource.saveLocalMessage(messages)
     }
+
+    override fun observeNewMessages(
+        roomId: String,
+        afterTimestamp: Long,
+    ): Flow<List<Message>> {
+        return messageRemoteDataSource.observeNewMessages(roomId, afterTimestamp)
+    }
 }

@@ -1,6 +1,7 @@
 package com.android.internship.data.model
 
 data class Room(
+    @JvmField
     val rid: String = "",
     val isGroup: Boolean = false,
     val avatar: String? = null,

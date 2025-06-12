@@ -1,6 +1,7 @@
 package com.android.internship.domain.usecase
 
 import com.android.internship.data.model.UserRoom
+import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRoomRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow

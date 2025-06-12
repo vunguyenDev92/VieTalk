@@ -1,4 +1,4 @@
-package com.android.internship.presentation.screens.signin
+package com.android.internship.presentation.screens.signup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,7 +41,6 @@ import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.CommonTextField
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
-import com.android.internship.presentation.theme.Blue
 import com.android.internship.presentation.theme.BlueLight
 import com.android.internship.presentation.theme.Green
 import com.android.internship.presentation.theme.GreenDark
@@ -49,17 +49,17 @@ import com.android.internship.presentation.theme.GreyLight
 import com.android.internship.presentation.theme.White
 
 @Composable
-fun SignInScreen(
+fun SignUpScreen(
     navController: NavController,
-    signInViewModel: SignInViewModel =
-        viewModel(factory = SignInViewModel.factory(navController.context)),
+    signUpViewModel: SignUpViewModel =
+        viewModel(factory = SignUpViewModel.factory(context = LocalContext.current)),
 ) {
-    val signInState by signInViewModel.state.collectAsState()
+    val signUpState by signUpViewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
 
-    if (signInState.signInSuccess) {
+    if (signUpState.signUpSuccess) {
         SideEffect {
-            navController.navigate(route = Screen.Chat("room_4")) {
+            navController.navigate(route = Screen.Chat) {
                 popUpTo(Screen.SignIn) { inclusive = true }
                 launchSingleTop = true
             }
@@ -69,23 +69,40 @@ fun SignInScreen(
                 backgroundColor = GreenLight,
                 borderColor = GreenDark,
             ).show(
-                message = navController.context.getString(
-                    R.string.login_successful,
-                ),
+                message = navController.context.getString(R.string.register_successful),
             )
         }
     }
 
-    if (signInState.signInSuccess == false) {
-        signInState.message?.let {
+    if (signUpState.signUpSuccess == false) {
+        signUpState.message?.let {
             CommonDialog(
                 title = stringResource(R.string.error),
                 content = it,
                 onDismissRequest = {
-                    signInViewModel.clearMessage()
+                    signUpViewModel.clearMessage()
                 },
             )
         }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_back),
+            contentDescription = stringResource(R.string.back),
+            modifier = Modifier
+                .size(50.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                ),
+        )
     }
 
     LazyColumn(
@@ -111,7 +128,7 @@ fun SignInScreen(
         }
         item {
             Text(
-                text = stringResource(R.string.log_in),
+                text = stringResource(R.string.sign_up),
                 textAlign = TextAlign.Start,
                 color = Black,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
@@ -121,49 +138,43 @@ fun SignInScreen(
         item {
             CommonTextField(
                 label = stringResource(R.string.email),
-                textFieldState = signInState.emailState,
-                onValueChange = signInViewModel::updateEmailState,
+                textFieldState = signUpState.emailState,
+                onValueChange = signUpViewModel::updateEmailState,
                 modifier = Modifier,
             )
         }
         item {
             CommonTextField(
                 label = stringResource(R.string.password),
-                textFieldState = signInState.passwordState,
-                onValueChange = signInViewModel::updatePasswordState,
+                textFieldState = signUpState.passwordState,
+                onValueChange = signUpViewModel::updatePasswordState,
+                isTextObscured = true,
+            )
+        }
+        item {
+            CommonTextField(
+                label = stringResource(R.string.confirm_password),
+                textFieldState = signUpState.confirmPasswordState,
+                onValueChange = signUpViewModel::updateConfirmPasswordState,
                 imeAction = ImeAction.Done,
                 isTextObscured = true,
             )
         }
         item {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                NavToSignUpButton(
-                    onClick = {
-                        navController.navigate(Screen.SignUp) {
-                            launchSingleTop = true
-                        }
-                    },
-                )
-            }
-        }
-        item {
-            SignInButton(
-                isDisable = signInState.emailState.isError || signInState.passwordState.isError,
+            SignUpButton(
+                isDisable = signUpState.emailState.isError || signUpState.passwordState.isError || signUpState.confirmPasswordState.isError,
                 onClick = {
                     focusManager.clearFocus()
-                    signInViewModel.signIn()
+                    signUpViewModel.signUp()
                 },
-                isLoading = signInState.isLoading,
+                isLoading = signUpState.isLoading,
             )
         }
     }
 }
 
 @Composable
-private fun SignInButton(
+private fun SignUpButton(
     isDisable: Boolean,
     onClick: () -> Unit,
     isLoading: Boolean,
@@ -185,7 +196,7 @@ private fun SignInButton(
             CommonProgressIndicator(color = White)
         } else {
             Text(
-                text = stringResource(R.string.login),
+                text = stringResource(R.string.sign_up),
                 textAlign = TextAlign.Center,
                 color = White,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -193,22 +204,4 @@ private fun SignInButton(
             )
         }
     }
-}
-
-@Composable
-private fun NavToSignUpButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = stringResource(R.string.sign_up),
-        textAlign = TextAlign.Start,
-        color = Blue,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = modifier.clickable(
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() },
-            onClick = onClick,
-        ),
-    )
 }
