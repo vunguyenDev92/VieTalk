@@ -229,7 +229,7 @@ fun ChatListScreen(
                         viewModel.logout()
                         showLogoutDialog = false
                         navController.navigate(Screen.SignIn) {
-                            popUpTo(Screen.Chat) { inclusive = true }
+                            popUpTo(Screen.ChatList) { inclusive = true }
                             launchSingleTop = true
                         }
                     },
