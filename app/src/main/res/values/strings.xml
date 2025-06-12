@@ -17,4 +17,10 @@
     <!--  Dialog  -->
     <string name="close">CLOSE</string>
     <string name="error">Error</string>
+    <!--  Sign Up Screen  -->
+    <string name="re_enter_password">Please re-enter your password</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="back">Back</string>
+    <string name="confirm_password">CONFIRM PASSWORD</string>
+    <string name="register_successful">Register successful! Welcome to VieTalk</string>
 </resources>
