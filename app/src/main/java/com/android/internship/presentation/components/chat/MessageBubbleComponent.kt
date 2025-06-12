@@ -173,7 +173,7 @@ private fun SeenByAvatarRow(users: List<User>) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         usersToShow.forEach { user ->
