@@ -150,6 +150,9 @@ fun ChatListScreen(
         if (chatListScreenState.chatRoomItems.isNotEmpty()) {
             ConnectWithOthersItem(
                 chatItems = chatListScreenState.chatUserItems,
+                onClick = {
+                    // TODO: Navigate to chat screen
+                },
             )
         }
 
@@ -179,8 +182,9 @@ fun ChatListScreen(
                             lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName ?: "",
                             lastMessageTime = chatListScreenState.chatRoomItems[index].lastMessageTime,
                             onClick = {
-                                // TODO: Navigation to chat screen
-                                chatListScreenState.chatRoomItems[index].id
+                                navController.navigate(route = Screen.Chat(chatListScreenState.chatRoomItems[index].id)) {
+                                    launchSingleTop = true
+                                }
                             },
                         )
                     }

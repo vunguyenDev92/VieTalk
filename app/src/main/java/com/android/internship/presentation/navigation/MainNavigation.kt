@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
 import com.android.internship.presentation.screens.chatlist.ChatListScreen
@@ -13,7 +14,8 @@ import com.android.internship.presentation.screens.signin.SignInScreen
 import com.android.internship.presentation.screens.signup.SignUpScreen
 
 fun NavGraphBuilder.main(
-    navController: NavHostController
+    navController: NavHostController,
+    appContainer: AppContainer,
 ) {
     navigation(
         startDestination = Screen.Splash,
@@ -32,7 +34,7 @@ fun NavGraphBuilder.main(
         }
 
         composable<Screen.Chat> {
-            val args = it.toRoute<Screen.Chat>()
+            it.toRoute<Screen.Chat>()
             ChatScreen(
                 navController = navController,
             )
