@@ -11,6 +11,7 @@ import com.android.internship.domain.usecase.GetMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
+import com.android.internship.domain.usecase.LogoutUserCase
 import com.android.internship.presentation.utils.FormatTimeStamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,7 @@ class ChatListViewModel(
     private val getAllUsersInfoUseCase: GetAllUsersInfoUseCase,
     private val getMessagesUseCase: GetMessagesUseCase,
     private val getActiveUserUseCase: GetActiveUserUseCase,
+    private val logoutUserCase: LogoutUserCase,
     private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatListState())
@@ -128,6 +130,12 @@ class ChatListViewModel(
         }
     }
 
+    fun logout() {
+        viewModelScope.launch {
+            logoutUserCase()
+        }
+    }
+
     companion object {
         fun factory(context: Context) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -160,6 +168,10 @@ class ChatListViewModel(
                         repository = appContainer.userRepository,
                     )
 
+                    val logoutUserCase = LogoutUserCase(
+                        authRepository = appContainer.authRepository,
+                    )
+
                     val currentUserId = appContainer.authRepository.getCurrentUserId()
 
                     return ChatListViewModel(
@@ -169,6 +181,7 @@ class ChatListViewModel(
                         getAllUsersInfoUseCase = getAllUsersInfoUseCase,
                         getMessagesUseCase = getMessagesUseCase,
                         getActiveUserUseCase = getActiveUserUseCase,
+                        logoutUserCase = logoutUserCase,
                         currentUserId = currentUserId,
                     ) as T
                 }

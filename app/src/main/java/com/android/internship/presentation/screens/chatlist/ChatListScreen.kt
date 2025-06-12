@@ -222,7 +222,7 @@ fun ChatListScreen(
                     text = stringResource(R.string.log_out).uppercase(),
                     color = Red,
                     onClick = {
-                        // TODO: Log out use case
+                        viewModel.logout()
                         showLogoutDialog = false
                         navController.navigate(Screen.SignIn) {
                             popUpTo(Screen.Chat) { inclusive = true }

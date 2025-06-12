@@ -12,6 +12,7 @@ class GroupEditorViewModel(
     private val createGroupUseCase: CreateGroupUseCase,
     private val groupName: String,
     private val members: List<String>,
+    private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         GroupEditorState(
@@ -20,6 +21,15 @@ class GroupEditorViewModel(
         ),
     )
     val state = _state.asStateFlow()
+
+    init {
+        if (members.isEmpty()) {
+            _state.value = _state.value.copy(
+                members = listOf(currentUserId ?: ""),
+                canSubmit = true,
+            )
+        }
+    }
 
     fun onEvent(event: GroupEditorEvent) {
         when (event) {
@@ -102,10 +112,13 @@ class GroupEditorViewModel(
                         userRoomRepository = appContainer.userRoomRepository,
                     )
 
+                    val currentUserId = appContainer.authRepository.getCurrentUserId()
+
                     return GroupEditorViewModel(
                         createGroupUseCase = createGroupUseCase,
                         groupName = groupName,
                         members = members,
+                        currentUserId = currentUserId,
                     ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")

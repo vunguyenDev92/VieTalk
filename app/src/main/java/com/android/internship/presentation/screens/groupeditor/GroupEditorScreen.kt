@@ -1,5 +1,6 @@
 package com.android.internship.presentation.screens.groupeditor
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.presentation.theme.BlueLight
+import com.android.internship.presentation.theme.GreyLight
 
 @Composable
 fun GroupEditorScreen(
@@ -191,7 +195,12 @@ fun GroupEditorScreen(
                     viewModel.createGroup()
                 },
                 enabled = canSubmit,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 15.dp)
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(color = if (canSubmit) GreyLight else BlueLight),
             ) {
                 Text(
                     text = stringResource(R.string.create),
@@ -206,7 +215,12 @@ fun GroupEditorScreen(
                     // TODO: viewModel update group
                 },
                 enabled = canSubmit,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 15.dp)
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(color = if (canSubmit) GreyLight else BlueLight),
             ) {
                 Text(
                     text = stringResource(R.string.create),

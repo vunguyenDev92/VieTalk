@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.android.internship.R
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.White
@@ -139,16 +139,16 @@ private fun Avatar(
                     color = White,
                     radius = 6.dp.toPx(),
                     center = Offset(
-                        this.size.width - 11.dp.toPx(),
-                        this.size.height - 11.dp.toPx(),
+                        this.size.width - 8.dp.toPx(),
+                        this.size.height - 8.dp.toPx(),
                     ),
                 )
                 drawCircle(
                     color = Color(0xff1ba505),
                     radius = 5.dp.toPx(),
                     center = Offset(
-                        this.size.width - 11.dp.toPx(),
-                        this.size.height - 11.dp.toPx(),
+                        this.size.width - 8.dp.toPx(),
+                        this.size.height - 8.dp.toPx(),
                     ),
                 )
             }
@@ -162,8 +162,8 @@ private fun AvatarGroup(memberAvatars: List<String>) {
         AsyncImage(
             model = memberAvatars.getOrNull(0),
             contentDescription = "Avatar of group member 1",
-            placeholder = painterResource(R.drawable.ic_vietalk),
-            error = painterResource(R.drawable.ic_error),
+            placeholder = painterResource(R.drawable.ic_person),
+            error = painterResource(R.drawable.ic_person),
             modifier = Modifier
                 .padding(top = 17.dp)
                 .size(53.dp)
@@ -175,8 +175,8 @@ private fun AvatarGroup(memberAvatars: List<String>) {
             AsyncImage(
                 model = memberAvatars[1],
                 contentDescription = "Avatar of group member 2",
-                placeholder = painterResource(R.drawable.ic_vietalk),
-                error = painterResource(R.drawable.ic_error),
+                placeholder = painterResource(R.drawable.ic_person),
+                error = painterResource(R.drawable.ic_person),
                 modifier = Modifier
                     .padding(start = 15.dp, bottom = 5.dp)
                     .size(53.dp)
