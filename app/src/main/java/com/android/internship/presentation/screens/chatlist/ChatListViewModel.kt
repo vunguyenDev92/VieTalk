@@ -1,6 +1,7 @@
 package com.android.internship.presentation.screens.chatlist
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import com.android.internship.domain.usecase.GetRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
 import com.android.internship.domain.usecase.LogoutUserCase
+import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.presentation.utils.FormatTimeStamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +28,7 @@ class ChatListViewModel(
     private val getMessagesUseCase: GetMessagesUseCase,
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val logoutUserCase: LogoutUserCase,
+    private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatListState())
@@ -45,7 +48,6 @@ class ChatListViewModel(
                 val userRooms = getUserRoomForUserUseCase()
                 val users = getAllUsersInfoUseCase()
                 val userNoRoom = users.toMutableList()
-
                 userNoRoom.removeIf { it.uid == currentUserId }
 
                 for (userRoom in userRooms) {
@@ -80,9 +82,7 @@ class ChatListViewModel(
                                 ""
                             }
                         }.filter { it.isNotEmpty() }
-
                         val timestamp = (messages?.lastOrNull()?.time ?: "0").toLong()
-
                         val lastMessageTime = FormatTimeStamp.messageTimeFormat(timestamp)
 
                         chatRoomItems.add(
@@ -97,6 +97,7 @@ class ChatListViewModel(
                                 lastSenderName = users.find { it.uid == messages?.lastOrNull()?.uid }?.username,
                             ),
                         )
+                        observeRoomMessages(room.rid, users)
                     }
                 }
 
@@ -136,6 +137,35 @@ class ChatListViewModel(
         }
     }
 
+    private fun observeRoomMessages(roomId: String, users: List<com.android.internship.data.model.User>) {
+        viewModelScope.launch {
+            try {
+                observeMessagesUseCase(roomId).collect { messages ->
+                    val latestMessage = messages.lastOrNull()
+                    if (latestMessage != null) {
+                        Log.d("ChatListViewModel", "New message received for room $roomId: ${latestMessage.content}")
+                        _state.update { currentState ->
+                            val updatedChatRooms = currentState.chatRoomItems.map { room ->
+                                if (room.id == roomId) {
+                                    room.copy(
+                                        lastMessage = latestMessage.content,
+                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(latestMessage.time.toLong()),
+                                        lastSenderName = users.find { it.uid == latestMessage.uid }?.username,
+                                    )
+                                } else {
+                                    room
+                                }
+                            }
+                            currentState.copy(chatRoomItems = updatedChatRooms)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ChatListViewModel", "Error observing messages for room $roomId", e)
+            }
+        }
+    }
+
     companion object {
         fun factory(context: Context) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -168,6 +198,10 @@ class ChatListViewModel(
                         repository = appContainer.userRepository,
                     )
 
+                    val observeMessagesUseCase = ObserveMessagesUseCase(
+                        repository = appContainer.messageRepository,
+                    )
+
                     val logoutUserCase = LogoutUserCase(
                         authRepository = appContainer.authRepository,
                     )
@@ -181,6 +215,7 @@ class ChatListViewModel(
                         getAllUsersInfoUseCase = getAllUsersInfoUseCase,
                         getMessagesUseCase = getMessagesUseCase,
                         getActiveUserUseCase = getActiveUserUseCase,
+                        observeMessagesUseCase = observeMessagesUseCase,
                         logoutUserCase = logoutUserCase,
                         currentUserId = currentUserId,
                     ) as T
