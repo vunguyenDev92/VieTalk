@@ -4,6 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
@@ -27,7 +28,10 @@ fun NavGraphBuilder.main(navController: NavHostController) {
         }
 
         composable<Screen.Chat> {
-            ChatScreen(navController)
+            val args = it.toRoute<Screen.Chat>()
+            ChatScreen(
+                navController = navController,
+            )
         }
     }
 }
