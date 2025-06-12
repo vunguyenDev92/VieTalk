@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
+import com.android.internship.presentation.components.chat.EmptyChatComponent
 import com.android.internship.presentation.components.chat.MessageBubbleComponent
 import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
@@ -92,11 +93,10 @@ fun ChatScreen(
 
     Scaffold(
         topBar = {
-            // TopBar luôn hiển thị với giá trị mặc định khi room chưa load
             ChatTopBar(
-                title = uiState.topBarTitle ?: "Chat", // Giá trị mặc định
+                title = uiState.topBarTitle ?: "Chat",
                 subtitle = uiState.topBarSubtitle,
-                avatarUrls = uiState.topBarAvatarUrls ?: emptyList(), // Giá trị mặc định
+                avatarUrls = uiState.topBarAvatarUrls ?: emptyList(),
                 isSubtitleActive = uiState.isPeerActive,
                 onBackClick = { navController.popBackStack() },
                 onCallClick = { /* ... */ },
@@ -104,14 +104,12 @@ fun ChatScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        // Chỉ loại bỏ insets dưới để keyboard không đẩy topbar
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                // Chỉ xử lý ime padding ở đây để MessageInput tự động dính keyboard
                 .padding(WindowInsets.ime.only(WindowInsetsSides.Bottom).asPaddingValues()),
         ) {
             NetworkStatusBanner(
@@ -124,45 +122,51 @@ fun ChatScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    reverseLayout = true,
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
-                ) {
-                    items(
-                        items = uiState.messages,
-                        key = { item ->
-                            when (item) {
-                                is MessageItem.MessageBubbles -> "msg_${item.message.mid}"
-                                is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(ZoneOffset.UTC)}"
-                                is MessageItem.TypingIndicator -> "typing_indicator"
-                            }
-                        },
-                    ) { messageItem ->
-                        when (messageItem) {
-                            is MessageItem.TimeHeader -> {
-                                TimeHeaderComponent(item = messageItem)
-                            }
-                            is MessageItem.MessageBubbles -> {
-                                if (!messageItem.isFromMe) {
-                                    LaunchedEffect(messageItem.message.mid) {
-                                        viewModel.markAsSeen(messageItem.message.mid)
+                Box(modifier = Modifier.weight(1f)) {
+                    if (uiState.messages.isEmpty()) {
+                        EmptyChatComponent()
+                    } else {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .fillMaxWidth(),
+                            reverseLayout = true,
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
+                        ) {
+                            items(
+                                items = uiState.messages,
+                                key = { item ->
+                                    when (item) {
+                                        is MessageItem.MessageBubbles -> "msg_${item.message.mid}"
+                                        is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(ZoneOffset.UTC)}"
+                                        is MessageItem.TypingIndicator -> "typing_indicator"
+                                    }
+                                },
+                            ) { messageItem ->
+                                when (messageItem) {
+                                    is MessageItem.TimeHeader -> {
+                                        TimeHeaderComponent(item = messageItem)
+                                    }
+                                    is MessageItem.MessageBubbles -> {
+                                        if (!messageItem.isFromMe) {
+                                            LaunchedEffect(messageItem.message.mid) {
+                                                viewModel.markAsSeen(messageItem.message.mid)
+                                            }
+                                        }
+                                        MessageBubbleComponent(
+                                            item = messageItem,
+                                            currentUserAvatarUrl = uiState.currentUser?.avatar,
+                                            onMessageClick = {
+                                                viewModel.toggleSeenByVisibility(messageItem.message.mid)
+                                            },
+                                        )
+                                    }
+                                    is MessageItem.TypingIndicator -> {
+                                        TypingIndicatorComponent(item = messageItem)
                                     }
                                 }
-                                MessageBubbleComponent(
-                                    item = messageItem,
-                                    currentUserAvatarUrl = uiState.currentUser?.avatar,
-                                    onMessageClick = {
-                                        viewModel.toggleSeenByVisibility(messageItem.message.mid)
-                                    },
-                                )
-                            }
-                            is MessageItem.TypingIndicator -> {
-                                TypingIndicatorComponent(item = messageItem)
                             }
                         }
                     }
@@ -178,7 +182,6 @@ fun ChatScreen(
                     onEmojiPickerVisibilityChange = { isVisible ->
                         isEmojiPickerVisible = isVisible
                     },
-                    // Không có padding - để nó tự nhiên dính với keyboard
                     modifier = Modifier,
                 )
             }

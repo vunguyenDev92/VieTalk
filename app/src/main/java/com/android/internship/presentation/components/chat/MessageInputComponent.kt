@@ -33,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,8 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 import com.android.internship.presentation.theme.ButtonSend
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+
+// Enum để quản lý trạng thái input
+enum class InputState {
+    KEYBOARD,
+    EMOJI_PICKER,
+    NONE,
+}
 
 @Composable
 fun MessageInputComponent(
@@ -71,21 +75,23 @@ fun MessageInputComponent(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
-    val scope = rememberCoroutineScope() // <<< THAY ĐỔI 1: Thêm coroutine scope
 
-    var showEmojiPicker by remember { mutableStateOf(false) }
+    // Biến trạng thái chính để quản lý keyboard và emoji picker
+    var inputState by remember { mutableStateOf(InputState.NONE) }
     var isInputFocused by remember { mutableStateOf(false) }
 
-    // Effect này vẫn đúng: nếu người dùng nhấn vào TextField, hãy ẩn emoji picker.
-    LaunchedEffect(isInputFocused) {
-        if (isInputFocused && showEmojiPicker) {
-            showEmojiPicker = false
-        }
-    }
+    // Tính toán showEmojiPicker dựa trên inputState
+    val showEmojiPicker = inputState == InputState.EMOJI_PICKER
 
-    // Effect này dùng để thông báo cho Composable cha về sự thay đổi visibility
     LaunchedEffect(showEmojiPicker) {
         onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
+    }
+
+    // Quản lý trạng thái focus
+    LaunchedEffect(isInputFocused) {
+        if (isInputFocused && inputState != InputState.KEYBOARD) {
+            inputState = InputState.KEYBOARD
+        }
     }
 
     Column {
@@ -112,22 +118,23 @@ fun MessageInputComponent(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable {
-                                onEmojiClick()
-                                // <<< THAY ĐỔI 2: Đơn giản hóa toàn bộ logic click
-                                if (showEmojiPicker) {
-                                    // Nếu đang mở, chỉ cần đóng nó lại
-                                    showEmojiPicker = false
-                                } else {
-                                    // Nếu đang đóng, hãy thực hiện chuỗi: ẩn bàn phím -> chờ -> mở emoji picker
-                                    scope.launch {
-                                        // Luôn yêu cầu ẩn bàn phím trước
+                                when (inputState) {
+                                    InputState.EMOJI_PICKER -> {
+                                        // Đang hiện emoji picker -> ẩn đi
+                                        inputState = InputState.NONE
+                                    }
+                                    InputState.KEYBOARD -> {
+                                        // Đang hiện keyboard -> ẩn keyboard và hiện emoji picker
+                                        focusRequester.freeFocus()
                                         keyboardController?.hide()
-                                        // Chờ một chút để bàn phím bắt đầu ẩn đi, tránh UI bị giật
-                                        delay(200)
-                                        // Sau đó mới hiển thị emoji picker
-                                        showEmojiPicker = true
+                                        inputState = InputState.EMOJI_PICKER
+                                    }
+                                    InputState.NONE -> {
+                                        // Không có gì hiện -> hiện emoji picker
+                                        inputState = InputState.EMOJI_PICKER
                                     }
                                 }
+                                onEmojiClick()
                             },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -162,6 +169,9 @@ fun MessageInputComponent(
                                 onSend = {
                                     if (messageText.text.isNotBlank()) {
                                         onSendMessage()
+                                        focusRequester.freeFocus()
+                                        keyboardController?.hide()
+                                        inputState = InputState.NONE
                                     }
                                 },
                             ),
@@ -171,6 +181,15 @@ fun MessageInputComponent(
                                 .focusRequester(focusRequester)
                                 .onFocusChanged { focusState ->
                                     isInputFocused = focusState.isFocused
+                                    if (!focusState.isFocused && inputState == InputState.KEYBOARD) {
+                                        inputState = InputState.NONE
+                                    }
+                                }
+                                .clickable {
+                                    if (inputState == InputState.EMOJI_PICKER) {
+                                        inputState = InputState.NONE
+                                    }
+                                    focusRequester.requestFocus()
                                 },
                         )
 
@@ -189,6 +208,9 @@ fun MessageInputComponent(
                 onClick = {
                     if (messageText.text.isNotBlank()) {
                         onSendMessage()
+                        focusRequester.freeFocus()
+                        keyboardController?.hide()
+                        inputState = InputState.NONE
                     }
                 },
                 enabled = isEnabled && messageText.text.isNotBlank(),
@@ -206,7 +228,11 @@ fun MessageInputComponent(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_send),
                     contentDescription = "Send",
-                    tint = Color.White,
+                    tint = if (messageText.text.isNotBlank()) {
+                        Color.White
+                    } else {
+                        Color.White
+                    },
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -224,14 +250,13 @@ fun MessageInputComponent(
                     onMessageChange(TextFieldValue(newText, newSelection))
                 },
                 onDismiss = {
-                    showEmojiPicker = false
+                    inputState = InputState.NONE
                 },
             )
         }
     }
 }
 
-// EmojiPickerInline và EmojiGrid không có gì thay đổi
 @Composable
 fun EmojiPickerInline(
     onEmojiSelected: (String) -> Unit,

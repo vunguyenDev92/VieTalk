@@ -1,5 +1,6 @@
 package com.android.internship.presentation.screens.chat
 
+import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -109,6 +110,10 @@ class ChatViewModel(
             } else {
                 otherUser?.username ?: room.name ?: "Chat"
             }
+
+            Log.d("DEBUG", " usersInRoom size: ${usersInRoom.size}")
+            Log.d("DEBUG", "messages size: ${messages.size}")
+            Log.d("DEBUG", "userRoomDetails size: ${userRoomDetails.size}")
 
             val isPeerActive = otherUser?.let {
                 (System.currentTimeMillis() - (it.lastActiveTime.toLongOrNull() ?: 0L)) <= (3 * 60 * 1000)
