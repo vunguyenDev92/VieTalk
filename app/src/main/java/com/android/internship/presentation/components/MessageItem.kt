@@ -18,12 +18,6 @@ sealed class MessageItem {
         val isSeenByExpanded: Boolean = false,
     ) : MessageItem()
 
-//    data class TypingIndicator(
-//        val userId: String,
-//        val userName: String,
-//        val userAvatarUrl: String?,
-//    ) : MessageItem()
-//
     data class TypingIndicator(
         val typingUsers: List<User>,
         val displayText: String,

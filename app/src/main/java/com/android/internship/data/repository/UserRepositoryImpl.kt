@@ -59,6 +59,6 @@ class UserRepositoryImpl(
     }
 
     override suspend fun getUsersInfo(uids: List<String>): List<User> {
-        return userRemoteDataSource.getUsersInRoomFromFireStore(uids)
+        return userRemoteDataSource.getUsersFromFireStore(uids)
     }
 }

@@ -29,7 +29,7 @@ class UserRemoteDataSource {
         fireStore.collection("users").document(uid).update("avatar", avatar)
     }
 
-    suspend fun getUsersInRoomFromFireStore(uids: List<String>): List<User> {
+    suspend fun getUsersFromFireStore(uids: List<String>): List<User> {
         if (uids.isEmpty()) {
             return emptyList()
         }

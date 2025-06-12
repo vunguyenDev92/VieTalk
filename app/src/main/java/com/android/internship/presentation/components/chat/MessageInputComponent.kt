@@ -43,6 +43,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -87,10 +88,15 @@ fun MessageInputComponent(
         onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
     }
 
-    // Quản lý trạng thái focus
+    // Quản lý trạng thái focus - FIX: Đóng emoji picker khi focus text field
     LaunchedEffect(isInputFocused) {
-        if (isInputFocused && inputState != InputState.KEYBOARD) {
-            inputState = InputState.KEYBOARD
+        if (isInputFocused) {
+            if (inputState == InputState.EMOJI_PICKER) {
+                // Đóng emoji picker khi focus vào text field
+                inputState = InputState.KEYBOARD
+            } else if (inputState != InputState.KEYBOARD) {
+                inputState = InputState.KEYBOARD
+            }
         }
     }
 
@@ -131,6 +137,8 @@ fun MessageInputComponent(
                                     }
                                     InputState.NONE -> {
                                         // Không có gì hiện -> hiện emoji picker
+                                        focusRequester.freeFocus()
+                                        keyboardController?.hide()
                                         inputState = InputState.EMOJI_PICKER
                                     }
                                 }
@@ -187,7 +195,7 @@ fun MessageInputComponent(
                                 }
                                 .clickable {
                                     if (inputState == InputState.EMOJI_PICKER) {
-                                        inputState = InputState.NONE
+                                        inputState = InputState.KEYBOARD
                                     }
                                     focusRequester.requestFocus()
                                 },
@@ -248,10 +256,17 @@ fun MessageInputComponent(
                         currentText.substring(selection.end)
                     val newSelection = TextRange(selection.start + emoji.length)
                     onMessageChange(TextFieldValue(newText, newSelection))
+
+                    // Giữ emoji picker hiện để có thể chọn tiếp emoji khác
+                    focusRequester.freeFocus()
+                    keyboardController?.hide()
+                    inputState = InputState.EMOJI_PICKER
                 },
                 onDismiss = {
                     inputState = InputState.NONE
                 },
+                keyboardController = keyboardController,
+                focusRequester = focusRequester,
             )
         }
     }
@@ -261,6 +276,8 @@ fun MessageInputComponent(
 fun EmojiPickerInline(
     onEmojiSelected: (String) -> Unit,
     onDismiss: () -> Unit,
+    keyboardController: SoftwareKeyboardController? = null,
+    focusRequester: FocusRequester? = null,
 ) {
     Card(
         modifier = Modifier
@@ -294,7 +311,11 @@ fun EmojiPickerInline(
             }
 
             EmojiGrid(
-                onEmojiSelected = onEmojiSelected,
+                onEmojiSelected = { emoji ->
+                    focusRequester?.freeFocus()
+                    keyboardController?.hide()
+                    onEmojiSelected(emoji)
+                },
             )
         }
     }
