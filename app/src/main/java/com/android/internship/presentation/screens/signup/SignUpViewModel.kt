@@ -44,9 +44,7 @@ class SignUpViewModel(
                 ),
             )
         }
-        if (state.value.confirmPasswordState.isError == false) {
-            updateConfirmPasswordState(confirmPassword = state.value.confirmPasswordState.value)
-        }
+        updateConfirmPasswordState(confirmPassword = state.value.confirmPasswordState.value)
     }
 
     fun updateConfirmPasswordState(confirmPassword: String) {
