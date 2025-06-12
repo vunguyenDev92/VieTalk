@@ -4,16 +4,16 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.android.internship.di.AppContainer
+import androidx.navigation.toRoute
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
 import com.android.internship.presentation.screens.chatlist.ChatListScreen
 import com.android.internship.presentation.screens.groupeditor.GroupEditorScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
+import com.android.internship.presentation.screens.signup.SignUpScreen
 
 fun NavGraphBuilder.main(
-    navController: NavHostController,
-    appContainer: AppContainer,
+    navController: NavHostController
 ) {
     navigation(
         startDestination = Screen.Splash,
@@ -28,11 +28,14 @@ fun NavGraphBuilder.main(
         }
 
         composable<Screen.SignUp> {
-            // TODO: Navigate to sign up screen
+            SignUpScreen(navController)
         }
 
         composable<Screen.Chat> {
-            ChatScreen(navController)
+            val args = it.toRoute<Screen.Chat>()
+            ChatScreen(
+                navController = navController,
+            )
         }
 
         composable<Screen.ChatList> {

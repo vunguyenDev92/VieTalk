@@ -15,4 +15,6 @@ interface UserRepository {
     suspend fun getAllUserLocal(): List<User>?
     suspend fun saveLocalUser(user: User)
     suspend fun saveLocalUsers(users: List<User>)
+
+    suspend fun getUsersInfo(uids: List<String>): List<User>
 }

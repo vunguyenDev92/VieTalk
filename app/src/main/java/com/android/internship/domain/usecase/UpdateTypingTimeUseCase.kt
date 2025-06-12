@@ -7,9 +7,9 @@ class UpdateTypingTimeUseCase(
     private val authRepository: AuthRepository,
     private val userRoomRepository: UserRoomRepository,
 ) {
-    operator fun invoke(rid: String) {
+    operator fun invoke(rid: String, isTyping: Boolean) {
         val uid = authRepository.getCurrentUserId()
-        val time = System.currentTimeMillis().toString()
+        val time = if (isTyping) System.currentTimeMillis().toString() else "0"
 
         uid?.let {
             userRoomRepository.updateTypingTime(rid, uid, time)

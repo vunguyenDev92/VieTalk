@@ -37,6 +37,13 @@ class PasswordValidator(
     override fun isValid(value: String): Boolean = Regex(passwordPattern).containsMatchIn(value) && !value.contains(' ')
 }
 
+class MatchValidator(
+    private val valueToMatch: String,
+    errorText: String,
+) : EditTextValidator<String>(errorText) {
+    override fun isValid(value: String): Boolean = value == valueToMatch
+}
+
 class MultiValidator(
     private val validators: List<EditTextValidator<String>>,
 ) : EditTextValidator<String>("") {

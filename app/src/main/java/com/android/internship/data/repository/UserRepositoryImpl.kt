@@ -57,4 +57,8 @@ class UserRepositoryImpl(
     override suspend fun saveLocalUsers(users: List<User>) {
         userLocalDataSource.insertUsers(users)
     }
+
+    override suspend fun getUsersInfo(uids: List<String>): List<User> {
+        return userRemoteDataSource.getUsersFromFireStore(uids)
+    }
 }

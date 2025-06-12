@@ -13,3 +13,11 @@ val GreenDark = Color(0xff18920d)
 val White = Color(0xFFFFFFFF)
 val Red = Color(0xffec0c0c)
 val LightRed = Color(0xffeb5252)
+
+val GreyMess = Color(0xFFE0E0E0)
+val GreenMess = Color(0xFF2889E5)
+val MessageText = Color(0xFF1E201C)
+val ButtonSend = Color(0xFF2889E5)
+
+val MessageBubblesOrther = Color(0xFFE0E0E0)
+val MessageBubblesFromMe = Color(0xFF2889E5)

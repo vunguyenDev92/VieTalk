@@ -1,8 +1,6 @@
 [versions]
 agp = "8.9.3"
-coilComposeVersion = "2.5.0"
 firebaseBom = "33.14.0"
-foundation = "1.9.0-alpha04"
 google-service = "4.4.2"
 gson = "2.11.0"
 kotlin = "2.0.21"
@@ -17,10 +15,10 @@ ktlint = "12.3.0"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
 ksp = "2.0.21-1.0.27"
+coilComposeVersion = "2.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidLifecycle" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }

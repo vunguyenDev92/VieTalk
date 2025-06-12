@@ -28,4 +28,21 @@ class UserRemoteDataSource {
     fun updateAvatar(uid: String, avatar: String) {
         fireStore.collection("users").document(uid).update("avatar", avatar)
     }
+
+    suspend fun getUsersFromFireStore(uids: List<String>): List<User> {
+        if (uids.isEmpty()) {
+            return emptyList()
+        }
+        return try {
+            val userDocs = fireStore.collection("users")
+                .whereIn("uid", uids)
+                .get()
+                .await()
+
+            userDocs.toObjects(User::class.java)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
 }
