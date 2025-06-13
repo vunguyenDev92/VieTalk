@@ -12,6 +12,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -36,22 +37,32 @@ fun ConnectWithOthersItem(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         )
         LazyRow(
-            modifier = Modifier.padding(start = 16.dp, top = 11.dp, bottom = 15.dp),
+            modifier = Modifier.padding(start = 20.dp, top = 11.dp, bottom = 15.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             items(chatItems) { item ->
-                AsyncImage(
-                    model = item.avatar,
-                    contentDescription = "Avatar member 1",
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(R.drawable.ic_person),
-                    error = painterResource(R.drawable.ic_person),
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape).clickable(
-                            onClick = onClick,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    AsyncImage(
+                        model = item.avatar,
+                        contentDescription = "Avatar member 1",
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(R.drawable.ic_person),
+                        error = painterResource(R.drawable.ic_person_color),
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape).clickable(
+                                onClick = onClick,
+                            ),
+                    )
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.W300,
                         ),
-                )
+                    )
+                }
             }
         }
         HorizontalDivider(thickness = 1.dp)

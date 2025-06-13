@@ -158,14 +158,16 @@ private fun Avatar(
 
 @Composable
 private fun AvatarGroup(memberAvatars: List<String>) {
-    Box {
+    Box(
+        modifier = Modifier.size(70.dp),
+    ) {
         AsyncImage(
             model = memberAvatars.getOrNull(0),
             contentDescription = "Avatar of group member 1",
-            placeholder = painterResource(R.drawable.ic_person),
-            error = painterResource(R.drawable.ic_person),
+            placeholder = painterResource(R.drawable.ic_person_color),
+            error = painterResource(R.drawable.ic_person_color),
             modifier = Modifier
-                .padding(top = 17.dp)
+                .align(Alignment.BottomStart)
                 .size(53.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
@@ -175,12 +177,11 @@ private fun AvatarGroup(memberAvatars: List<String>) {
             AsyncImage(
                 model = memberAvatars[1],
                 contentDescription = "Avatar of group member 2",
-                placeholder = painterResource(R.drawable.ic_person),
-                error = painterResource(R.drawable.ic_person),
+                placeholder = painterResource(R.drawable.ic_person_color),
+                error = painterResource(R.drawable.ic_person_color),
                 modifier = Modifier
-                    .padding(start = 15.dp, bottom = 5.dp)
+                    .align(Alignment.TopEnd)
                     .size(53.dp)
-                    .padding(start = 5.dp, bottom = 5.dp)
                     .clip(CircleShape),
 
                 contentScale = ContentScale.Crop,
