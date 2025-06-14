@@ -16,7 +16,11 @@ class UserRoomRepositoryImpl(
         userRoomRemoteDataSource.addUserRoomRemote(userRoom)
     }
 
-    override suspend fun getUserRoomRemote(rid: String): List<UserRoom> {
+    override suspend fun getUserRoomForUserRemote(uid: String): List<UserRoom> {
+        return userRoomRemoteDataSource.getUserRoomsForUser(uid)
+    }
+
+    override suspend fun getUserRoomsForRoomRemote(rid: String): List<UserRoom> {
         return userRoomRemoteDataSource.getUserRoomsForRoom(rid)
     }
 
@@ -45,7 +49,11 @@ class UserRoomRepositoryImpl(
         return userRoomRemoteDataSource.observeUserRoomsForRoom(rid)
     }
 
-    override suspend fun getUserRoomLocal(rid: String): List<UserRoom>? {
+    override suspend fun getUserRoomForUserLocal(rid: String): List<UserRoom>? {
+        return userRoomLocalDataSource.getUserRoomsForUser(rid)
+    }
+
+    override suspend fun getUserRoomForRoomLocal(rid: String): List<UserRoom>? {
         return userRoomLocalDataSource.getUserRoomsForRoom(rid)
     }
 

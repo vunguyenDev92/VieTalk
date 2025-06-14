@@ -16,4 +16,10 @@ sealed class Screen {
 
     @Serializable
     data class Chat(val rid: String) : Screen()
+
+    @Serializable
+    data object ChatList : Screen()
+
+    @Serializable
+    data object GroupEditor : Screen()
 }
