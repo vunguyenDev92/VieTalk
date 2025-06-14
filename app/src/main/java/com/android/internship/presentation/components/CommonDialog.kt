@@ -1,8 +1,6 @@
 package com.android.internship.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,11 +34,17 @@ fun CommonDialog(
     content: String,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    button: @Composable () -> Unit = {
+        TextButtonDialog(
+            text = stringResource(R.string.close).uppercase(),
+            onClick = { onDismissRequest() },
+        )
+    },
 ) {
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
-            dismissOnBackPress = false,
+            dismissOnBackPress = true,
             dismissOnClickOutside = true,
             usePlatformDefaultWidth = false,
         ),
@@ -83,20 +86,7 @@ fun CommonDialog(
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(
-                        text = stringResource(R.string.close),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = Bold),
-                        color = Color(0xff3c3c43),
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() },
-                                onClick = {
-                                    onDismissRequest()
-                                },
-                            ),
-                    )
+                    button()
                 }
             }
         }

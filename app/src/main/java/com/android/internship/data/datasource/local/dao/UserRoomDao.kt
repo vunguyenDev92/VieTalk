@@ -13,4 +13,7 @@ interface UserRoomDao {
 
     @Query("SELECT * FROM userRooms WHERE rid = :rid")
     suspend fun getUserRoomsForRoom(rid: String): List<UserRoomEntity>
+
+    @Query("SELECT * FROM userRooms WHERE uid = :uid")
+    suspend fun getUserRoomsForUser(uid: String): List<UserRoomEntity>
 }

@@ -36,4 +36,17 @@ class UserRoomLocalDataSource(context: Context) {
             )
         }
     }
+
+    suspend fun getUserRoomsForUser(uid: String): List<UserRoom> {
+        return userRoomDao.getUserRoomsForUser(uid).map {
+            UserRoom(
+                rid = it.rid,
+                uid = it.uid,
+                mute = it.mute,
+                turnOnTime = it.turnOnTime,
+                lastSeenMessages = it.lastSeenMessages,
+                typingTime = it.typingTime,
+            )
+        }
+    }
 }
