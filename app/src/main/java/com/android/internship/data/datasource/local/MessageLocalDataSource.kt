@@ -10,27 +10,16 @@ class MessageLocalDataSource(context: Context) {
     private val messageDao = database.messageDao()
 
     suspend fun saveLocalMessage(messages: List<Message>) {
-        val messageEntities = messages.map { message ->
-            MessageEntity(
-                mid = message.mid,
-                rid = message.rid,
-                uid = message.uid,
-                content = message.content,
-                time = message.time,
-            )
-        }
-        messageDao.insertMessages(messageEntities)
+        messageDao.insertMessages(
+            messages.map { message ->
+                MessageEntity.fromMessage(message)
+            },
+        )
     }
 
-    suspend fun getMessage(rid: String): List<Message> {
-        return messageDao.getMessage(rid).map {
-            Message(
-                mid = it.mid,
-                rid = it.rid,
-                uid = it.uid,
-                content = it.content,
-                time = it.time,
-            )
+    suspend fun getMessages(rid: String): List<Message> {
+        return messageDao.getMessages(rid).map {
+            it.toMessage()
         }
     }
 }

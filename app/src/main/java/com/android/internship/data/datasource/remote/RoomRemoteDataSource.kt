@@ -14,16 +14,9 @@ class RoomRemoteDataSource {
             .set(room)
     }
 
-    suspend fun getRoomById(rid: String): Room? {
+    suspend fun getRooms(rids: List<String>): List<Room>? {
         val snapshot = firestore.collection("rooms")
-            .document(rid)
-            .get()
-            .await()
-        return snapshot.toObject<Room>()
-    }
-
-    suspend fun getAllRoom(): List<Room>? {
-        val snapshot = firestore.collection("rooms")
+            .whereIn("rid", rids)
             .get()
             .await()
         return snapshot.documents.mapNotNull { it.toObject<Room>() }

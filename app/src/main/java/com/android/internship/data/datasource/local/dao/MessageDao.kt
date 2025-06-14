@@ -12,5 +12,5 @@ interface MessageDao {
     suspend fun insertMessages(messages: List<MessageEntity>)
 
     @Query("SELECT * FROM messages WHERE rid = :rid")
-    suspend fun getMessage(rid: String): List<MessageEntity>
+    suspend fun getMessages(rid: String): List<MessageEntity>
 }

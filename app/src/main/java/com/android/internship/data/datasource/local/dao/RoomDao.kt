@@ -9,11 +9,8 @@ import com.android.internship.data.datasource.local.entity.RoomEntity
 @Dao
 interface RoomDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRoom(room: RoomEntity)
+    suspend fun insertRooms(rooms: List<RoomEntity>)
 
-    @Query("SELECT * FROM rooms WHERE rid = :rid")
-    suspend fun getRoomById(rid: String): RoomEntity?
-
-    @Query("SELECT * FROM rooms")
-    suspend fun getAllRooms(): List<RoomEntity>
+    @Query("SELECT * FROM rooms WHERE rid IN (:rids)")
+    suspend fun getRoomsByIds(rids: List<String>): List<RoomEntity>
 }

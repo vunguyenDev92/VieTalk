@@ -14,7 +14,7 @@ data class ChatListState(
         val memberAvatars: List<String>? = null,
         val lastMessage: String = "",
         val lastMessageTime: String = "",
-        val lastSenderName: String? = null,
+        val lastSenderName: String = "",
     )
 
     data class ChatUserItemState(

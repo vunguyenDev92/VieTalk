@@ -10,7 +10,7 @@ import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetMessagesUseCase
-import com.android.internship.domain.usecase.GetRoomUseCase
+import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
@@ -20,6 +20,7 @@ import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
-    private val getRoomUseCase: GetRoomUseCase,
+    private val getRoomsUseCase: GetRoomsUseCase,
     private val getUserInfoUseCase: GetAllUsersInfoUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
@@ -48,7 +49,7 @@ class ChatViewModel(
     private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
     private val connectivityObserver: IConnectivityObserver,
-    getMessagesUseCase: GetMessagesUseCase,
+    private val getMessagesUseCase: GetMessagesUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -70,18 +71,19 @@ class ChatViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                val room = getRoomUseCase(roomId)
+                val room = getRoomsUseCase(listOf(roomId))
                 if (room == null) {
                     _uiState.update { it.copy(isLoading = false, errorMessage = "Room not found.") }
                     return@launch
                 }
-                observeCombinedData(room)
+                observeCombinedData(room.first())
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
             }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeCombinedData(room: Room) = viewModelScope.launch {
         val userRoomDetailsFlow = observeUserRoomDetailsUseCase(roomId)
 
@@ -102,10 +104,9 @@ class ChatViewModel(
         ) { usersInRoom, messages, userRoomDetails, expandedId ->
 
             val totalMemberCount = usersInRoom.size
-            val isTrueGroup = usersInRoom.size > 2
-            val otherUser = if (!isTrueGroup) usersInRoom.find { it.uid != currentUserId } else null
+            val otherUser = if (!room.isGroup) usersInRoom.find { it.uid != currentUserId } else null
 
-            val topBarTitle = if (isTrueGroup) {
+            val topBarTitle = if (room.isGroup) {
                 room.name ?: "Group Chat"
             } else {
                 otherUser?.username ?: room.name ?: "Chat"
@@ -117,15 +118,15 @@ class ChatViewModel(
 
             val isPeerActive = otherUser?.let {
                 (System.currentTimeMillis() - (it.lastActiveTime.toLongOrNull() ?: 0L)) <= (3 * 60 * 1000)
-            } ?: false
+            } == true
 
-            val topBarSubtitle = if (isTrueGroup) {
+            val topBarSubtitle = if (room.isGroup) {
                 "$totalMemberCount members"
             } else {
                 if (isPeerActive) "Active Now" else "Offline"
             }
 
-            val topBarAvatarUrls = if (isTrueGroup) {
+            val topBarAvatarUrls = if (room.isGroup) {
                 usersInRoom
                     .filter { it.uid != currentUserId }
                     .mapNotNull { it.avatar }
