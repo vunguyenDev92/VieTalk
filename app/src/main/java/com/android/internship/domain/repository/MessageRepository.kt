@@ -13,4 +13,8 @@ interface MessageRepository {
     suspend fun getLocalMessages(rid: String): List<Message>?
     suspend fun saveLocalMessages(messages: List<Message>)
     fun observeNewMessages(roomId: String, afterTimestamp: Long): Flow<List<Message>>
+
+    // merge
+    suspend fun syncRemoteMessagesToLocal(rid: String)
+    suspend fun fetchAndCacheInitialMessages(rid: String, limit: Int)
 }
