@@ -1,6 +1,7 @@
 package com.android.internship.domain.repository
 
 import com.android.internship.data.model.Room
+import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
     // Room Remote
@@ -10,4 +11,5 @@ interface RoomRepository {
     // Room Local
     suspend fun getRoomsLocal(rids: List<String>): List<Room>?
     suspend fun saveRoomsLocal(rooms: List<Room>)
+    fun observeRooms(): Flow<List<Room>>
 }
