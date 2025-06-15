@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.presentation.theme.BlueLight
 import com.android.internship.presentation.theme.GreyLight
+import com.android.internship.presentation.theme.White
 
 @Composable
 fun GroupEditorScreen(
@@ -55,7 +57,7 @@ fun GroupEditorScreen(
 ) {
     val groupEditorState by viewModel.state.collectAsState()
 
-    val canSubmit = groupEditorState.members.isNotEmpty()
+    val canSubmit = groupEditorState.groupName.isNotBlank() && groupEditorState.members.isNotEmpty()
 
     if (groupEditorState.isSuccess) {
         navController.popBackStack()
@@ -105,6 +107,9 @@ fun GroupEditorScreen(
             },
             label = stringResource(R.string.name_group_optional),
             hint = stringResource(R.string.enter_name_group),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(5.dp)),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -143,7 +148,11 @@ fun GroupEditorScreen(
                     Text(
                         stringResource(R.string.add).uppercase(),
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color(0x80333333),
+                            color = if (groupEditorState.memberInput.isBlank()) {
+                                Color(0x80333333)
+                            } else {
+                                Color(0xFF0288E9)
+                            },
                         ),
                     )
                 }
@@ -161,7 +170,7 @@ fun GroupEditorScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "ID " + groupEditorState.members[index],
+                        text = "ID: " + groupEditorState.members[index],
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.W700,
@@ -181,6 +190,7 @@ fun GroupEditorScreen(
                             contentDescription = stringResource(
                                 R.string.remove,
                             ),
+                            tint = Color.Red,
                         )
                     }
                 }
@@ -199,8 +209,13 @@ fun GroupEditorScreen(
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)
                     .height(54.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(color = if (canSubmit) GreyLight else BlueLight),
+                    .clip(RoundedCornerShape(5.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BlueLight,
+                    contentColor = White,
+                    disabledContainerColor = GreyLight,
+                    disabledContentColor = White,
+                ),
             ) {
                 Text(
                     text = stringResource(R.string.create),
@@ -219,8 +234,13 @@ fun GroupEditorScreen(
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)
                     .height(54.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(color = if (canSubmit) GreyLight else BlueLight),
+                    .clip(RoundedCornerShape(5.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BlueLight,
+                    contentColor = White,
+                    disabledContainerColor = GreyLight,
+                    disabledContentColor = White,
+                ),
             ) {
                 Text(
                     text = stringResource(R.string.create),
