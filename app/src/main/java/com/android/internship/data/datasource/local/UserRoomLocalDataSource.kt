@@ -12,41 +12,20 @@ class UserRoomLocalDataSource(context: Context) {
     suspend fun insertUserRooms(userRooms: List<UserRoom>) {
         userRoomDao.insertUserRooms(
             userRooms.map {
-                UserRoomEntity(
-                    rid = it.rid,
-                    uid = it.uid,
-                    mute = it.mute,
-                    turnOnTime = it.turnOnTime,
-                    lastSeenMessages = it.lastSeenMessages,
-                    typingTime = it.typingTime,
-                )
+                UserRoomEntity.fromUserRoom(it)
             },
         )
     }
 
     suspend fun getUserRoomsForRoom(rid: String): List<UserRoom> {
         return userRoomDao.getUserRoomsForRoom(rid).map {
-            UserRoom(
-                rid = it.rid,
-                uid = it.uid,
-                mute = it.mute,
-                turnOnTime = it.turnOnTime,
-                lastSeenMessages = it.lastSeenMessages,
-                typingTime = it.typingTime,
-            )
+            it.toUserRoom()
         }
     }
 
     suspend fun getUserRoomsForUser(uid: String): List<UserRoom> {
         return userRoomDao.getUserRoomsForUser(uid).map {
-            UserRoom(
-                rid = it.rid,
-                uid = it.uid,
-                mute = it.mute,
-                turnOnTime = it.turnOnTime,
-                lastSeenMessages = it.lastSeenMessages,
-                typingTime = it.typingTime,
-            )
+            it.toUserRoom()
         }
     }
 }

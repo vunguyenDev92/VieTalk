@@ -20,15 +20,15 @@ class RoomRepositoryImpl(
         roomRemoteDataSource.addRoom(room)
     }
 
-    override suspend fun getRoomRemote(rid: String): Room? {
-        return roomRemoteDataSource.getRoomById(rid)
+    override suspend fun getRoomsRemote(rids: List<String>): List<Room>? {
+        return roomRemoteDataSource.getRooms(rids)
     }
 
-    override suspend fun getRoomLocal(rid: String): Room? {
-        return roomLocalDataSource.getRoomById(rid)
+    override suspend fun getRoomsLocal(rids: List<String>): List<Room>? {
+        return roomLocalDataSource.getRoomsLocal(rids)
     }
 
-    override suspend fun saveLocalRoom(room: Room) {
-        roomLocalDataSource.saveRoomLocal(room)
+    override suspend fun saveRoomsLocal(rooms: List<Room>) {
+        roomLocalDataSource.saveRoomsLocal(rooms)
     }
 }

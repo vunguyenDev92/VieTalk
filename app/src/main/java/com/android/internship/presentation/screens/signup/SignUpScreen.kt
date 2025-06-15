@@ -60,7 +60,7 @@ fun SignUpScreen(
     if (signUpState.signUpSuccess) {
         SideEffect {
             navController.navigate(route = Screen.ChatList) {
-                popUpTo(Screen.SignIn) { inclusive = true }
+                popUpTo(Screen.SignUp) { inclusive = true }
                 launchSingleTop = true
             }
             CommonToastManager.makeToast(

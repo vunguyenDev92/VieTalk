@@ -12,7 +12,7 @@ import com.android.internship.domain.repository.UserRoomRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetMessagesUseCase
-import com.android.internship.domain.usecase.GetRoomUseCase
+import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
@@ -38,7 +38,7 @@ class ChatViewModelFactory(
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
                 authRepository = authRepository,
-                getRoomUseCase = GetRoomUseCase(roomRepository),
+                getRoomsUseCase = GetRoomsUseCase(roomRepository),
                 getUserInfoUseCase = GetAllUsersInfoUseCase(userRepository),
                 observeMessagesUseCase = ObserveMessagesUseCase(messageRepository),
                 observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(userRoomRepository),

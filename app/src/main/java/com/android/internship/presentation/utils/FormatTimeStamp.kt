@@ -7,10 +7,10 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object FormatTimeStamp {
-    fun messageTimeFormat(timestamp: Long): String {
-        if (timestamp != 0.toLong()) {
+    fun messageTimeFormat(timestamp: String): String {
+        if (timestamp.isNotEmpty()) {
             val now = Instant.now()
-            val inputTime = Instant.ofEpochMilli(timestamp)
+            val inputTime = Instant.ofEpochMilli(timestamp.toLong())
 
             val duration = Duration.between(inputTime, now)
 

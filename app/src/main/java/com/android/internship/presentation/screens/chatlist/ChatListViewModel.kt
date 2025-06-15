@@ -8,8 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.android.internship.di.AppContainer
 import com.android.internship.domain.usecase.GetActiveUserUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
-import com.android.internship.domain.usecase.GetMessagesUseCase
-import com.android.internship.domain.usecase.GetRoomUseCase
+import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
 import com.android.internship.domain.usecase.LogoutUserCase
@@ -23,9 +22,8 @@ import kotlinx.coroutines.launch
 class ChatListViewModel(
     private val getUserRoomForUserUseCase: GetUserRoomForUserUseCase,
     private val getUserRoomForRoomUseCase: GetUserRoomForRoomUseCase,
-    private val getRoomUseCase: GetRoomUseCase,
+    private val getRoomsUseCase: GetRoomsUseCase,
     private val getAllUsersInfoUseCase: GetAllUsersInfoUseCase,
-    private val getMessagesUseCase: GetMessagesUseCase,
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val logoutUserCase: LogoutUserCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
@@ -46,13 +44,15 @@ class ChatListViewModel(
                 val chatRoomItems = mutableListOf<ChatListState.ChatRoomItemState>()
                 val chatUserItems = mutableListOf<ChatListState.ChatUserItemState>()
                 val userRooms = getUserRoomForUserUseCase()
+                val rooms = getRoomsUseCase(userRooms.map { it.rid })
                 val users = getAllUsersInfoUseCase()
+
                 val userNoRoom = users.toMutableList()
                 userNoRoom.removeIf { it.uid == currentUserId }
 
                 for (userRoom in userRooms) {
-                    val room = getRoomUseCase(userRoom.rid)
-                    val messages = getMessagesUseCase(userRoom.rid, limit = 1)
+                    val room = rooms?.find { it.rid == userRoom.rid }
+                    val message = room?.lastMessage
                     val userRoomForRoom = getUserRoomForRoomUseCase(userRoom.rid)
 
                     if (room != null) {
@@ -82,8 +82,6 @@ class ChatListViewModel(
                                 ""
                             }
                         }.filter { it.isNotEmpty() }
-                        val timestamp = (messages?.lastOrNull()?.time ?: "0").toLong()
-                        val lastMessageTime = FormatTimeStamp.messageTimeFormat(timestamp)
 
                         chatRoomItems.add(
                             ChatListState.ChatRoomItemState(
@@ -92,12 +90,12 @@ class ChatListViewModel(
                                 id = room.rid,
                                 name = name,
                                 memberAvatars = memberAvatar,
-                                lastMessage = messages?.lastOrNull()?.content ?: "",
-                                lastMessageTime = lastMessageTime,
-                                lastSenderName = users.find { it.uid == messages?.lastOrNull()?.uid }?.username,
+                                lastMessage = message?.content ?: "",
+                                lastMessageTime = FormatTimeStamp.messageTimeFormat(message?.time.toString()),
+                                lastSenderName = message?.senderName ?: "",
                             ),
                         )
-                        observeRoomMessages(room.rid, users)
+                        observeRoomMessages(room.rid)
                     }
                 }
 
@@ -137,7 +135,7 @@ class ChatListViewModel(
         }
     }
 
-    private fun observeRoomMessages(roomId: String, users: List<com.android.internship.data.model.User>) {
+    private fun observeRoomMessages(roomId: String) {
         viewModelScope.launch {
             try {
                 observeMessagesUseCase(roomId).collect { messages ->
@@ -149,8 +147,8 @@ class ChatListViewModel(
                                 if (room.id == roomId) {
                                     room.copy(
                                         lastMessage = latestMessage.content,
-                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(latestMessage.time.toLong()),
-                                        lastSenderName = users.find { it.uid == latestMessage.uid }?.username,
+                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(latestMessage.time),
+                                        lastSenderName = latestMessage.senderName,
                                     )
                                 } else {
                                     room
@@ -182,16 +180,12 @@ class ChatListViewModel(
                         repository = appContainer.userRoomRepository,
                     )
 
-                    val getRoomUseCase = GetRoomUseCase(
+                    val getRoomUseCase = GetRoomsUseCase(
                         repository = appContainer.roomRepository,
                     )
 
                     val getAllUsersInfoUseCase = GetAllUsersInfoUseCase(
                         repository = appContainer.userRepository,
-                    )
-
-                    val getMessagesUseCase = GetMessagesUseCase(
-                        repository = appContainer.messageRepository,
                     )
 
                     val getActiveUserUseCase = GetActiveUserUseCase(
@@ -211,9 +205,8 @@ class ChatListViewModel(
                     return ChatListViewModel(
                         getUserRoomForUserUseCase = getUserRoomForUserUseCase,
                         getUserRoomForRoomUseCase = getUserRoomForRoomUseCase,
-                        getRoomUseCase = getRoomUseCase,
+                        getRoomsUseCase = getRoomUseCase,
                         getAllUsersInfoUseCase = getAllUsersInfoUseCase,
-                        getMessagesUseCase = getMessagesUseCase,
                         getActiveUserUseCase = getActiveUserUseCase,
                         observeMessagesUseCase = observeMessagesUseCase,
                         logoutUserCase = logoutUserCase,

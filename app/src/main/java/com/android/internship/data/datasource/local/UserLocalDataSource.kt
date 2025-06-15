@@ -11,46 +11,25 @@ class UserLocalDataSource(context: Context) {
 
     suspend fun insertUser(user: User) {
         userDao.insertUser(
-            UserEntity(
-                uid = user.uid,
-                username = user.username,
-                lastActiveTime = user.lastActiveTime,
-                avatar = user.avatar,
-            ),
+            UserEntity.fromUser(user),
         )
     }
 
     suspend fun insertUsers(users: List<User>) {
-        val userEntities = users.map {
-            UserEntity(
-                uid = it.uid,
-                username = it.username,
-                lastActiveTime = it.lastActiveTime,
-                avatar = it.avatar,
-            )
-        }
-        userDao.insertUsers(userEntities)
+        userDao.insertUsers(
+            users.map { user ->
+                UserEntity.fromUser(user)
+            },
+        )
     }
 
     suspend fun getUser(uid: String): User? {
-        return userDao.getUser(uid)?.let {
-            User(
-                uid = it.uid,
-                username = it.username,
-                lastActiveTime = it.lastActiveTime,
-                avatar = it.avatar,
-            )
-        }
+        return userDao.getUser(uid)?.toUser()
     }
 
     suspend fun getAllUsers(): List<User>? {
-        return userDao.getAllUsers()?.map {
-            User(
-                uid = it.uid,
-                username = it.username,
-                lastActiveTime = it.lastActiveTime,
-                avatar = it.avatar,
-            )
+        return userDao.getAllUsers().map {
+            it.toUser()
         }
     }
 }
