@@ -4,6 +4,7 @@ import com.android.internship.data.datasource.local.RoomLocalDataSource
 import com.android.internship.data.datasource.remote.RoomRemoteDataSource
 import com.android.internship.data.model.Room
 import com.android.internship.domain.repository.RoomRepository
+import kotlinx.coroutines.flow.Flow
 
 class RoomRepositoryImpl(
     private val roomLocalDataSource: RoomLocalDataSource,
@@ -30,5 +31,9 @@ class RoomRepositoryImpl(
 
     override suspend fun saveRoomsLocal(rooms: List<Room>) {
         roomLocalDataSource.saveRoomsLocal(rooms)
+    }
+
+    override fun observeRooms(): Flow<List<Room>> {
+        return roomRemoteDataSource.observeRooms()
     }
 }
