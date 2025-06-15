@@ -74,7 +74,7 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
-    val imePadding = WindowInsets.ime.asPaddingValues()
+    WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
@@ -94,9 +94,9 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             ChatTopBar(
-                title = uiState.topBarTitle ?: "Chat",
+                title = uiState.topBarTitle,
                 subtitle = uiState.topBarSubtitle,
-                avatarUrls = uiState.topBarAvatarUrls ?: emptyList(),
+                avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
                 onBackClick = { navController.popBackStack() },
                 onCallClick = { /* ... */ },

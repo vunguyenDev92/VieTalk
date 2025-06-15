@@ -5,9 +5,9 @@ import com.android.internship.data.model.Room
 interface RoomRepository {
     // Room Remote
     fun addRoomRemote(rid: String, isGroup: Boolean, avatar: String? = null, name: String? = null)
-    suspend fun getRoomRemote(rid: String): Room?
+    suspend fun getRoomsRemote(rids: List<String>): List<Room>?
 
     // Room Local
-    suspend fun getRoomLocal(rid: String): Room?
-    suspend fun saveLocalRoom(room: Room)
+    suspend fun getRoomsLocal(rids: List<String>): List<Room>?
+    suspend fun saveRoomsLocal(rooms: List<Room>)
 }

@@ -3,16 +3,16 @@ package com.android.internship.domain.usecase
 import com.android.internship.data.model.Room
 import com.android.internship.domain.repository.RoomRepository
 
-class GetRoomUseCase(
+class GetRoomsUseCase(
     private val repository: RoomRepository,
 ) {
-    suspend operator fun invoke(rid: String): Room? {
-        val roomRemote = repository.getRoomRemote(rid)
-        val roomLocal = repository.getRoomLocal(rid)
+    suspend operator fun invoke(rids: List<String>): List<Room>? {
+        val roomRemote = repository.getRoomsRemote(rids)
+        val roomLocal = repository.getRoomsLocal(rids)
 
         return if (roomRemote != null) {
             if (roomLocal == null) {
-                repository.saveLocalRoom(roomRemote)
+                repository.saveRoomsLocal(roomRemote)
                 roomRemote
             }
             roomRemote

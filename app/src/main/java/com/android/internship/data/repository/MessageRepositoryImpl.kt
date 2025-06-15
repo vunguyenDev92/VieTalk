@@ -42,7 +42,7 @@ class MessageRepositoryImpl(
     }
 
     override suspend fun getLocalMessages(rid: String): List<Message>? {
-        return messageLocalDataSource.getMessage(rid)
+        return messageLocalDataSource.getMessages(rid)
     }
 
     override suspend fun saveLocalMessages(messages: List<Message>) {
