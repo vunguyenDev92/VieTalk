@@ -1,6 +1,5 @@
 package com.android.internship.presentation.screens.groupeditor
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,8 +55,6 @@ fun GroupEditorScreen(
     ),
 ) {
     val groupEditorState by viewModel.state.collectAsState()
-
-    val canSubmit = groupEditorState.groupName.isNotBlank() && groupEditorState.members.isNotEmpty()
 
     if (groupEditorState.isSuccess) {
         navController.popBackStack()
@@ -140,7 +137,7 @@ fun GroupEditorScreen(
                             viewModel.onEvent(
                                 event = GroupEditorViewModel
                                     .GroupEditorEvent
-                                    .OnNameInputChange(""),
+                                    .OnMemberInputChange(""),
                             )
                         }
                     },
@@ -204,7 +201,7 @@ fun GroupEditorScreen(
                 onClick = {
                     viewModel.createGroup()
                 },
-                enabled = canSubmit,
+                enabled = groupEditorState.canSubmit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)
@@ -229,7 +226,7 @@ fun GroupEditorScreen(
                 onClick = {
                     // TODO: viewModel update group
                 },
-                enabled = canSubmit,
+                enabled = groupEditorState.canSubmit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)

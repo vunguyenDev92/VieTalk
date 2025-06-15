@@ -17,7 +17,7 @@ class GroupEditorViewModel(
     private val _state = MutableStateFlow(
         GroupEditorState(
             groupName = groupName,
-            members = members,
+            members = members.filter { it != currentUserId },
         ),
     )
     val state = _state.asStateFlow()
@@ -25,8 +25,8 @@ class GroupEditorViewModel(
     init {
         if (members.isEmpty()) {
             _state.value = _state.value.copy(
-                members = listOf(currentUserId ?: ""),
-                canSubmit = true,
+                members = emptyList(),
+                canSubmit = false,
             )
         }
     }
@@ -43,16 +43,13 @@ class GroupEditorViewModel(
                 )
             }
             is GroupEditorEvent.OnMemberInputChange -> {
-                val newMembers = _state.value.members.toMutableList()
-                if (event.input.isNotBlank()) {
-                    newMembers.add(event.input)
-                }
                 _state.value = _state.value.copy(memberInput = event.input)
             }
             is GroupEditorEvent.OnMembersChange -> {
+                val filteredMembers = event.members.filter { it != currentUserId }
                 _state.value = _state.value.copy(
-                    members = event.members,
-                    canSubmit = event.members.isNotEmpty() &&
+                    members = filteredMembers,
+                    canSubmit = filteredMembers.isNotEmpty() &&
                         _state.value.groupName.isNotBlank() &&
                         (_state.value.groupName != groupName || _state.value.members != members),
                 )
@@ -72,13 +69,24 @@ class GroupEditorViewModel(
             return
         }
 
-        val groupId = createGroupUseCase.invoke(roomName = groupName, userIds = members)
+        try {
+            val groupId = createGroupUseCase.invoke(
+                roomName = groupName,
+                userIds = members,
+                currentUserId = currentUserId ?: throw IllegalStateException("Current user ID is missing"),
+            )
 
-        _state.value = _state.value.copy(
-            groupId = groupId,
-            isSuccess = true,
-            message = GROUP_CREATED_SUCCESSFULLY,
-        )
+            _state.value = _state.value.copy(
+                groupId = groupId,
+                isSuccess = true,
+                message = GROUP_CREATED_SUCCESSFULLY,
+            )
+        } catch (e: IllegalArgumentException) {
+            _state.value = _state.value.copy(
+                isSuccess = false,
+                message = e.message ?: ERROR_MESSAGE_GROUP_NAME_AND_MEMBERS_EMPTY,
+            )
+        }
     }
 
     data class GroupEditorState(
@@ -98,7 +106,7 @@ class GroupEditorViewModel(
     }
 
     companion object {
-        private const val ERROR_MESSAGE_GROUP_NAME_AND_MEMBERS_EMPTY = "Group name and members cannot be empty."
+        private const val ERROR_MESSAGE_GROUP_NAME_AND_MEMBERS_EMPTY = "Group name and at least one other member are required."
         private const val GROUP_CREATED_SUCCESSFULLY = "Group created successfully."
 
         fun factory(context: Context, groupName: String, members: List<String>) = object : ViewModelProvider.Factory {
