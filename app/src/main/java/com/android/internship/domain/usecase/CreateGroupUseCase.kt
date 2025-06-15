@@ -8,7 +8,11 @@ class CreateGroupUseCase(
     private val roomRepository: RoomRepository,
     private val userRoomRepository: UserRoomRepository,
 ) {
-    operator fun invoke(roomName: String, userIds: List<String>): String {
+    operator fun invoke(roomName: String, userIds: List<String>, currentUserId: String): String {
+        if (userIds.isEmpty()) {
+            throw IllegalArgumentException("At least one other user ID is required to create a group.")
+        }
+
         val rid = UUID.randomUUID().toString()
 
         roomRepository.addRoomRemote(
@@ -17,7 +21,8 @@ class CreateGroupUseCase(
             name = roomName,
         )
 
-        userIds.forEach { userId ->
+        val allUserIds = userIds + currentUserId
+        allUserIds.forEach { userId ->
             userRoomRepository.addUserRoomRemote(
                 rid = rid,
                 uid = userId,
