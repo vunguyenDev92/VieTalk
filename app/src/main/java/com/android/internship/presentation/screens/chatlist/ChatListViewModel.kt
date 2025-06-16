@@ -122,7 +122,6 @@ class ChatListViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e("ChatListViewModel", "Error in loadUserRooms: ${e.message}", e)
                 _state.update {
                     it.copy(
                         isLoading = false,
@@ -154,9 +153,7 @@ class ChatListViewModel(
                                 if (room.id == roomId) {
                                     room.copy(
                                         lastMessage = latestMessage.content,
-                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(
-                                            latestMessage.time,
-                                        ),
+                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(latestMessage.time),
                                         lastSenderName = latestMessage.senderName,
                                     )
                                 } else {

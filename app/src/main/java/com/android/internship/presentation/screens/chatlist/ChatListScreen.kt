@@ -133,18 +133,6 @@ fun ChatListScreen(
                     ),
                 )
             }
-        } else if (chatListScreenState.error != null && chatListScreenState.chatRoomItems.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Red,
-                    ),
-                )
-            }
         } else if (chatListScreenState.error != null) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -177,9 +165,11 @@ fun ChatListScreen(
                     CommonProgressIndicator()
                 }
             }
+
             chatListScreenState.chatRoomItems.isEmpty() -> {
                 EmptyChatList()
             }
+
             else -> {
                 LazyColumn(
                     contentPadding = PaddingValues(vertical = 8.dp),
@@ -189,7 +179,8 @@ fun ChatListScreen(
                             isGroup = chatListScreenState.chatRoomItems[index].isGroupChat,
                             isOnline = chatListScreenState.chatRoomItems[index].isActive,
                             name = chatListScreenState.chatRoomItems[index].name,
-                            memberAvatars = chatListScreenState.chatRoomItems[index].memberAvatars ?: emptyList(),
+                            memberAvatars = chatListScreenState.chatRoomItems[index].memberAvatars
+                                ?: emptyList(),
                             lastMessage = chatListScreenState.chatRoomItems[index].lastMessage,
                             lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName,
                             lastMessageTime = chatListScreenState.chatRoomItems[index].lastMessageTime,
