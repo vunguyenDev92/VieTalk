@@ -12,10 +12,10 @@ class UserRoomRemoteDataSource {
     private val firestore = FirebaseFirestore.getInstance()
     private val userRoomsCollection = firestore.collection("userRooms")
 
-    fun addUserRoomRemote(userRoom: UserRoom) {
-        firestore.collection("userRooms")
-            .document("${userRoom.rid}_${userRoom.uid}")
-            .set(userRoom)
+    fun addUserRoomRemote(userRooms: List<UserRoom>) {
+        userRooms.forEach { userRoom ->
+            userRoomsCollection.document("${userRoom.rid}_${userRoom.uid}").set(userRoom)
+        }
     }
 
     suspend fun getUserRoomsForUser(uid: String): List<UserRoom> {

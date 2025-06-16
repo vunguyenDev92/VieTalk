@@ -99,7 +99,7 @@ fun SignInScreen(
             ) {
                 focusManager.clearFocus()
             },
-        verticalArrangement = Arrangement.spacedBy(19.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
@@ -115,7 +115,9 @@ fun SignInScreen(
                 textAlign = TextAlign.Start,
                 color = Black,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 9.dp, bottom = 19.dp)
+                    .fillMaxWidth(),
             )
         }
         item {
@@ -137,7 +139,7 @@ fun SignInScreen(
         }
         item {
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 NavToSignUpButton(
@@ -172,7 +174,7 @@ private fun SignInButton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 15.dp)
+            .padding(top = 40.dp, bottom = 42.5.dp)
             .height(54.dp)
             .clip(RoundedCornerShape(5.dp))
             .background(color = if (isDisable) GreyLight else BlueLight)

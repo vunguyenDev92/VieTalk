@@ -1,5 +1,6 @@
 package com.android.internship.domain.usecase
 
+import com.android.internship.data.model.UserRoom
 import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRoomRepository
 import java.util.UUID
@@ -8,7 +9,7 @@ class CreateGroupUseCase(
     private val roomRepository: RoomRepository,
     private val userRoomRepository: UserRoomRepository,
 ) {
-    operator fun invoke(roomName: String, userIds: List<String>, currentUserId: String): String {
+    operator fun invoke(roomName: String, userIds: List<String>): String {
         if (userIds.isEmpty()) {
             throw IllegalArgumentException("At least one other user ID is required to create a group.")
         }
@@ -21,13 +22,14 @@ class CreateGroupUseCase(
             name = roomName,
         )
 
-        val allUserIds = userIds + currentUserId
-        allUserIds.forEach { userId ->
-            userRoomRepository.addUserRoomRemote(
-                rid = rid,
-                uid = userId,
-            )
-        }
+        userRoomRepository.addUserRoomsRemote(
+            userRooms = userIds.map {
+                UserRoom(
+                    rid = rid,
+                    uid = it,
+                )
+            },
+        )
 
         return rid
     }
