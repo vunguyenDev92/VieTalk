@@ -279,10 +279,14 @@ class ChatViewModel(
             }
         }
     }
-
     fun refreshData() {
         if (!uiState.value.isNetworkAvailable) {
             _uiState.update { it.copy(isRefreshing = true) }
+
+            viewModelScope.launch {
+                delay(5000)
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
         }
     }
 

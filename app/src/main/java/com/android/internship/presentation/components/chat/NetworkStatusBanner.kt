@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,8 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,16 +27,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.internship.R
 import com.android.internship.presentation.components.CommonProgressIndicator
+import kotlinx.coroutines.delay
 
 @Composable
 fun NetworkStatusBanner(
     isNetworkAvailable: Boolean,
     isRefreshing: Boolean,
     onRefreshClick: () -> Unit,
+    errorMessage: String? = null, // Add error message parameter
     modifier: Modifier = Modifier,
 ) {
+    var showProgressIndicator by remember { mutableStateOf(false) }
+
+    // Handle refresh timeout
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            showProgressIndicator = true
+            delay(5000) // 5 seconds
+            showProgressIndicator = false
+        } else {
+            showProgressIndicator = false
+        }
+    }
+
+    // Show banner when network is not available OR when there's an error message
     AnimatedVisibility(
-        visible = !isNetworkAvailable,
+        visible = !isNetworkAvailable || errorMessage != null,
         enter = expandVertically(animationSpec = tween(300)),
         exit = shrinkVertically(animationSpec = tween(300)),
     ) {
@@ -40,7 +62,7 @@ fun NetworkStatusBanner(
                 .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            if (isRefreshing) {
+            if (showProgressIndicator && isRefreshing) {
                 CommonProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     backgroundColor = Color.Transparent,
@@ -48,13 +70,29 @@ fun NetworkStatusBanner(
             } else {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = stringResource(R.string.no_internet_connection),
+                        text = when {
+                            errorMessage != null -> errorMessage
+                            !isNetworkAvailable -> stringResource(R.string.no_internet_connection)
+                            else -> stringResource(R.string.no_internet_connection)
+                        },
                         color = Color.Red,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                     )
-                    TextButton(onClick = onRefreshClick) {
-                        Text(stringResource(R.string.refresh))
+
+                    // Only show refresh button for network errors
+                    if (!isNetworkAvailable) {
+                        Text(
+                            text = stringResource(R.string.refresh),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                ) { onRefreshClick() }
+                                .padding(8.dp),
+                        )
                     }
                 }
             }
