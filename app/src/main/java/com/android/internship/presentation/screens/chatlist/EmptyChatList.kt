@@ -34,7 +34,6 @@ fun EmptyChatList(modifier: Modifier = Modifier) {
             contentDescription = stringResource(R.string.empty_list_illustration),
             modifier = Modifier.size(180.dp),
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.it_looks_like_you_haven_t_added_anything_here),
             style = MaterialTheme.typography.bodyLarge.copy(

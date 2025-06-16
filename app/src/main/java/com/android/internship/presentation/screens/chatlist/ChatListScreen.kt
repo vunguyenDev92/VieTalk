@@ -147,7 +147,7 @@ fun ChatListScreen(
             }
         }
 
-        if (chatListScreenState.chatRoomItems.isNotEmpty()) {
+        if (chatListScreenState.chatUserItems.isNotEmpty()) {
             ConnectWithOthersItem(
                 chatItems = chatListScreenState.chatUserItems,
                 onClick = {
@@ -165,9 +165,11 @@ fun ChatListScreen(
                     CommonProgressIndicator()
                 }
             }
+
             chatListScreenState.chatRoomItems.isEmpty() -> {
                 EmptyChatList()
             }
+
             else -> {
                 LazyColumn(
                     contentPadding = PaddingValues(vertical = 8.dp),
@@ -179,7 +181,7 @@ fun ChatListScreen(
                             name = chatListScreenState.chatRoomItems[index].name,
                             memberAvatars = chatListScreenState.chatRoomItems[index].memberAvatars ?: emptyList(),
                             lastMessage = chatListScreenState.chatRoomItems[index].lastMessage,
-                            lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName ?: "",
+                            lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName,
                             lastMessageTime = chatListScreenState.chatRoomItems[index].lastMessageTime,
                             onClick = {
                                 navController.navigate(route = Screen.Chat(chatListScreenState.chatRoomItems[index].id)) {

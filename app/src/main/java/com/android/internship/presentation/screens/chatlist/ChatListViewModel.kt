@@ -47,9 +47,12 @@ class ChatListViewModel(
                 val chatRoomItems = mutableListOf<ChatListState.ChatRoomItemState>()
                 val chatUserItems = mutableListOf<ChatListState.ChatUserItemState>()
                 val userRooms = getUserRoomForUserUseCase()
-                val rooms = getRoomsUseCase(userRooms.map { it.rid })
+                val rooms = if (userRooms.isNotEmpty()) {
+                    getRoomsUseCase(userRooms.map { it.rid })
+                } else {
+                    emptyList()
+                }
                 val users = getAllUsersInfoUseCase()
-
                 val userNoRoom = users.toMutableList()
                 userNoRoom.removeIf { it.uid == currentUserId }
 
@@ -144,7 +147,6 @@ class ChatListViewModel(
                 observeMessagesUseCase(roomId).collect { messages ->
                     val latestMessage = messages.lastOrNull()
                     if (latestMessage != null) {
-                        Log.d("ChatListViewModel", "New message received for room $roomId: ${latestMessage.content}")
                         _state.update { currentState ->
                             val updatedChatRooms = currentState.chatRoomItems.map { room ->
                                 if (room.id == roomId) {
