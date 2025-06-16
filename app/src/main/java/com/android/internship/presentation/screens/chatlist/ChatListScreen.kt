@@ -159,7 +159,7 @@ fun ChatListScreen(
             }
         }
 
-        if (chatListScreenState.chatRoomItems.isEmpty() || chatListScreenState.chatUserItems.isEmpty()) {
+        if (chatListScreenState.chatRoomItems.isNotEmpty()) {
             ConnectWithOthersItem(
                 chatItems = chatListScreenState.chatUserItems,
                 onClick = {
@@ -191,7 +191,7 @@ fun ChatListScreen(
                             name = chatListScreenState.chatRoomItems[index].name,
                             memberAvatars = chatListScreenState.chatRoomItems[index].memberAvatars ?: emptyList(),
                             lastMessage = chatListScreenState.chatRoomItems[index].lastMessage,
-                            lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName ?: "",
+                            lastSenderName = chatListScreenState.chatRoomItems[index].lastSenderName,
                             lastMessageTime = chatListScreenState.chatRoomItems[index].lastMessageTime,
                             onClick = {
                                 navController.navigate(route = Screen.Chat(chatListScreenState.chatRoomItems[index].id)) {
