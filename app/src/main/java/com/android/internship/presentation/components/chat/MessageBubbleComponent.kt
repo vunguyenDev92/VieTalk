@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,19 +55,21 @@ fun MessageBubbleComponent(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
             )
-            .padding(horizontal = 2.dp, vertical = 4.dp),
-        horizontalAlignment = alignment,
+            .padding(vertical = 2.dp),
     ) {
-        if (item.isSeenByExpanded) {
+        if (item.isSeenByExpanded && !item.isCloseToHeader) {
             MessageTimeHeaderComponent(message = item.message)
-            Spacer(modifier = Modifier.padding(top = 4.dp))
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (item.isFromMe) Arrangement.End else Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
+            if (item.isFromMe) Spacer(modifier = Modifier.weight(1f))
+
             if (!item.isFromMe) {
                 AsyncImage(
                     model = item.senderAvatarUrl,
@@ -76,7 +77,6 @@ fun MessageBubbleComponent(
                     modifier = Modifier.size(40.dp).clip(CircleShape),
                     contentScale = ContentScale.Crop,
                 )
-                Spacer(modifier = Modifier.width(8.dp))
             }
 
             Column(horizontalAlignment = alignment) {
@@ -97,19 +97,14 @@ fun MessageBubbleComponent(
                     Text(
                         text = item.message.content,
                         fontFamily = robotoFamily,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Normal,
                         fontSize = 16.sp,
-                        color = if (!item.isFromMe) {
-                            Black
-                        } else {
-                            White
-                        },
+                        color = if (!item.isFromMe) Black else White,
                     )
                 }
             }
 
             if (item.isFromMe) {
-                Spacer(modifier = Modifier.width(8.dp))
                 AsyncImage(
                     model = currentUserAvatarUrl,
                     contentDescription = "My Avatar",
@@ -117,17 +112,47 @@ fun MessageBubbleComponent(
                     contentScale = ContentScale.Crop,
                 )
             }
+
+            if (!item.isFromMe) Spacer(modifier = Modifier.weight(1f))
         }
 
-        val shouldShowSeenIndicator = item.isSeenByExpanded && item.seenByUsers.isNotEmpty()
-        if (shouldShowSeenIndicator) {
-            Spacer(modifier = Modifier.padding(top = 4.dp))
-            ExpandedSeenByIndicator(
-                seenByUsers = item.seenByUsers,
-                modifier = Modifier.padding(
-                    start = if (!item.isFromMe) 32.dp else 0.dp,
-                    end = if (item.isFromMe) 32.dp else 0.dp,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = 2.dp,
+                    end = 48.dp,
+                    start = 48.dp,
                 ),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            if (item.avatarsOfUsersWhoLastSawThis.isNotEmpty()) {
+                SeenByAvatarStack(users = item.avatarsOfUsersWhoLastSawThis)
+            }
+        }
+
+        if (item.isSeenByExpanded && item.seenByUsers.isNotEmpty()) {
+            Spacer(modifier = Modifier.padding(top = 4.dp))
+            ExpandedSeenByIndicator(seenByUsers = item.seenByUsers)
+        }
+    }
+}
+
+@Composable
+private fun SeenByAvatarStack(users: List<User>) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy((-6).dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        users.take(5).forEach { user ->
+            AsyncImage(
+                model = user.avatar,
+                contentDescription = "Seen by ${user.username}",
+                modifier = Modifier
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
+                contentScale = ContentScale.Crop,
             )
         }
     }
@@ -140,71 +165,27 @@ private fun ExpandedSeenByIndicator(
 ) {
     val seenByText = remember(seenByUsers) {
         buildString {
-            val maxNamesToShow = 4
-            val namesToShow = seenByUsers.take(maxNamesToShow)
+            val maxNamesToShow = 3
+            val namesToShow = seenByUsers.take(maxNamesToShow).map { it.username }
             val remainingCount = seenByUsers.size - namesToShow.size
 
-            append("Seen by ${namesToShow.joinToString { it.username }}")
+            append("Seen by ${namesToShow.joinToString(", ")}")
             if (remainingCount > 0) {
                 append(" and $remainingCount others")
             }
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = seenByText,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
         )
-        SeenByAvatarRow(users = seenByUsers)
-    }
-}
-
-@Composable
-private fun SeenByAvatarRow(users: List<User>) {
-    val maxVisibleAvatars = 4
-    val usersToShow = users.take(maxVisibleAvatars)
-    val remainingCount = users.size - usersToShow.size
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        usersToShow.forEach { user ->
-            AsyncImage(
-                model = user.avatar,
-                contentDescription = "Seen by ${user.username}",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
-                contentScale = ContentScale.Crop,
-            )
-            Spacer(Modifier.width(2.dp))
-        }
-
-        if (remainingCount > 0) {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "+$remainingCount",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }

@@ -15,12 +15,14 @@ class MessageRepositoryImpl(
         return messageRemoteDataSource.observeMessages(rid)
     }
 
-    override fun addRemoteMessage(
+    override fun addRemoteMessageNew(
         mid: String,
         rid: String,
         uid: String,
         content: String,
         timestamp: String,
+        senderAvt: String,
+        senderName: String,
     ) {
         messageRemoteDataSource.addRemoteMessage(
             Message(
@@ -29,9 +31,30 @@ class MessageRepositoryImpl(
                 uid = uid,
                 content = content,
                 time = timestamp,
+                senderAvatar = senderAvt,
+                senderName = senderName,
             ),
         )
     }
+//
+//    override fun addRemoteMessage(
+//        mid: String,
+//        rid: String,
+//        uid: String,
+//        content: String,
+//        timestamp: String,
+//    ) {
+//        messageRemoteDataSource.addRemoteMessage(
+//            Message(
+//                mid = mid,
+//                rid = rid,
+//                uid = uid,
+//                content = content,
+//                time = timestamp,
+//            ),
+//        )
+//    }
+//
 
     override suspend fun getRemoteMessages(
         rid: String,
