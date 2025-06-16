@@ -133,6 +133,18 @@ fun ChatListScreen(
                     ),
                 )
             }
+        } else if (chatListScreenState.error != null && chatListScreenState.chatRoomItems.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Red,
+                    ),
+                )
+            }
         } else if (chatListScreenState.error != null) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
