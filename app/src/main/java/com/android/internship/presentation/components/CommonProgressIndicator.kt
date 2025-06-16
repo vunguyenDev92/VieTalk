@@ -1,5 +1,6 @@
 package com.android.internship.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -27,6 +28,7 @@ fun CommonProgressIndicator(
     isLoading: Boolean = true,
     color: Color = Blue,
     pulseRateMs: Long = 50,
+    backgroundColor: Color? = null,
 ) {
     var angle by remember { mutableFloatStateOf(0f) }
 
@@ -38,12 +40,16 @@ fun CommonProgressIndicator(
     }
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().apply {
+            if (backgroundColor != null) {
+                this.background(backgroundColor)
+            }
+        },
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_loading_indicator),
-            contentDescription = stringResource(R.string.login),
+            contentDescription = stringResource(R.string.loading_indicator),
             tint = color,
             modifier = Modifier
                 .size(30.dp)

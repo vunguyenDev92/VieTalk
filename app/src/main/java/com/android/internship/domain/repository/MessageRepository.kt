@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
     // Remote message operations
-    fun addRemoteMessage(mid: String, rid: String, uid: String, content: String, timestamp: String)
+    fun addRemoteMessageNew(mid: String, rid: String, uid: String, content: String, timestamp: String, senderAvt: String, senderName: String)
+
+//    fun addRemoteMessage(mid: String, rid: String, uid: String, content: String, timestamp: String)
     suspend fun getRemoteMessages(rid: String, startMessageId: String?, limit: Int): List<Message>?
     fun observeMessages(rid: String): Flow<List<Message>>
 
