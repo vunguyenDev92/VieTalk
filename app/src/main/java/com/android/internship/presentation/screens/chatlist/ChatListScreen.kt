@@ -147,7 +147,7 @@ fun ChatListScreen(
             }
         }
 
-        if (chatListScreenState.chatRoomItems.isNotEmpty()) {
+        if (chatListScreenState.chatUserItems.isNotEmpty()) {
             ConnectWithOthersItem(
                 chatItems = chatListScreenState.chatUserItems,
                 onClick = {
