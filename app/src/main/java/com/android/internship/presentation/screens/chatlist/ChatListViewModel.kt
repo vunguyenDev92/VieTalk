@@ -144,10 +144,6 @@ class ChatListViewModel(
                 observeMessagesUseCase(roomId).collect { messages ->
                     val latestMessage = messages.lastOrNull()
                     if (latestMessage != null) {
-                        Log.d(
-                            "ChatListViewModel",
-                            "New message received for room $roomId: ${latestMessage.content}",
-                        )
                         _state.update { currentState ->
                             val updatedChatRooms = currentState.chatRoomItems.map { room ->
                                 if (room.id == roomId) {
