@@ -13,6 +13,7 @@ import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
 import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
 import com.android.internship.domain.usecase.LogoutUserCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
+import com.android.internship.domain.usecase.ObserveRoomUseCase
 import com.android.internship.presentation.utils.FormatTimeStamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,7 @@ class ChatListViewModel(
     private val getActiveUserUseCase: GetActiveUserUseCase,
     private val logoutUserCase: LogoutUserCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
+    private val observeRoomUseCase: ObserveRoomUseCase,
     private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatListState())
@@ -34,6 +36,7 @@ class ChatListViewModel(
 
     init {
         loadUserRooms()
+        observeRoom()
     }
 
     private fun loadUserRooms() {
@@ -164,6 +167,18 @@ class ChatListViewModel(
         }
     }
 
+    private fun observeRoom() {
+        viewModelScope.launch {
+            try {
+                observeRoomUseCase().collect { room ->
+                    loadUserRooms()
+                }
+            } catch (e: Exception) {
+                Log.e("ChatListViewModel", "Error observing room", e)
+            }
+        }
+    }
+
     companion object {
         fun factory(context: Context) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -196,6 +211,10 @@ class ChatListViewModel(
                         repository = appContainer.messageRepository,
                     )
 
+                    val observeRoomUseCase = ObserveRoomUseCase(
+                        repository = appContainer.roomRepository,
+                    )
+
                     val logoutUserCase = LogoutUserCase(
                         authRepository = appContainer.authRepository,
                     )
@@ -209,6 +228,7 @@ class ChatListViewModel(
                         getAllUsersInfoUseCase = getAllUsersInfoUseCase,
                         getActiveUserUseCase = getActiveUserUseCase,
                         observeMessagesUseCase = observeMessagesUseCase,
+                        observeRoomUseCase = observeRoomUseCase,
                         logoutUserCase = logoutUserCase,
                         currentUserId = currentUserId,
                     ) as T
