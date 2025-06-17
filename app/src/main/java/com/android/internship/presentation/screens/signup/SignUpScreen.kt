@@ -94,7 +94,8 @@ fun SignUpScreen(
             painter = painterResource(id = R.drawable.ic_back),
             contentDescription = stringResource(R.string.back),
             modifier = Modifier
-                .size(50.dp)
+                .padding(start = 15.dp, top = 7.5.dp)
+                .size(30.dp)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -116,7 +117,7 @@ fun SignUpScreen(
             ) {
                 focusManager.clearFocus()
             },
-        verticalArrangement = Arrangement.spacedBy(19.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
@@ -132,7 +133,9 @@ fun SignUpScreen(
                 textAlign = TextAlign.Start,
                 color = Black,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 30.dp, bottom = 19.dp)
+                    .fillMaxWidth(),
             )
         }
         item {
@@ -183,7 +186,7 @@ private fun SignUpButton(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 15.dp)
+            .padding(vertical = 32.dp)
             .height(54.dp)
             .clip(RoundedCornerShape(5.dp))
             .background(color = if (isDisable) GreyLight else BlueLight)

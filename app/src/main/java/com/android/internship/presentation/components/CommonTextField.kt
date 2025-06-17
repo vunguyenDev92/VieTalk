@@ -7,12 +7,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -62,9 +61,21 @@ fun CommonTextField(
     var isTextVisible by remember { mutableStateOf(true) }
 
     Box(
-        modifier = modifier,
+        modifier = modifier.padding(bottom = if (isError) 0.dp else 19.dp),
     ) {
-        Box(modifier = Modifier.border(1.dp, if (isError) MaterialTheme.colorScheme.error else Color(0xffd1d1d1), RoundedCornerShape(5.dp))) {
+        Box(
+            modifier = Modifier
+                .height(48.dp)
+                .border(
+                    1.dp,
+                    if (isError) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        Color(0xffd1d1d1)
+                    },
+                    RoundedCornerShape(5.dp),
+                ),
+        ) {
             EditTextField(
                 textFieldState = textFieldState,
                 onValueChange = onValueChange,
@@ -80,34 +91,33 @@ fun CommonTextField(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(2.dp, 24.dp)
+                            .size(1.dp, 24.dp)
                             .background(GreyLight),
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
                     Icon(
                         painter = painterResource(id = if (isTextVisible) R.drawable.ic_visible else R.drawable.ic_invisible),
                         contentDescription = if (isTextVisible) StringConstants.SHOW_PASSWORD else StringConstants.HIDE_PASSWORD,
                         tint = Color(0xff575757),
                         modifier = Modifier
+                            .padding(start = 11.dp, end = 16.dp)
                             .size(24.dp)
                             .clickable(
                                 indication = null,
                                 interactionSource = remember { MutableInteractionSource() },
                             ) { isTextVisible = !isTextVisible },
                     )
-                    Spacer(modifier = Modifier.width(15.dp))
                 }
             }
         }
         Text(
-            text = label,
+            text = label.uppercase(),
             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
             color = if (isError) MaterialTheme.colorScheme.error else Grey,
             modifier = Modifier
-                .padding(start = 20.dp)
+                .padding(horizontal = 16.dp)
                 .offset(y = (-8).dp)
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 8.dp),
         )
     }
     if (isError) {
@@ -115,7 +125,7 @@ fun CommonTextField(
             text = textFieldState.errorMessage,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 5.dp).fillMaxWidth(),
+            modifier = Modifier.padding(top = 15.dp, bottom = 10.dp).fillMaxWidth(),
         )
     }
 }
