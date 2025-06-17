@@ -140,13 +140,7 @@ fun ChatScreen(
                                 key = { item ->
                                     when (item) {
                                         is MessageItem.MessageBubbles -> "msg_${item.message.mid}"
-                                        is MessageItem.TimeHeader ->
-                                            "time_${
-                                                item.timestamp.toEpochSecond(
-                                                    ZoneOffset.UTC,
-                                                )
-                                            }"
-
+                                        is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(ZoneOffset.UTC)}"
                                         is MessageItem.TypingIndicator -> "typing_indicator"
                                     }
                                 },
