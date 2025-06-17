@@ -103,8 +103,8 @@ private fun ChatTopBarSingleActivePreview() {
             isSubtitleActive = true,
             isMuted = false,
             isBlocked = false,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ... */ },
+            onBlockClick = { /* ... */ },
         )
     }
 }
@@ -120,8 +120,8 @@ private fun ChatTopBarSingleOfflinePreview() {
             isSubtitleActive = false,
             isMuted = true,
             isBlocked = false,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ... */ },
         )
     }
 }
@@ -140,8 +140,8 @@ private fun ChatTopBarGroupPreview() {
             isSubtitleActive = false,
             isMuted = false,
             isBlocked = true,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ...  */ },
         )
     }
 }
