@@ -101,7 +101,7 @@ fun MessageInputComponent(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Box(
@@ -153,7 +153,9 @@ fun MessageInputComponent(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.weight(1f),
+						contentAlignment = Alignment.CenterStart
+					   ) {
                         BasicTextField(
                             value = messageText,
                             onValueChange = onMessageChange,
