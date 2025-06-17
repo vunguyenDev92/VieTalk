@@ -33,8 +33,6 @@ fun TypingIndicatorComponent(
     item: MessageItem.TypingIndicator,
     modifier: Modifier = Modifier,
 ) {
-    Log.d("TypingIndicator", "Hiển thị chỉ báo. Người dùng: ${item.typingUsers.map { it.username to it.avatar }}")
-
     Row(
         modifier = modifier
             .fillMaxWidth()

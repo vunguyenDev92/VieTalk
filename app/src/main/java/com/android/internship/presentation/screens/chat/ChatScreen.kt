@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
@@ -42,6 +41,7 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
+import com.android.internship.presentation.navigation.Screen
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 
@@ -68,14 +68,12 @@ fun ChatScreen(
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
-
-    val imePadding = WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
-            snackbarHostState.showSnackbar(message = error)
+            snackBarHostState.showSnackbar(message = error)
             viewModel.clearError()
         }
     }
@@ -95,12 +93,12 @@ fun ChatScreen(
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
                 onCallClick = { /* ... */ },
                 onMoreClick = { /* ... */ },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
@@ -120,10 +118,10 @@ fun ChatScreen(
                             modifier = Modifier.fillMaxSize(),
                             reverseLayout = true,
                             contentPadding = PaddingValues(
-                                horizontal = 12.dp,
-                                vertical = 8.dp,
+                                horizontal = 4.dp,
+                                vertical = 4.dp,
                             ),
-                            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
+                            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Bottom),
                             userScrollEnabled = !isEmojiPickerVisible,
                         ) {
                             items(

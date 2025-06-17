@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +37,6 @@ import com.android.internship.presentation.theme.GreenMess
 import com.android.internship.presentation.theme.GreyMess
 import com.android.internship.presentation.theme.White
 import com.android.internship.presentation.theme.robotoFamily
-
 @Composable
 fun MessageBubbleComponent(
     item: MessageItem.MessageBubbles,
@@ -55,7 +56,7 @@ fun MessageBubbleComponent(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
             )
-            .padding(vertical = 2.dp),
+            .padding(vertical = 0.dp),
     ) {
         if (item.isSeenByExpanded && !item.isCloseToHeader) {
             MessageTimeHeaderComponent(message = item.message)
@@ -71,25 +72,39 @@ fun MessageBubbleComponent(
             if (item.isFromMe) Spacer(modifier = Modifier.weight(1f))
 
             if (!item.isFromMe) {
-                AsyncImage(
-                    model = item.senderAvatarUrl,
-                    contentDescription = "Sender Avatar",
-                    modifier = Modifier.size(40.dp).clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                )
+                if (item.showAvatar) {
+                    AsyncImage(
+                        model = item.senderAvatarUrl,
+                        contentDescription = "Sender Avatar",
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
+                }
             }
 
             Column(horizontalAlignment = alignment) {
-                item.senderName?.let {
+                item.senderName?.let { name ->
                     Text(
-                        text = it,
+                        text = name,
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontFamily = robotoFamily,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
                 Box(
                     modifier = Modifier
                         .widthIn(max = screenWidth * 0.75f)
+                        .shadow(
+                            elevation = 2.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = Color(0xFF000000).copy(alpha = 0.46f),
+                            spotColor = Color(0xFF000000).copy(alpha = 0.46f),
+                            clip = false,
+                        )
                         .clip(RoundedCornerShape(12.dp))
                         .background(backgroundColor)
                         .padding(horizontal = 12.dp, vertical = 4.dp),
@@ -105,12 +120,16 @@ fun MessageBubbleComponent(
             }
 
             if (item.isFromMe) {
-                AsyncImage(
-                    model = currentUserAvatarUrl,
-                    contentDescription = "My Avatar",
-                    modifier = Modifier.size(40.dp).clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                )
+                if (item.showAvatar) {
+                    AsyncImage(
+                        model = currentUserAvatarUrl,
+                        contentDescription = "My Avatar",
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
+                }
             }
 
             if (!item.isFromMe) Spacer(modifier = Modifier.weight(1f))

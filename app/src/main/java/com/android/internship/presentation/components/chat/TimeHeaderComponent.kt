@@ -66,7 +66,7 @@ fun MessageTimeHeaderComponent(
     }
 
     Box(
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = 0.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

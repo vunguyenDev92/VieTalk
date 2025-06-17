@@ -18,6 +18,7 @@ sealed class MessageItem {
         val isSeenByExpanded: Boolean = false,
         val avatarsOfUsersWhoLastSawThis: List<User> = emptyList(),
         val isCloseToHeader: Boolean = false,
+        val showAvatar: Boolean = true,
     ) : MessageItem()
 
     data class TypingIndicator(
