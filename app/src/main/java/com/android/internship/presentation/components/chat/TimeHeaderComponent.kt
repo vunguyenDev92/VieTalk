@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/chat/TimeHeaderComponent.kt
 package com.android.internship.presentation.components.chat
 
 import androidx.compose.foundation.layout.Box

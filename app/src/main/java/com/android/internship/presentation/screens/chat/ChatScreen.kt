@@ -7,17 +7,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -37,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.di.AppContainer
+import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.EmptyChatComponent
@@ -74,7 +71,7 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
-    WindowInsets.ime.asPaddingValues()
+    val imePadding = WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
@@ -104,23 +101,15 @@ fun ChatScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(WindowInsets.ime.only(WindowInsetsSides.Bottom).asPaddingValues()),
+                .padding(paddingValues),
         ) {
-            NetworkStatusBanner(
-                isNetworkAvailable = uiState.isNetworkAvailable,
-                isRefreshing = uiState.isRefreshing,
-                onRefreshClick = viewModel::refreshData,
-            )
             if (uiState.isLoading) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                CommonProgressIndicator()
             } else {
                 Box(modifier = Modifier.weight(1f)) {
                     if (uiState.messages.isEmpty()) {
@@ -128,12 +117,14 @@ fun ChatScreen(
                     } else {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxSize(),
                             reverseLayout = true,
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            contentPadding = PaddingValues(
+                                horizontal = 12.dp,
+                                vertical = 8.dp,
+                            ),
                             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
+                            userScrollEnabled = !isEmojiPickerVisible,
                         ) {
                             items(
                                 items = uiState.messages,
@@ -186,5 +177,12 @@ fun ChatScreen(
                 )
             }
         }
+
+        NetworkStatusBanner(
+            isNetworkAvailable = uiState.isNetworkAvailable,
+            isRefreshing = uiState.isRefreshing,
+            onRefreshClick = viewModel::refreshData,
+            modifier = Modifier.padding(top = 50.dp),
+        )
     }
 }

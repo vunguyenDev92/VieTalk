@@ -1,5 +1,6 @@
 package com.android.internship.data.datasource.remote
 
+import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -43,5 +44,15 @@ class RoomRemoteDataSource {
 
             awaitClose { listenerRegistration.remove() }
         }
+    }
+
+    fun updateLastMessage(rid: String, message: Message) {
+        val roomUpdates = mapOf(
+            "lastMessage" to message,
+            "updatedAt" to System.currentTimeMillis().toString(),
+        )
+        firestore.collection("rooms")
+            .document(rid)
+            .update(roomUpdates)
     }
 }
