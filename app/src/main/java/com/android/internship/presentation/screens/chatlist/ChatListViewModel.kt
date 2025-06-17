@@ -94,7 +94,7 @@ class ChatListViewModel(
 
                 chatRoomItems.add(
                     ChatListState.ChatRoomItemState(
-                        isGroupChat = false,
+                        isGroupChat = room.isGroup,
                         isActive = isActive,
                         id = room.rid,
                         name = name,
