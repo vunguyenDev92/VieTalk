@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.android.internship.di.AppContainer
-import com.android.internship.domain.usecase.CreateGroupUseCase
+import com.android.internship.domain.usecase.CreateRoomUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GroupEditorViewModel(
-    private val createGroupUseCase: CreateGroupUseCase,
+    private val createRoomUseCase: CreateRoomUseCase,
     private val groupName: String,
     private val members: Set<String>,
     private val currentUserId: String?,
@@ -61,9 +61,10 @@ class GroupEditorViewModel(
         }
 
         try {
-            val groupId = createGroupUseCase(
+            val groupId = createRoomUseCase(
                 roomName = groupName,
                 userIds = members.toMutableList().apply { currentUserId?.let { add(it) } },
+                isGroup = true,
             )
 
             _state.value = _state.value.copy(
@@ -109,7 +110,7 @@ class GroupEditorViewModel(
                 if (modelClass.isAssignableFrom(GroupEditorViewModel::class.java)) {
                     val appContainer = AppContainer(context)
 
-                    val createGroupUseCase = CreateGroupUseCase(
+                    val createRoomUseCase = CreateRoomUseCase(
                         roomRepository = appContainer.roomRepository,
                         userRoomRepository = appContainer.userRoomRepository,
                     )
@@ -117,7 +118,7 @@ class GroupEditorViewModel(
                     val currentUserId = appContainer.authRepository.getCurrentUserId()
 
                     return GroupEditorViewModel(
-                        createGroupUseCase = createGroupUseCase,
+                        createRoomUseCase = createRoomUseCase,
                         groupName = groupName,
                         members = members.toSet(),
                         currentUserId = currentUserId,

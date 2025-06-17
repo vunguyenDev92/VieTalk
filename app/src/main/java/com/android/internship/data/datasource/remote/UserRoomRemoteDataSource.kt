@@ -18,16 +18,23 @@ class UserRoomRemoteDataSource {
         }
     }
 
-    suspend fun getUserRoomsForUser(uid: String): List<UserRoom> {
-        try {
-            val snapshot = firestore.collection("userRooms")
+    fun getUserRoomsForUser(uid: String): Flow<List<UserRoom>> {
+        return callbackFlow {
+            val query = firestore.collection("userRooms")
                 .whereEqualTo("uid", uid)
-                .get()
-                .await()
-            val userRooms = snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
-            return userRooms
-        } catch (e: Exception) {
-            return emptyList()
+
+            val listenerRegistration = query.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val userRooms = snapshot.documents.mapNotNull { it.toObject<UserRoom>() }
+                    trySend(userRooms)
+                }
+            }
+
+            awaitClose { listenerRegistration.remove() }
         }
     }
 

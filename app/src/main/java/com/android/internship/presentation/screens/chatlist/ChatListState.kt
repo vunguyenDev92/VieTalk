@@ -15,6 +15,7 @@ data class ChatListState(
         val lastMessage: String = "",
         val lastMessageTime: String = "",
         val lastSenderName: String = "",
+        val updateAt: String = "",
     )
 
     data class ChatUserItemState(

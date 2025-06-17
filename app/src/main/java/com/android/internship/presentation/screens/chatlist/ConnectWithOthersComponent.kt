@@ -27,7 +27,7 @@ import com.android.internship.R
 @Composable
 fun ConnectWithOthersItem(
     chatItems: List<ChatListState.ChatUserItemState>,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
 ) {
     Column {
         Text(
@@ -43,18 +43,20 @@ fun ConnectWithOthersItem(
         ) {
             items(chatItems) { item ->
                 Column(
+                    modifier = Modifier.size(width = 50.dp, height = 64.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AsyncImage(
                         model = item.avatar,
                         contentDescription = "Avatar member 1",
                         contentScale = ContentScale.Crop,
-                        placeholder = painterResource(R.drawable.ic_person),
+                        placeholder = painterResource(R.drawable.ic_person_color),
                         error = painterResource(R.drawable.ic_person_color),
                         modifier = Modifier
                             .size(50.dp)
-                            .clip(CircleShape).clickable(
-                                onClick = onClick,
+                            .clip(CircleShape)
+                            .clickable(
+                                onClick = { onClick(item.id) },
                             ),
                     )
                     Text(

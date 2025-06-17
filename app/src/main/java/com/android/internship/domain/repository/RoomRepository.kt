@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
     // Room Remote
-    fun addRoomRemote(rid: String, isGroup: Boolean, avatar: String? = null, name: String? = null)
+    fun addRoomRemote(room: Room)
     suspend fun getRoomsRemote(rids: List<String>): List<Room>?
     fun updateLastMessage(rid: String, message: Message)
 
