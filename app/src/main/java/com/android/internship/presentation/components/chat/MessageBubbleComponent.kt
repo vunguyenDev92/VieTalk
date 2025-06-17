@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -96,6 +98,13 @@ fun MessageBubbleComponent(
                 Box(
                     modifier = Modifier
                         .widthIn(max = screenWidth * 0.75f)
+                        .shadow(
+                            elevation = 2.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            ambientColor = Color(0xFF000000).copy(alpha = 0.46f),
+                            spotColor = Color(0xFF000000).copy(alpha = 0.46f),
+                            clip = false,
+                        )
                         .clip(RoundedCornerShape(12.dp))
                         .background(backgroundColor)
                         .padding(horizontal = 12.dp, vertical = 4.dp),

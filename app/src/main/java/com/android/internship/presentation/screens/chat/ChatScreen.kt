@@ -118,7 +118,7 @@ fun ChatScreen(
                             reverseLayout = true,
                             contentPadding = PaddingValues(
                                 horizontal = 4.dp,
-                                vertical = 0.dp,
+                                vertical = 4.dp,
                             ),
                             verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Bottom),
                             userScrollEnabled = !isEmojiPickerVisible,
