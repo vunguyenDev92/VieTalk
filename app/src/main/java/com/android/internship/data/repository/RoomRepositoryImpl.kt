@@ -12,13 +12,7 @@ class RoomRepositoryImpl(
     private val roomRemoteDataSource: RoomRemoteDataSource,
 ) : RoomRepository {
 
-    override fun addRoomRemote(
-        rid: String,
-        isGroup: Boolean,
-        avatar: String?,
-        name: String?,
-    ) {
-        val room = Room(rid = rid, isGroup = isGroup, avatar = avatar, name = name)
+    override fun addRoomRemote(room: Room) {
         roomRemoteDataSource.addRoom(room)
     }
 
