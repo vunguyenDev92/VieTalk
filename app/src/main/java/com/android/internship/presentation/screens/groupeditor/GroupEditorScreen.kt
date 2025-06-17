@@ -1,31 +1,29 @@
 package com.android.internship.presentation.screens.groupeditor
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,15 +39,16 @@ import androidx.navigation.NavController
 import com.android.internship.R
 import com.android.internship.presentation.theme.BlueLight
 import com.android.internship.presentation.theme.GreyLight
+import com.android.internship.presentation.theme.LightRed
 import com.android.internship.presentation.theme.White
 
 @Composable
 fun GroupEditorScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    title: String = stringResource(id = R.string.create_new_group),
+    isCreate: Boolean = true,
     initialName: String = "",
-    initialMembers: List<String> = emptyList(),
+    initialMembers: Set<String> = emptySet(),
     viewModel: GroupEditorViewModel = viewModel(
         factory = GroupEditorViewModel.factory(navController.context, initialName, initialMembers),
     ),
@@ -62,36 +61,37 @@ fun GroupEditorScreen(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(bottom = 100.dp)
+            .fillMaxSize(),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            contentAlignment = Alignment.CenterStart,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp),
+                .padding(bottom = 85.dp),
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = stringResource(R.string.back),
-                    modifier = Modifier.size(30.dp),
-                )
-            }
-            Text(
-                text = title,
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back),
+                contentDescription = stringResource(R.string.back),
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 56.dp),
+                    .padding(start = 15.dp)
+                    .size(30.dp)
+                    .clickable(
+                        onClick = { navController.popBackStack() },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ),
+            )
+            Text(
+                text = if (isCreate) stringResource(R.string.create_new_group) else "Edit group",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.W600,
                     textAlign = TextAlign.Center,
                 ),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
-
-        Spacer(modifier = Modifier.height(36.dp))
 
         CustomTextField(
             value = groupEditorState.groupName,
@@ -105,148 +105,116 @@ fun GroupEditorScreen(
             label = stringResource(R.string.name_group_optional),
             hint = stringResource(R.string.enter_name_group),
             modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .padding(bottom = 24.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(5.dp)),
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         CustomTextField(
             value = groupEditorState.memberInput,
             onValueChange = {
                 viewModel.onEvent(
-                    event = GroupEditorViewModel
-                        .GroupEditorEvent
-                        .OnMemberInputChange(it),
+                    event = GroupEditorViewModel.GroupEditorEvent.OnMemberInputChange(it),
                 )
             },
             label = stringResource(R.string.members),
             hint = stringResource(R.string.member_id),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .padding(bottom = 21.dp)
+                .fillMaxWidth(),
             trailingContent = {
-                TextButton(
-                    onClick = {
-                        if (groupEditorState.memberInput.isNotBlank()) {
-                            viewModel.onEvent(
-                                event = GroupEditorViewModel
-                                    .GroupEditorEvent
-                                    .OnMembersChange(
-                                        groupEditorState.members + groupEditorState.memberInput.trim(),
-                                    ),
-                            )
-                            viewModel.onEvent(
-                                event = GroupEditorViewModel
-                                    .GroupEditorEvent
-                                    .OnMemberInputChange(""),
-                            )
-                        }
-                    },
-                ) {
-                    Text(
-                        stringResource(R.string.add).uppercase(),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = if (groupEditorState.memberInput.isBlank()) {
-                                Color(0x80333333)
-                            } else {
-                                Color(0xFF0288E9)
+                Text(
+                    stringResource(R.string.add).uppercase(),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = if (groupEditorState.memberInput.isBlank()) {
+                            Color(0x80333333)
+                        } else {
+                            Color(0xFF0288E9)
+                        },
+                    ),
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 16.dp)
+                        .clickable(
+                            onClick = {
+                                if (groupEditorState.memberInput.isNotBlank()) {
+                                    viewModel.onEvent(
+                                        event = GroupEditorViewModel.GroupEditorEvent.OnMembersChange(
+                                            groupEditorState.members + groupEditorState.memberInput.trim(),
+                                        ),
+                                    )
+                                    viewModel.onEvent(
+                                        event = GroupEditorViewModel.GroupEditorEvent.OnMemberInputChange(
+                                            "",
+                                        ),
+                                    )
+                                }
                             },
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
                         ),
-                    )
-                }
+                )
             },
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn {
-            items(groupEditorState.members.size) { index ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(horizontal = 8.dp),
+        ) {
+            items(items = groupEditorState.members.toList()) { item ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "ID: " + groupEditorState.members[index],
-                        modifier = Modifier.weight(1f),
+                        text = stringResource(R.string.id) + item,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.W700,
                         ),
                     )
-                    IconButton(onClick = {
-                        viewModel.onEvent(
-                            event = GroupEditorViewModel
-                                .GroupEditorEvent
-                                .OnMembersChange(
-                                    groupEditorState.members.filterIndexed { i, _ -> i != index },
-                                ),
-                        )
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(
-                                R.string.remove,
-                            ),
-                            tint = Color.Red,
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.ic_remove),
+                        contentDescription = stringResource(R.string.remove),
+                        tint = LightRed,
+                        modifier = Modifier.size(24.dp).clickable(
+                            onClick = {
+                                viewModel.onEvent(
+                                    event = GroupEditorViewModel.GroupEditorEvent.OnMembersChange(
+                                        groupEditorState.members.filter { it != item }.toSet(),
+                                    ),
+                                )
+                            },
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ),
+                    )
                 }
             }
         }
+    }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        if (title == stringResource(R.string.create_new_group)) {
-            Button(
-                onClick = {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        SubmitButton(
+            text = if (isCreate) {
+                stringResource(R.string.create)
+            } else {
+                stringResource(R.string.update)
+            },
+            onclick = {
+                if (isCreate) {
                     viewModel.createGroup()
-                },
-                enabled = groupEditorState.canSubmit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 15.dp)
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(5.dp)),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BlueLight,
-                    contentColor = White,
-                    disabledContainerColor = GreyLight,
-                    disabledContentColor = White,
-                ),
-            ) {
-                Text(
-                    text = stringResource(R.string.create),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.W600,
-                    ),
-                )
-            }
-        } else {
-            Button(
-                onClick = {
-                    // TODO: viewModel update group
-                },
-                enabled = groupEditorState.canSubmit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 15.dp)
-                    .height(54.dp)
-                    .clip(RoundedCornerShape(5.dp)),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BlueLight,
-                    contentColor = White,
-                    disabledContainerColor = GreyLight,
-                    disabledContentColor = White,
-                ),
-            ) {
-                Text(
-                    text = stringResource(R.string.create),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.W600,
-                    ),
-                )
-            }
-        }
+                } else {
+                    viewModel.updateGroup()
+                }
+            },
+            modifier = Modifier.padding(horizontal = 33.dp).fillMaxWidth(),
+            enabled = groupEditorState.canSubmit,
+        )
     }
 }
 
@@ -259,7 +227,7 @@ private fun CustomTextField(
     hint: String? = null,
     trailingContent: (@Composable (() -> Unit))? = null,
 ) {
-    Column(modifier = modifier.padding(vertical = 6.dp)) {
+    Column(modifier = modifier) {
         Text(
             text = label,
             color = Color(0x80333333),
@@ -283,7 +251,7 @@ private fun CustomTextField(
                         .border(
                             width = 1.dp,
                             color = Color(0xffd0d1db),
-                            shape = RoundedCornerShape(1.dp),
+                            shape = RoundedCornerShape(8.dp),
                         )
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -298,12 +266,41 @@ private fun CustomTextField(
                         innerTextField()
                     }
 
-                    trailingContent?.let {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        it()
-                    }
+                    trailingContent?.invoke()
                 }
             },
+        )
+    }
+}
+
+@Composable
+private fun SubmitButton(
+    text: String,
+    onclick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Box(
+        modifier = modifier
+            .padding(vertical = 33.dp)
+            .height(54.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(
+                color = if (enabled) {
+                    BlueLight
+                } else {
+                    GreyLight
+                },
+            )
+            .clickable(enabled = enabled, onClick = onclick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.W600,
+                color = White,
+            ),
         )
     }
 }

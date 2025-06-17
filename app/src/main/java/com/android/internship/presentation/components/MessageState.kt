@@ -20,4 +20,5 @@ data class MessageState(
     val isPeerActive: Boolean = false,
     val isNetworkAvailable: Boolean = true,
     val isRefreshing: Boolean = false,
+//    val errorState: ErrorState? = null,
 )
