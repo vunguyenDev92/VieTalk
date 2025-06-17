@@ -10,7 +10,6 @@ import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRepository
 import com.android.internship.domain.repository.UserRoomRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
-import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
@@ -34,15 +33,13 @@ class ChatViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
             val savedStateHandle = extras.createSavedStateHandle()
-
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
                 authRepository = authRepository,
                 getRoomsUseCase = GetRoomsUseCase(roomRepository),
-                getUserInfoUseCase = GetAllUsersInfoUseCase(userRepository),
                 observeMessagesUseCase = ObserveMessagesUseCase(messageRepository),
                 observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(userRoomRepository),
-                sendMessageUseCase = SendMessagesUseCase(authRepository, messageRepository),
+                sendMessageUseCase = SendMessagesUseCase(authRepository, messageRepository, roomRepository),
                 seenMessageUseCase = SeenMessageUseCase(authRepository, userRoomRepository),
                 addTypingUseCase = UpdateTypingTimeUseCase(authRepository, userRoomRepository),
                 updateActiveUserUseCase = UpdateActiveTimeUseCase(authRepository, userRepository),

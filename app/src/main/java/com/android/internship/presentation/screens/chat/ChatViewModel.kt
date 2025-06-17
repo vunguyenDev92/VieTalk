@@ -1,14 +1,15 @@
 package com.android.internship.presentation.screens.chat
 
-import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
+import com.android.internship.data.model.User
+import com.android.internship.data.model.UserRoom
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
-import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
 import com.android.internship.domain.usecase.GetMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
@@ -17,9 +18,13 @@ import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
+import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.IConnectivityObserver
-import com.android.internship.presentation.components.utils.processMessagesToItems
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -40,7 +45,6 @@ class ChatViewModel(
     savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
     private val getRoomsUseCase: GetRoomsUseCase,
-    private val getUserInfoUseCase: GetAllUsersInfoUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
     private val sendMessageUseCase: SendMessagesUseCase,
@@ -61,6 +65,8 @@ class ChatViewModel(
     val messageText = _messageText.asStateFlow()
     private var typingTimeoutJob: Job? = null
 
+    private var lastAutoSeenMessageId: String? = null
+
     init {
         observeNetworkStatus()
         loadChatData()
@@ -72,7 +78,7 @@ class ChatViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 val room = getRoomsUseCase(listOf(roomId))
-                if (room == null) {
+                if (room == null || room.isEmpty()) {
                     _uiState.update { it.copy(isLoading = false, errorMessage = "Room not found.") }
                     return@launch
                 }
@@ -103,41 +109,20 @@ class ChatViewModel(
             _uiState.map { it.expandedMessageId }.distinctUntilChanged(),
         ) { usersInRoom, messages, userRoomDetails, expandedId ->
 
-            val totalMemberCount = usersInRoom.size
             val otherUser = if (!room.isGroup) usersInRoom.find { it.uid != currentUserId } else null
-
-            val topBarTitle = if (room.isGroup) {
-                room.name ?: "Group Chat"
-            } else {
-                otherUser?.username ?: room.name ?: "Chat"
-            }
-
-            Log.d("DEBUG", " usersInRoom size: ${usersInRoom.size}")
-            Log.d("DEBUG", "messages size: ${messages.size}")
-            Log.d("DEBUG", "userRoomDetails size: ${userRoomDetails.size}")
-
-            val isPeerActive = otherUser?.let {
-                (System.currentTimeMillis() - (it.lastActiveTime.toLongOrNull() ?: 0L)) <= (3 * 60 * 1000)
-            } == true
-
+            val topBarTitle = if (room.isGroup) room.name ?: "Group Chat" else otherUser?.username ?: "Chat"
+            val isPeerActive = otherUser?.let { (System.currentTimeMillis() - (it.lastActiveTime.toLongOrNull() ?: 0L)) <= (3 * 60 * 1000) } == true
             val topBarSubtitle = if (room.isGroup) {
-                "$totalMemberCount members"
+                "${usersInRoom.size} members"
+            } else if (isPeerActive) {
+                "Active Now"
             } else {
-                if (isPeerActive) "Active Now" else "Offline"
+                "Offline"
             }
-
-            val topBarAvatarUrls = if (room.isGroup) {
-                usersInRoom
-                    .filter { it.uid != currentUserId }
-                    .mapNotNull { it.avatar }
-                    .take(2)
-            } else {
-                listOfNotNull(otherUser?.avatar)
-            }
-
+            val topBarAvatarUrls = if (room.isGroup) usersInRoom.filter { it.uid != currentUserId }.mapNotNull { it.avatar }.take(2) else listOfNotNull(otherUser?.avatar)
             val roomForProcessing = room.copy(name = topBarTitle, avatar = topBarAvatarUrls.firstOrNull())
 
-            val processedItems = processMessagesToItems(
+            val processedItems = processAndGroupMessages(
                 messages = messages,
                 room = roomForProcessing,
                 usersInRoom = usersInRoom,
@@ -161,7 +146,123 @@ class ChatViewModel(
                     isPeerActive = isPeerActive,
                 )
             }
-        }.catch { e -> _uiState.update { it.copy(isLoading = false, errorMessage = e.message) } }.collect()
+
+            if (messages.isNotEmpty()) {
+                val latestMessage = messages.last()
+                if (latestMessage.mid != lastAutoSeenMessageId) {
+                    markAsSeen(latestMessage.mid)
+                    lastAutoSeenMessageId = latestMessage.mid
+                }
+            }
+        }.catch { e ->
+            _uiState.update { it.copy(isLoading = false, errorMessage = "Error loading chat: ${e.message}") }
+        }.collect()
+    }
+
+    private fun processAndGroupMessages(
+        messages: List<Message>,
+        room: Room,
+        usersInRoom: List<User>,
+        userRoomDetails: List<UserRoom>,
+        currentUserId: String,
+        expandedMessageId: String?,
+    ): List<MessageItem> {
+        val userMap = usersInRoom.associateBy { it.uid }
+        val messageItems = mutableListOf<MessageItem>()
+
+        val lastSeenMessageTimestamps = userRoomDetails
+            .filter { it.uid != currentUserId && it.lastSeenMessages != null }
+            .associate { detail ->
+                detail.uid to (messages.find { msg -> msg.mid == detail.lastSeenMessages }?.time?.toLongOrNull() ?: 0L)
+            }
+        val seenByMap = mutableMapOf<String, MutableList<User>>()
+        messages.forEach { message ->
+            val messageTime = message.time.toLongOrNull() ?: return@forEach
+            lastSeenMessageTimestamps.forEach { (uid, lastSeenTime) ->
+                if (lastSeenTime >= messageTime) {
+                    userMap[uid]?.let { user ->
+                        seenByMap.getOrPut(message.mid) { mutableListOf() }.add(user)
+                    }
+                }
+            }
+        }
+
+        val latestMessageId = messages.firstOrNull()?.mid
+        val avatarsForLatestMessage = if (latestMessageId != null) {
+            userRoomDetails
+                .filter { it.lastSeenMessages == latestMessageId }
+                .mapNotNull { userMap[it.uid] }
+                .filter { it.uid != messages.first().uid }
+        } else {
+            emptyList()
+        }
+
+        var lastMessageDateTime: LocalDateTime? = null
+
+        messages.forEachIndexed { index, message ->
+            val messageDateTime = try {
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(message.time.toLong()), ZoneId.systemDefault())
+            } catch (e: Exception) {
+                null
+            }
+
+            val nextMessage = messages.getOrNull(index + 1)
+            val isCloseToHeader = if (nextMessage != null) {
+                val nextMessageTime = try {
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(nextMessage.time.toLong()), ZoneId.systemDefault())
+                } catch (e: Exception) {
+                    null
+                }
+                nextMessageTime != null && (lastMessageDateTime == null || !lastMessageDateTime.toLocalDate().isEqual(nextMessageTime.toLocalDate()) || ChronoUnit.HOURS.between(lastMessageDateTime, nextMessageTime) >= 1)
+            } else {
+                false
+            }
+
+            if (messageDateTime != null) {
+                if (lastMessageDateTime == null || !lastMessageDateTime.toLocalDate().isEqual(messageDateTime.toLocalDate()) || ChronoUnit.HOURS.between(lastMessageDateTime, messageDateTime) >= 1) {
+                    messageItems.add(MessageItem.TimeHeader(messageDateTime))
+                    lastMessageDateTime = messageDateTime
+                }
+            }
+
+            val isExpanded = message.mid == expandedMessageId
+            val isLatestMessage = message.mid == latestMessageId
+
+            messageItems.add(
+                MessageItem.MessageBubbles(
+                    message = message,
+                    isFromMe = message.uid == currentUserId,
+                    senderName = if (room.isGroup && message.uid != currentUserId) userMap[message.uid]?.username else null,
+                    senderAvatarUrl = userMap[message.uid]?.avatar,
+                    seenByUsers = seenByMap[message.mid]?.distinctBy { it.uid } ?: emptyList(),
+                    isSeenByExpanded = isExpanded,
+                    avatarsOfUsersWhoLastSawThis = if (isLatestMessage) avatarsForLatestMessage else emptyList(),
+                    isCloseToHeader = isCloseToHeader,
+                ),
+            )
+        }
+
+        val typingUsers = userRoomDetails.filter {
+            val typingTime = it.typingTime?.toLongOrNull() ?: 0L
+            it.uid != currentUserId && (System.currentTimeMillis() - typingTime) < 5000
+        }.mapNotNull { userMap[it.uid] }
+
+        if (typingUsers.isNotEmpty()) {
+            val displayText = when {
+                typingUsers.size == 1 -> "${typingUsers.first().username} is typing..."
+                typingUsers.size == 2 -> "${typingUsers[0].username} and ${typingUsers[1].username} are typing..."
+                else -> "${typingUsers[0].username}, ${typingUsers[1].username} and ${typingUsers.size - 2} others are typing"
+            }
+            messageItems.add(MessageItem.TypingIndicator(typingUsers, displayText))
+        }
+
+        return messageItems.reversed()
+    }
+
+    fun toggleSeenByVisibility(messageId: String) {
+        val currentExpandedId = _uiState.value.expandedMessageId
+        val newExpandedId = if (currentExpandedId == messageId) null else messageId
+        _uiState.update { it.copy(expandedMessageId = newExpandedId) }
     }
 
     private fun observeNetworkStatus() {
@@ -178,10 +279,14 @@ class ChatViewModel(
             }
         }
     }
-
     fun refreshData() {
         if (!uiState.value.isNetworkAvailable) {
             _uiState.update { it.copy(isRefreshing = true) }
+
+            viewModelScope.launch {
+                delay(5000)
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
         }
     }
 
@@ -212,16 +317,21 @@ class ChatViewModel(
         val content = _messageText.value.text.trim()
         if (content.isNotBlank()) {
             typingTimeoutJob?.cancel()
-            sendMessageUseCase(content = content, rid = roomId)
+
+            val currentUser = _uiState.value.currentUser
+            val senderName = currentUser?.username ?: ""
+            val senderAvatar = currentUser?.avatar ?: ""
+
+            sendMessageUseCase(
+                content = content,
+                rid = roomId,
+                senderName = senderName,
+                senderAvatar = senderAvatar,
+            )
+
             _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
         }
-    }
-
-    fun toggleSeenByVisibility(messageId: String) {
-        val currentExpandedId = _uiState.value.expandedMessageId
-        val newExpandedId = if (currentExpandedId == messageId) null else messageId
-        _uiState.update { it.copy(expandedMessageId = newExpandedId) }
     }
 
     fun markAsSeen(messageId: String) {

@@ -15,12 +15,14 @@ class MessageRepositoryImpl(
         return messageRemoteDataSource.observeMessages(rid)
     }
 
-    override fun addRemoteMessage(
+    override fun addRemoteMessageNew(
         mid: String,
         rid: String,
         uid: String,
         content: String,
         timestamp: String,
+        senderAvt: String,
+        senderName: String,
     ) {
         messageRemoteDataSource.addRemoteMessage(
             Message(
@@ -29,6 +31,8 @@ class MessageRepositoryImpl(
                 uid = uid,
                 content = content,
                 time = timestamp,
+                senderAvatar = senderAvt,
+                senderName = senderName,
             ),
         )
     }
@@ -54,5 +58,27 @@ class MessageRepositoryImpl(
         afterTimestamp: Long,
     ): Flow<List<Message>> {
         return messageRemoteDataSource.observeNewMessages(roomId, afterTimestamp)
+    }
+
+    override suspend fun syncRemoteMessagesToLocal(rid: String) {
+        val lastLocalMessageTime = messageLocalDataSource.getMessages(rid)
+            .lastOrNull()?.time?.toLongOrNull() ?: 0L
+
+        messageRemoteDataSource.observeNewMessages(rid, lastLocalMessageTime).collect { remoteMessages ->
+            if (remoteMessages.isNotEmpty()) {
+                val currentLocalMessages = messageLocalDataSource.getMessages(rid)
+                val allMessages = (currentLocalMessages + remoteMessages).distinctBy { it.mid }
+                messageLocalDataSource.saveAndTrimLocalMessages(rid, allMessages)
+            }
+        }
+    }
+
+    override suspend fun fetchAndCacheInitialMessages(rid: String, limit: Int) {
+        val remoteMessages = messageRemoteDataSource.getRemoteMessages(rid, null, limit)
+        remoteMessages?.let {
+            if (it.isNotEmpty()) {
+                messageLocalDataSource.saveAndTrimLocalMessages(rid, it)
+            }
+        }
     }
 }

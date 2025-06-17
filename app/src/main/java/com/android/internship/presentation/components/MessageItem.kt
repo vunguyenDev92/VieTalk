@@ -16,6 +16,8 @@ sealed class MessageItem {
         val senderAvatarUrl: String?,
         val seenByUsers: List<User> = emptyList(),
         val isSeenByExpanded: Boolean = false,
+        val avatarsOfUsersWhoLastSawThis: List<User> = emptyList(),
+        val isCloseToHeader: Boolean = false,
     ) : MessageItem()
 
     data class TypingIndicator(
