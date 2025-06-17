@@ -93,9 +93,9 @@ fun ChatScreen(
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
-                onBackClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
-                onCallClick = { /* ... */ },
-                onMoreClick = { /* ... */ },
+                onBackClick = { navController.popBackStack() },
+                onBlockClick = { /* ... */ },
+                onMuteClick = { /* ... */ },
             )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
