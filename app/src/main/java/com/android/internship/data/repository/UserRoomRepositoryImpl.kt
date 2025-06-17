@@ -11,12 +11,11 @@ class UserRoomRepositoryImpl(
     private val userRoomRemoteDataSource: UserRoomRemoteDataSource,
 ) : UserRoomRepository {
 
-    override fun addUserRoomRemote(uid: String, rid: String) {
-        val userRoom = UserRoom(uid = uid, rid = rid)
-        userRoomRemoteDataSource.addUserRoomRemote(userRoom)
+    override fun addUserRoomsRemote(userRooms: List<UserRoom>) {
+        userRoomRemoteDataSource.addUserRoomRemote(userRooms)
     }
 
-    override suspend fun getUserRoomForUserRemote(uid: String): List<UserRoom> {
+    override fun observeUserRoomForUserRemote(uid: String): Flow<List<UserRoom>> {
         return userRoomRemoteDataSource.getUserRoomsForUser(uid)
     }
 

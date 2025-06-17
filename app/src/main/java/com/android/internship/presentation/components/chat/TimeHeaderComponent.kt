@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/chat/TimeHeaderComponent.kt
 package com.android.internship.presentation.components.chat
 
 import androidx.compose.foundation.layout.Box
@@ -67,7 +66,7 @@ fun MessageTimeHeaderComponent(
     }
 
     Box(
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = 0.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

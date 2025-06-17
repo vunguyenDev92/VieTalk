@@ -4,32 +4,23 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.android.internship.di.AppContainer
-import com.android.internship.domain.usecase.CreateGroupUseCase
+import com.android.internship.domain.usecase.CreateRoomUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GroupEditorViewModel(
-    private val createGroupUseCase: CreateGroupUseCase,
+    private val createRoomUseCase: CreateRoomUseCase,
     private val groupName: String,
-    private val members: List<String>,
+    private val members: Set<String>,
     private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         GroupEditorState(
             groupName = groupName,
-            members = members.filter { it != currentUserId },
+            members = members,
         ),
     )
     val state = _state.asStateFlow()
-
-    init {
-        if (members.isEmpty()) {
-            _state.value = _state.value.copy(
-                members = emptyList(),
-                canSubmit = false,
-            )
-        }
-    }
 
     fun onEvent(event: GroupEditorEvent) {
         when (event) {
@@ -46,7 +37,7 @@ class GroupEditorViewModel(
                 _state.value = _state.value.copy(memberInput = event.input)
             }
             is GroupEditorEvent.OnMembersChange -> {
-                val filteredMembers = event.members.filter { it != currentUserId }
+                val filteredMembers = event.members.filter { it != currentUserId }.toSet()
                 _state.value = _state.value.copy(
                     members = filteredMembers,
                     canSubmit = filteredMembers.isNotEmpty() &&
@@ -70,10 +61,10 @@ class GroupEditorViewModel(
         }
 
         try {
-            val groupId = createGroupUseCase.invoke(
+            val groupId = createRoomUseCase(
                 roomName = groupName,
-                userIds = members,
-                currentUserId = currentUserId ?: throw IllegalStateException("Current user ID is missing"),
+                userIds = members.toMutableList().apply { currentUserId?.let { add(it) } },
+                isGroup = true,
             )
 
             _state.value = _state.value.copy(
@@ -89,10 +80,14 @@ class GroupEditorViewModel(
         }
     }
 
+    fun updateGroup() {
+        // TODO: Implement the logic to update the group
+    }
+
     data class GroupEditorState(
         val groupName: String = "",
         val memberInput: String = "",
-        val members: List<String> = emptyList(),
+        val members: Set<String> = emptySet(),
         val canSubmit: Boolean = false,
         val groupId: String? = null,
         val isSuccess: Boolean = false,
@@ -102,20 +97,20 @@ class GroupEditorViewModel(
     sealed class GroupEditorEvent {
         data class OnNameInputChange(val name: String) : GroupEditorEvent()
         data class OnMemberInputChange(val input: String) : GroupEditorEvent()
-        data class OnMembersChange(val members: List<String>) : GroupEditorEvent()
+        data class OnMembersChange(val members: Set<String>) : GroupEditorEvent()
     }
 
     companion object {
         private const val ERROR_MESSAGE_GROUP_NAME_AND_MEMBERS_EMPTY = "Group name and at least one other member are required."
         private const val GROUP_CREATED_SUCCESSFULLY = "Group created successfully."
 
-        fun factory(context: Context, groupName: String, members: List<String>) = object : ViewModelProvider.Factory {
+        fun factory(context: Context, groupName: String, members: Set<String>) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(GroupEditorViewModel::class.java)) {
                     val appContainer = AppContainer(context)
 
-                    val createGroupUseCase = CreateGroupUseCase(
+                    val createRoomUseCase = CreateRoomUseCase(
                         roomRepository = appContainer.roomRepository,
                         userRoomRepository = appContainer.userRoomRepository,
                     )
@@ -123,9 +118,9 @@ class GroupEditorViewModel(
                     val currentUserId = appContainer.authRepository.getCurrentUserId()
 
                     return GroupEditorViewModel(
-                        createGroupUseCase = createGroupUseCase,
+                        createRoomUseCase = createRoomUseCase,
                         groupName = groupName,
-                        members = members,
+                        members = members.toSet(),
                         currentUserId = currentUserId,
                     ) as T
                 }

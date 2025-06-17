@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/utils/MessageProcessor.kt
 package com.android.internship.presentation.components.utils
 
 import com.android.internship.data.model.Message
@@ -37,11 +36,8 @@ fun processMessagesToItems(
             LocalDateTime.now()
         }
 
-        val shouldShowTimeHeader = if (lastMessageTimestamp == null) {
-            true
-        } else {
+        val shouldShowTimeHeader = lastMessageTimestamp == null ||
             Duration.between(lastMessageTimestamp, messageTime).toHours() >= 1
-        }
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
@@ -51,10 +47,13 @@ fun processMessagesToItems(
 
         val isFromMe = message.uid == currentUserId
         val senderInfo = userMap[message.uid]
-        val nextMessage = sortedMessages.getOrNull(index + 1)
-        val showAvatar = nextMessage == null || nextMessage.uid != message.uid
 
-        val senderName = if (isTrueGroup && !isFromMe) {
+        val nextMessage = sortedMessages.getOrNull(index + 1)
+        val previousMessage = sortedMessages.getOrNull(index - 1)
+        val showAvatar = shouldShowAvatar(message, nextMessage, sortedMessages, index)
+        val showSenderName = shouldShowSenderName(message, previousMessage, isFromMe, isTrueGroup)
+
+        val senderName = if (showSenderName) {
             senderInfo?.username ?: "Unknown User"
         } else {
             null
@@ -86,7 +85,7 @@ fun processMessagesToItems(
                 senderAvatarUrl = senderInfo?.avatar,
                 seenByUsers = seenByUsers,
                 isSeenByExpanded = isSeenByExpanded,
-// 				showAvatar = showAvatar
+                showAvatar = showAvatar, // Thêm property này
             ),
         )
     }
@@ -117,4 +116,46 @@ fun processMessagesToItems(
     }
 
     return items.reversed()
+}
+
+private fun shouldShowAvatar(
+    currentMessage: Message,
+    nextMessage: Message?,
+    allMessages: List<Message>,
+    currentIndex: Int,
+): Boolean {
+    if (nextMessage == null) return true
+
+    if (nextMessage.uid != currentMessage.uid) return true
+
+    val currentTime = currentMessage.time.toLongOrNull() ?: 0L
+    val nextTime = nextMessage.time.toLongOrNull() ?: 0L
+    val timeDifferenceMinutes = (nextTime - currentTime) / (1000 * 60)
+
+    if (timeDifferenceMinutes > 60) return true
+
+    return false
+}
+
+private fun shouldShowSenderName(
+    currentMessage: Message,
+    previousMessage: Message?,
+    isFromMe: Boolean,
+    isTrueGroup: Boolean,
+): Boolean {
+    if (isFromMe) return false
+
+    if (!isTrueGroup) return false
+
+    if (previousMessage == null) return true
+
+    if (previousMessage.uid != currentMessage.uid) return true
+
+    val currentTime = currentMessage.time.toLongOrNull() ?: 0L
+    val previousTime = previousMessage.time.toLongOrNull() ?: 0L
+    val timeDifferenceMinutes = (currentTime - previousTime) / (1000 * 60)
+
+    if (timeDifferenceMinutes > 60) return true
+
+    return false
 }

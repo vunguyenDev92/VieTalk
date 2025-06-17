@@ -2,6 +2,7 @@ package com.android.internship.data.repository
 
 import com.android.internship.data.datasource.local.RoomLocalDataSource
 import com.android.internship.data.datasource.remote.RoomRemoteDataSource
+import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.android.internship.domain.repository.RoomRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,13 +12,7 @@ class RoomRepositoryImpl(
     private val roomRemoteDataSource: RoomRemoteDataSource,
 ) : RoomRepository {
 
-    override fun addRoomRemote(
-        rid: String,
-        isGroup: Boolean,
-        avatar: String?,
-        name: String?,
-    ) {
-        val room = Room(rid = rid, isGroup = isGroup, avatar = avatar, name = name)
+    override fun addRoomRemote(room: Room) {
         roomRemoteDataSource.addRoom(room)
     }
 
@@ -35,5 +30,9 @@ class RoomRepositoryImpl(
 
     override fun observeRooms(): Flow<List<Room>> {
         return roomRemoteDataSource.observeRooms()
+    }
+
+    override fun updateLastMessage(rid: String, message: Message) {
+        roomRemoteDataSource.updateLastMessage(rid, message)
     }
 }
