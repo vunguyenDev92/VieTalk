@@ -59,4 +59,6 @@
     <string name="_1_hour">1 hour</string>
     <string name="_1_day">1 day</string>
     <string name="util_turned_back_on">Util turned back on</string>
+    <string name="more_options">More options</string>
+    <string name="mute_notification">Mute notification</string>
 </resources>

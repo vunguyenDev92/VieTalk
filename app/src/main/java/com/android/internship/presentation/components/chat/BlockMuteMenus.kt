@@ -58,7 +58,7 @@ fun BlockMuteMenus(
         IconButton(onClick = { expanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = "More options",
+                contentDescription = stringResource(R.string.more_options),
             )
         }
         if (onMute == false) {
@@ -80,7 +80,7 @@ fun BlockMuteMenus(
                                         R.drawable.ic_unmute,
                                     )
                                 },
-                                contentDescription = "Mute notification",
+                                contentDescription = stringResource(R.string.mute_notification),
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
                                     .padding(end = 10.dp)
