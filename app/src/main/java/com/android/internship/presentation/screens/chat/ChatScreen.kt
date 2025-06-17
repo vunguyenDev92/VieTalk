@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -68,12 +73,14 @@ fun ChatScreen(
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val snackBarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
+
+    WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
-            snackBarHostState.showSnackbar(message = error)
+            snackbarHostState.showSnackbar(message = error)
             viewModel.clearError()
         }
     }
@@ -93,13 +100,13 @@ fun ChatScreen(
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
-                onBackClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
-                onCallClick = { /* ... */ },
-                onMoreClick = { /* ... */ },
+                onBackClick = { navController.popBackStack() },
+                onBlockClick = { /* ... */ },
+                onMuteClick = { /* ... */ },
             )
         },
-        snackbarHost = { SnackbarHost(snackBarHostState) },
-        contentWindowInsets = WindowInsets.ime,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { paddingValues ->
         Column(
             modifier = Modifier

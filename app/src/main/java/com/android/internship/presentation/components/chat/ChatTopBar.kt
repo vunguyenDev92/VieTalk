@@ -1,4 +1,3 @@
-// file: com/android/internship/presentation/components/chat/ChatTopBar.kt
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.android.internship.presentation.components.chat
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,9 +33,11 @@ fun ChatTopBar(
     subtitle: String,
     avatarUrls: List<String>,
     isSubtitleActive: Boolean,
+    isMuted: Boolean = false,
+    isBlocked: Boolean = false,
     onBackClick: () -> Unit = {},
-    onCallClick: () -> Unit = {},
-    onMoreClick: () -> Unit = {},
+    onMuteClick: (MuteDuration) -> Unit = {},
+    onBlockClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
@@ -67,32 +66,12 @@ fun ChatTopBar(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-
-                Row {
-                    IconButton(
-                        onClick = onCallClick,
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = "Call",
-                            tint = Color(0xFF2196F3),
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
-
-                    IconButton(
-                        onClick = onMoreClick,
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More options",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
-                }
+                BlockMuteMenus(
+                    isMuted = isMuted,
+                    isBlocked = isBlocked,
+                    onMuteClick = onMuteClick,
+                    onBlockClick = onBlockClick,
+                )
             }
         },
         navigationIcon = {
@@ -122,6 +101,10 @@ private fun ChatTopBarSingleActivePreview() {
             subtitle = "Active Now",
             avatarUrls = listOf("https://example.com/avatar.jpg"),
             isSubtitleActive = true,
+            isMuted = false,
+            isBlocked = false,
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ... */ },
         )
     }
 }
@@ -135,6 +118,10 @@ private fun ChatTopBarSingleOfflinePreview() {
             subtitle = "Offline",
             avatarUrls = listOf("https://example.com/avatar2.jpg"),
             isSubtitleActive = false,
+            isMuted = true,
+            isBlocked = false,
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ...  */ },
         )
     }
 }
@@ -151,6 +138,10 @@ private fun ChatTopBarGroupPreview() {
                 "https://example.com/avatar2.jpg",
             ),
             isSubtitleActive = false,
+            isMuted = false,
+            isBlocked = true,
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ...  */ },
         )
     }
 }
