@@ -15,7 +15,7 @@ class UserRoomRepositoryImpl(
         userRoomRemoteDataSource.addUserRoomRemote(userRooms)
     }
 
-    override suspend fun getUserRoomForUserRemote(uid: String): List<UserRoom> {
+    override fun observeUserRoomForUserRemote(uid: String): Flow<List<UserRoom>> {
         return userRoomRemoteDataSource.getUserRoomsForUser(uid)
     }
 

@@ -27,7 +27,7 @@ import com.android.internship.R
 @Composable
 fun ConnectWithOthersItem(
     chatItems: List<ChatListState.ChatUserItemState>,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
 ) {
     Column {
         Text(
@@ -53,8 +53,9 @@ fun ConnectWithOthersItem(
                         error = painterResource(R.drawable.ic_person_color),
                         modifier = Modifier
                             .size(50.dp)
-                            .clip(CircleShape).clickable(
-                                onClick = onClick,
+                            .clip(CircleShape)
+                            .clickable(
+                                onClick = { onClick(item.id) },
                             ),
                     )
                     Text(

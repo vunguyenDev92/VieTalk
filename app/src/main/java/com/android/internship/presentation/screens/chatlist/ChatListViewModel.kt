@@ -1,34 +1,32 @@
 package com.android.internship.presentation.screens.chatlist
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.android.internship.data.model.Room
+import com.android.internship.data.model.User
+import com.android.internship.data.model.UserRoom
 import com.android.internship.di.AppContainer
-import com.android.internship.domain.usecase.GetActiveUserUseCase
+import com.android.internship.domain.usecase.CreateRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
-import com.android.internship.domain.usecase.GetRoomsUseCase
-import com.android.internship.domain.usecase.GetUserRoomForRoomUseCase
-import com.android.internship.domain.usecase.GetUserRoomForUserUseCase
 import com.android.internship.domain.usecase.LogoutUserCase
-import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveRoomUseCase
+import com.android.internship.domain.usecase.ObserveUserRoomForUserUseCase
 import com.android.internship.presentation.utils.FormatTimeStamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ChatListViewModel(
-    private val getUserRoomForUserUseCase: GetUserRoomForUserUseCase,
-    private val getUserRoomForRoomUseCase: GetUserRoomForRoomUseCase,
-    private val getRoomsUseCase: GetRoomsUseCase,
+    private val observeUserRoomForUserUseCase: ObserveUserRoomForUserUseCase,
     private val getAllUsersInfoUseCase: GetAllUsersInfoUseCase,
-    private val getActiveUserUseCase: GetActiveUserUseCase,
     private val logoutUserCase: LogoutUserCase,
-    private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeRoomUseCase: ObserveRoomUseCase,
+    private val createRoomUseCase: CreateRoomUseCase,
     private val currentUserId: String?,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatListState())
@@ -36,7 +34,6 @@ class ChatListViewModel(
 
     init {
         loadUserRooms()
-        observeRoom()
     }
 
     private fun loadUserRooms() {
@@ -44,85 +41,18 @@ class ChatListViewModel(
             _state.update { it.copy(isLoading = true) }
 
             try {
-                val chatRoomItems = mutableListOf<ChatListState.ChatRoomItemState>()
-                val chatUserItems = mutableListOf<ChatListState.ChatUserItemState>()
-                val userRooms = getUserRoomForUserUseCase()
-                val rooms = if (userRooms.isNotEmpty()) {
-                    getRoomsUseCase(userRooms.map { it.rid })
-                } else {
-                    emptyList()
-                }
                 val users = getAllUsersInfoUseCase()
-                val userNoRoom = users.toMutableList()
-                userNoRoom.removeIf { it.uid == currentUserId }
-
-                for (userRoom in userRooms) {
-                    val room = rooms?.find { it.rid == userRoom.rid }
-                    val message = room?.lastMessage
-                    val userRoomForRoom = getUserRoomForRoomUseCase(userRoom.rid)
-
-                    if (room != null) {
-                        val isActive = if (room.isGroup == false) {
-                            userRoomForRoom.find { it.uid != currentUserId }?.uid?.let { uid ->
-                                userNoRoom.removeIf { it.uid == uid }
-                                getActiveUserUseCase(uid)
-                            } == true
-                        } else {
-                            false
+                observeUserRoomForUserUseCase()?.let {
+                    observeRoomUseCase().combine(it) { rooms, userRooms ->
+                        _state.update {
+                            it.copy(
+                                chatRoomItems = generateChatRoomStates(userRooms, rooms, users),
+                                chatUserItems = generateChatUserStates(userRooms, rooms, users),
+                                isLoading = false,
+                                error = null,
+                            )
                         }
-
-                        val name = if (room.isGroup == true) {
-                            room.name.toString()
-                        } else {
-                            users.find {
-                                it.uid == userRoomForRoom.find {
-                                    it.uid != currentUserId
-                                }?.uid
-                            }?.username.toString()
-                        }
-
-                        val memberAvatar = users.map { user ->
-                            if (userRoomForRoom.find { it.uid == user.uid && it.uid != currentUserId } != null) {
-                                user.avatar.toString()
-                            } else {
-                                ""
-                            }
-                        }.filter { it.isNotEmpty() }
-
-                        chatRoomItems.add(
-                            ChatListState.ChatRoomItemState(
-                                isGroupChat = room.isGroup,
-                                isActive = isActive,
-                                id = room.rid,
-                                name = name,
-                                memberAvatars = memberAvatar,
-                                lastMessage = message?.content ?: "",
-                                lastMessageTime = FormatTimeStamp.messageTimeFormat(message?.time.toString()),
-                                lastSenderName = message?.senderName ?: "",
-                            ),
-                        )
-                        observeRoomMessages(room.rid)
-                    }
-                }
-
-                for (user in userNoRoom) {
-                    chatUserItems.add(
-                        ChatListState.ChatUserItemState(
-                            isOnline = getActiveUserUseCase(user.uid),
-                            id = user.uid,
-                            name = user.username,
-                            avatar = user.avatar,
-                        ),
-                    )
-                }
-
-                _state.update {
-                    it.copy(
-                        chatRoomItems = chatRoomItems,
-                        chatUserItems = chatUserItems,
-                        isLoading = false,
-                        error = null,
-                    )
+                    }.collectLatest {}
                 }
             } catch (e: Exception) {
                 _state.update {
@@ -135,49 +65,102 @@ class ChatListViewModel(
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            logoutUserCase()
-        }
-    }
+    private fun generateChatRoomStates(
+        userRoomsForUser: List<UserRoom>,
+        rooms: List<Room>,
+        users: List<User>,
+    ): List<ChatListState.ChatRoomItemState> {
+        val chatRoomItems = mutableListOf<ChatListState.ChatRoomItemState>()
 
-    private fun observeRoomMessages(roomId: String) {
-        viewModelScope.launch {
-            try {
-                observeMessagesUseCase(roomId).collect { messages ->
-                    val latestMessage = messages.lastOrNull()
-                    if (latestMessage != null) {
-                        _state.update { currentState ->
-                            val updatedChatRooms = currentState.chatRoomItems.map { room ->
-                                if (room.id == roomId) {
-                                    room.copy(
-                                        lastMessage = latestMessage.content,
-                                        lastMessageTime = FormatTimeStamp.messageTimeFormat(latestMessage.time),
-                                        lastSenderName = latestMessage.senderName,
-                                    )
-                                } else {
-                                    room
-                                }
-                            }
-                            currentState.copy(chatRoomItems = updatedChatRooms)
+        for (userRoom in userRoomsForUser) {
+            rooms.find { it.rid == userRoom.rid }?.let { room ->
+                var name = room.name.toString()
+                var isActive = false
+                val message = room.lastMessage
+                val memberAvatar = room.listUser.filter { it != currentUserId }.mapNotNull { uid ->
+                    users.find { it.uid == uid }?.avatar
+                }
+
+                if (room.isGroup == false) {
+                    name = users.find { it.uid == room.listUser.firstOrNull { it != currentUserId } }?.username.toString()
+                    users.find { it.uid == room.listUser.firstOrNull { it != currentUserId } }?.lastActiveTime?.let {
+                        isActive = if (it.isEmpty()) {
+                            false
+                        } else {
+                            System.currentTimeMillis() - it.toLong() <= 5 * 60 * 1000
                         }
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("ChatListViewModel", "Error observing messages for room $roomId", e)
+
+                chatRoomItems.add(
+                    ChatListState.ChatRoomItemState(
+                        isGroupChat = false,
+                        isActive = isActive,
+                        id = room.rid,
+                        name = name,
+                        memberAvatars = memberAvatar,
+                        lastMessage = message.content,
+                        lastMessageTime = FormatTimeStamp.messageTimeFormat(message.time),
+                        lastSenderName = message.senderName,
+                        updateAt = room.updatedAt,
+                    ),
+                )
             }
+        }
+
+        chatRoomItems.sortByDescending { it.updateAt }
+
+        return chatRoomItems
+    }
+
+    private fun generateChatUserStates(
+        userRoomsForUser: List<UserRoom>,
+        rooms: List<Room>,
+        users: List<User>,
+    ): List<ChatListState.ChatUserItemState> {
+        val chatUserItems = mutableListOf<ChatListState.ChatUserItemState>()
+
+        for (user in users) {
+            if (rooms.find {
+                    it.isGroup == false &&
+                        it.rid in userRoomsForUser.map { it.rid } &&
+                        it.listUser.contains(user.uid)
+                } == null
+            ) {
+                val isActive = if (user.lastActiveTime.isEmpty()) {
+                    false
+                } else {
+                    System.currentTimeMillis() - user.lastActiveTime.toLong() <= 5 * 60 * 1000
+                }
+
+                chatUserItems.add(
+                    ChatListState.ChatUserItemState(
+                        isOnline = isActive,
+                        id = user.uid,
+                        name = user.username,
+                        avatar = user.avatar,
+                    ),
+                )
+            }
+        }
+
+        return chatUserItems
+    }
+
+    fun createGroup(uid: String): String? {
+        try {
+            currentUserId?.let {
+                return createRoomUseCase(userIds = listOf(uid, it))
+            }
+            return null
+        } catch (_: IllegalArgumentException) {
+            return null
         }
     }
 
-    private fun observeRoom() {
+    fun logout() {
         viewModelScope.launch {
-            try {
-                observeRoomUseCase().collect { room ->
-                    loadUserRooms()
-                }
-            } catch (e: Exception) {
-                Log.e("ChatListViewModel", "Error observing room", e)
-            }
+            logoutUserCase()
         }
     }
 
@@ -188,29 +171,13 @@ class ChatListViewModel(
                 if (modelClass.isAssignableFrom(ChatListViewModel::class.java)) {
                     val appContainer = AppContainer(context)
 
-                    val getUserRoomForUserUseCase = GetUserRoomForUserUseCase(
+                    val observeUserRoomForUserUseCase = ObserveUserRoomForUserUseCase(
                         userRoomRepository = appContainer.userRoomRepository,
                         authRepository = appContainer.authRepository,
                     )
 
-                    val getUserRoomForRoomUseCase = GetUserRoomForRoomUseCase(
-                        repository = appContainer.userRoomRepository,
-                    )
-
-                    val getRoomUseCase = GetRoomsUseCase(
-                        repository = appContainer.roomRepository,
-                    )
-
                     val getAllUsersInfoUseCase = GetAllUsersInfoUseCase(
                         repository = appContainer.userRepository,
-                    )
-
-                    val getActiveUserUseCase = GetActiveUserUseCase(
-                        repository = appContainer.userRepository,
-                    )
-
-                    val observeMessagesUseCase = ObserveMessagesUseCase(
-                        repository = appContainer.messageRepository,
                     )
 
                     val observeRoomUseCase = ObserveRoomUseCase(
@@ -221,17 +188,19 @@ class ChatListViewModel(
                         authRepository = appContainer.authRepository,
                     )
 
+                    val createRoomUseCase = CreateRoomUseCase(
+                        roomRepository = appContainer.roomRepository,
+                        userRoomRepository = appContainer.userRoomRepository,
+                    )
+
                     val currentUserId = appContainer.authRepository.getCurrentUserId()
 
                     return ChatListViewModel(
-                        getUserRoomForUserUseCase = getUserRoomForUserUseCase,
-                        getUserRoomForRoomUseCase = getUserRoomForRoomUseCase,
-                        getRoomsUseCase = getRoomUseCase,
+                        observeUserRoomForUserUseCase = observeUserRoomForUserUseCase,
                         getAllUsersInfoUseCase = getAllUsersInfoUseCase,
-                        getActiveUserUseCase = getActiveUserUseCase,
-                        observeMessagesUseCase = observeMessagesUseCase,
                         observeRoomUseCase = observeRoomUseCase,
                         logoutUserCase = logoutUserCase,
+                        createRoomUseCase = createRoomUseCase,
                         currentUserId = currentUserId,
                     ) as T
                 }

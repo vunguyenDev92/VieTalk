@@ -151,7 +151,11 @@ fun ChatListScreen(
             ConnectWithOthersItem(
                 chatItems = chatListScreenState.chatUserItems,
                 onClick = {
-                    // TODO: Navigate to chat screen
+                    viewModel.createGroup(it)?.let {
+                        navController.navigate(route = Screen.Chat(it)) {
+                            launchSingleTop = true
+                        }
+                    }
                 },
             )
         }

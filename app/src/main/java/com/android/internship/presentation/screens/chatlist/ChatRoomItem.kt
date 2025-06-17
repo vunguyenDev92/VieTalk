@@ -52,7 +52,7 @@ fun ChatRoomItem(
             .padding(horizontal = 16.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (isGroup) {
+        if (isGroup && memberAvatars.size >= 2) {
             AvatarGroup(memberAvatars)
         } else {
             Avatar(memberAvatars, name, isOnline)
@@ -69,6 +69,7 @@ fun ChatRoomItem(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.W400,
                 ),
+                color = Black,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -124,8 +125,8 @@ private fun Avatar(
         AsyncImage(
             model = memberAvatars.getOrNull(0),
             contentDescription = "Avatar of $name",
-            placeholder = painterResource(R.drawable.ic_vietalk),
-            error = painterResource(R.drawable.ic_error),
+            placeholder = painterResource(R.drawable.ic_person_color),
+            error = painterResource(R.drawable.ic_person_color),
             modifier = Modifier
                 .size(70.dp)
                 .clip(CircleShape),
@@ -173,19 +174,17 @@ private fun AvatarGroup(memberAvatars: List<String>) {
             contentScale = ContentScale.Crop,
         )
 
-        if (memberAvatars.size > 1) {
-            AsyncImage(
-                model = memberAvatars[1],
-                contentDescription = "Avatar of group member 2",
-                placeholder = painterResource(R.drawable.ic_person_color),
-                error = painterResource(R.drawable.ic_person_color),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(53.dp)
-                    .clip(CircleShape),
+        AsyncImage(
+            model = memberAvatars.getOrNull(1),
+            contentDescription = "Avatar of group member 2",
+            placeholder = painterResource(R.drawable.ic_person_color),
+            error = painterResource(R.drawable.ic_person_color),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .size(53.dp)
+                .clip(CircleShape),
 
-                contentScale = ContentScale.Crop,
-            )
-        }
+            contentScale = ContentScale.Crop,
+        )
     }
 }
