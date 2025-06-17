@@ -63,7 +63,7 @@ fun ChatTopBar(
                     Text(
                         text = subtitle,
                         fontSize = 14.sp,
-                        color = if (isSubtitleActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 BlockMuteMenus(
