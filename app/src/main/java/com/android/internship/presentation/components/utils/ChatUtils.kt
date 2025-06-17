@@ -37,11 +37,8 @@ fun processMessagesToItems(
             LocalDateTime.now()
         }
 
-        val shouldShowTimeHeader = if (lastMessageTimestamp == null) {
-            true
-        } else {
+        val shouldShowTimeHeader = lastMessageTimestamp == null ||
             Duration.between(lastMessageTimestamp, messageTime).toHours() >= 1
-        }
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
