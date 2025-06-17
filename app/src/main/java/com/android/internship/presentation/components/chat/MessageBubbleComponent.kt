@@ -180,7 +180,7 @@ private fun ExpandedSeenByIndicator(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 4.dp),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Start as Alignment,
     ) {
         Text(
             text = seenByText,

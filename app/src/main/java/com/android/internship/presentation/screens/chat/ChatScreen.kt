@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -73,6 +71,7 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
+    // Lấy IME padding để tránh keyboard che nội dung
     val imePadding = WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
@@ -85,7 +84,7 @@ fun ChatScreen(
     LaunchedEffect(uiState.messages.size) {
         if (uiState.messages.isNotEmpty()) {
             coroutineScope.launch {
-                listState.scrollToItem(0)
+                listState.animateScrollToItem(0)
             }
         }
     }
@@ -103,13 +102,13 @@ fun ChatScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        // Để Scaffold tự động xử lý window insets
+        contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .consumeWindowInsets(paddingValues)
-                .padding(bottom = imePadding.calculateBottomPadding()),
+                .padding(paddingValues), // Chỉ dùng paddingValues từ Scaffold
         ) {
             if (uiState.isLoading) {
                 CommonProgressIndicator()
@@ -120,10 +119,12 @@ fun ChatScreen(
                     } else {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             reverseLayout = true,
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            contentPadding = PaddingValues(
+                                horizontal = 12.dp,
+                                vertical = 8.dp,
+                            ),
                             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
                             userScrollEnabled = !isEmojiPickerVisible,
                         ) {
