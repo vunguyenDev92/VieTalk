@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -86,7 +87,13 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (isMuted) "Unmute Notifications" else "Mute Notifications",
+                                text = if (isMuted) {
+                                    stringResource(R.string.unmute_notifications)
+                                } else {
+                                    stringResource(
+                                        R.string.mute_notifications,
+                                    )
+                                },
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
                                     .padding(start = 8.dp),
@@ -111,7 +118,13 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (isBlocked) "Unblock" else "Block",
+                                text = if (isBlocked) {
+                                    stringResource(R.string.unblock)
+                                } else {
+                                    stringResource(
+                                        R.string.block,
+                                    )
+                                },
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(start = 8.dp),
                                 fontWeight = FontWeight.W300,
@@ -137,7 +150,7 @@ fun BlockMuteMenus(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "30 minutes",
+                            text = stringResource(R.string._30_minutes),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(start = 8.dp),
@@ -154,7 +167,7 @@ fun BlockMuteMenus(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "1 hour",
+                            text = stringResource(R.string._1_hour),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(start = 8.dp),
@@ -171,7 +184,7 @@ fun BlockMuteMenus(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "1 day",
+                            text = stringResource(R.string._1_day),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(start = 8.dp),
@@ -188,7 +201,7 @@ fun BlockMuteMenus(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "Util turned back on",
+                            text = stringResource(R.string.util_turned_back_on),
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(start = 8.dp),

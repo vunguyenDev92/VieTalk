@@ -36,7 +36,7 @@ fun ChatTopBar(
     isMuted: Boolean = false,
     isBlocked: Boolean = false,
     onBackClick: () -> Unit = {},
-    onMuteClick: () -> Unit = {},
+    onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     TopAppBar(
@@ -63,7 +63,7 @@ fun ChatTopBar(
                     Text(
                         text = subtitle,
                         fontSize = 14.sp,
-                        color = if (isSubtitleActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 BlockMuteMenus(
@@ -103,8 +103,8 @@ private fun ChatTopBarSingleActivePreview() {
             isSubtitleActive = true,
             isMuted = false,
             isBlocked = false,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ... */ },
         )
     }
 }
@@ -120,8 +120,8 @@ private fun ChatTopBarSingleOfflinePreview() {
             isSubtitleActive = false,
             isMuted = true,
             isBlocked = false,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ...  */ },
         )
     }
 }
@@ -140,8 +140,8 @@ private fun ChatTopBarGroupPreview() {
             isSubtitleActive = false,
             isMuted = false,
             isBlocked = true,
-            onMuteClick = { /* Giả lập hành động */ },
-            onBlockClick = { /* Giả lập hành động */ },
+            onMuteClick = { /* ...  */ },
+            onBlockClick = { /* ...  */ },
         )
     }
 }

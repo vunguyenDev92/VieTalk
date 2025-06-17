@@ -51,4 +51,12 @@
     <!-- Chat list -->
     <string name="loading_indicator">Loading indicator</string>
     <string name="refresh">Refresh</string>
+    <string name="unmute_notifications">Unmute Notifications</string>
+    <string name="mute_notifications">Mute Notifications</string>
+    <string name="unblock">Unblock</string>
+    <string name="block">Block</string>
+    <string name="_30_minutes">30 minutes</string>
+    <string name="_1_hour">1 hour</string>
+    <string name="_1_day">1 day</string>
+    <string name="util_turned_back_on">Util turned back on</string>
 </resources>
