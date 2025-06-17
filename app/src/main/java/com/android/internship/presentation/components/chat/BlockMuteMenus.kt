@@ -34,11 +34,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 
+enum class MuteDuration {
+    MINUTES_30,
+    HOUR_1,
+    DAY_1,
+    INDEFINITELY,
+}
+
 @Composable
 fun BlockMuteMenus(
     isMuted: Boolean = false,
     isBlocked: Boolean = false,
-    onMuteClick: () -> Unit = {},
+    onMuteClick: (duration: MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -89,7 +96,6 @@ fun BlockMuteMenus(
                         }
                     },
                     onClick = {
-                        onMuteClick()
                         onMute = true
                     },
                 )
@@ -140,7 +146,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick()
+                        onMuteClick(MuteDuration.MINUTES_30)
                         expanded = false
                         onMute = false
                     },
@@ -157,7 +163,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick()
+                        onMuteClick(MuteDuration.HOUR_1)
                         expanded = false
                         onMute = false
                     },
@@ -174,7 +180,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick()
+                        onMuteClick(MuteDuration.DAY_1)
                         expanded = false
                         onMute = false
                     },
@@ -191,7 +197,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick()
+                        onMuteClick(MuteDuration.INDEFINITELY)
                         expanded = false
                         onMute = false
                     },
