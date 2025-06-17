@@ -87,7 +87,10 @@ fun MessageBubbleComponent(
                     Text(
                         text = name,
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontFamily = robotoFamily,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
                 Box(

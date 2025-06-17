@@ -77,22 +77,18 @@ fun MessageInputComponent(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
 
-    // Biến trạng thái chính để quản lý keyboard và emoji picker
     var inputState by remember { mutableStateOf(InputState.NONE) }
     var isInputFocused by remember { mutableStateOf(false) }
 
-    // Tính toán showEmojiPicker dựa trên inputState
     val showEmojiPicker = inputState == InputState.EMOJI_PICKER
 
     LaunchedEffect(showEmojiPicker) {
         onEmojiPickerVisibilityChange?.invoke(showEmojiPicker)
     }
 
-    // Quản lý trạng thái focus - FIX: Đóng emoji picker khi focus text field
     LaunchedEffect(isInputFocused) {
         if (isInputFocused) {
             if (inputState == InputState.EMOJI_PICKER) {
-                // Đóng emoji picker khi focus vào text field
                 inputState = InputState.KEYBOARD
             } else if (inputState != InputState.KEYBOARD) {
                 inputState = InputState.KEYBOARD
@@ -126,17 +122,14 @@ fun MessageInputComponent(
                             .clickable {
                                 when (inputState) {
                                     InputState.EMOJI_PICKER -> {
-                                        // Đang hiện emoji picker -> ẩn đi
                                         inputState = InputState.NONE
                                     }
                                     InputState.KEYBOARD -> {
-                                        // Đang hiện keyboard -> ẩn keyboard và hiện emoji picker
                                         focusRequester.freeFocus()
                                         keyboardController?.hide()
                                         inputState = InputState.EMOJI_PICKER
                                     }
                                     InputState.NONE -> {
-                                        // Không có gì hiện -> hiện emoji picker
                                         focusRequester.freeFocus()
                                         keyboardController?.hide()
                                         inputState = InputState.EMOJI_PICKER
@@ -257,7 +250,6 @@ fun MessageInputComponent(
                     val newSelection = TextRange(selection.start + emoji.length)
                     onMessageChange(TextFieldValue(newText, newSelection))
 
-                    // Giữ emoji picker hiện để có thể chọn tiếp emoji khác
                     focusRequester.freeFocus()
                     keyboardController?.hide()
                     inputState = InputState.EMOJI_PICKER
