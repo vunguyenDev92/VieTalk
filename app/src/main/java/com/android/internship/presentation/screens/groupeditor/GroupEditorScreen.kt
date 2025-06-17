@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.BlueLight
 import com.android.internship.presentation.theme.GreyLight
 import com.android.internship.presentation.theme.LightRed
@@ -56,7 +57,12 @@ fun GroupEditorScreen(
     val groupEditorState by viewModel.state.collectAsState()
 
     if (groupEditorState.isSuccess) {
-        navController.popBackStack()
+        groupEditorState.groupId?.let {
+            navController.navigate(Screen.Chat(it)) {
+                launchSingleTop = true
+                popUpTo(Screen.ChatList) { inclusive = true }
+            }
+        }
     }
 
     Column(
@@ -77,7 +83,7 @@ fun GroupEditorScreen(
                     .padding(start = 15.dp)
                     .size(30.dp)
                     .clickable(
-                        onClick = { navController.popBackStack() },
+                        onClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ),

@@ -100,7 +100,7 @@ fun SignUpScreen(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = {
-                        navController.popBackStack()
+                        navController.popBackStack(Screen.SignIn, inclusive = false)
                     },
                 ),
         )

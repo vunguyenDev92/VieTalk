@@ -1,8 +1,6 @@
 package com.android.internship.presentation.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
@@ -18,7 +16,6 @@ private val LightColorScheme =
         error = LightRed,
     )
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun AppTheme(
     content: @Composable () -> Unit,

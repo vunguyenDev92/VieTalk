@@ -41,6 +41,7 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
+import com.android.internship.presentation.navigation.Screen
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 
@@ -67,12 +68,12 @@ fun ChatScreen(
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
-            snackbarHostState.showSnackbar(message = error)
+            snackBarHostState.showSnackbar(message = error)
             viewModel.clearError()
         }
     }
@@ -92,12 +93,12 @@ fun ChatScreen(
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
                 onCallClick = { /* ... */ },
                 onMoreClick = { /* ... */ },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
