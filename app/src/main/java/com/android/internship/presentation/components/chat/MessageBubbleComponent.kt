@@ -179,8 +179,8 @@ private fun ExpandedSeenByIndicator(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp),
-        contentAlignment = Alignment.Start as Alignment,
+            .padding(start = 40.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Text(
             text = seenByText,
