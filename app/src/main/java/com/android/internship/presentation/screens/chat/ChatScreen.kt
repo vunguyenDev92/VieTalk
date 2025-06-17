@@ -99,8 +99,8 @@ fun ChatScreen(
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
                 onBackClick = { navController.popBackStack() },
-                onCallClick = { /* ... */ },
-                onMoreClick = { /* ... */ },
+                onBlockClick = { /* ... */ },
+                onMuteClick = { /* ... */ },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -140,7 +140,13 @@ fun ChatScreen(
                                 key = { item ->
                                     when (item) {
                                         is MessageItem.MessageBubbles -> "msg_${item.message.mid}"
-                                        is MessageItem.TimeHeader -> "time_${item.timestamp.toEpochSecond(ZoneOffset.UTC)}"
+                                        is MessageItem.TimeHeader ->
+                                            "time_${
+                                                item.timestamp.toEpochSecond(
+                                                    ZoneOffset.UTC,
+                                                )
+                                            }"
+
                                         is MessageItem.TypingIndicator -> "typing_indicator"
                                     }
                                 },
@@ -149,6 +155,7 @@ fun ChatScreen(
                                     is MessageItem.TimeHeader -> {
                                         TimeHeaderComponent(item = messageItem)
                                     }
+
                                     is MessageItem.MessageBubbles -> {
                                         if (!messageItem.isFromMe) {
                                             LaunchedEffect(messageItem.message.mid) {
@@ -163,6 +170,7 @@ fun ChatScreen(
                                             },
                                         )
                                     }
+
                                     is MessageItem.TypingIndicator -> {
                                         TypingIndicatorComponent(item = messageItem)
                                     }
