@@ -71,7 +71,6 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
-    // Lấy IME padding để tránh keyboard che nội dung
     val imePadding = WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
@@ -102,13 +101,12 @@ fun ChatScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        // Để Scaffold tự động xử lý window insets
         contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues), // Chỉ dùng paddingValues từ Scaffold
+                .padding(paddingValues),
         ) {
             if (uiState.isLoading) {
                 CommonProgressIndicator()

@@ -34,23 +34,21 @@ fun NetworkStatusBanner(
     isNetworkAvailable: Boolean,
     isRefreshing: Boolean,
     onRefreshClick: () -> Unit,
-    errorMessage: String? = null, // Add error message parameter
+    errorMessage: String? = null,
     modifier: Modifier = Modifier,
 ) {
     var showProgressIndicator by remember { mutableStateOf(false) }
 
-    // Handle refresh timeout
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             showProgressIndicator = true
-            delay(5000) // 5 seconds
+            delay(5000)
             showProgressIndicator = false
         } else {
             showProgressIndicator = false
         }
     }
 
-    // Show banner when network is not available OR when there's an error message
     AnimatedVisibility(
         visible = !isNetworkAvailable || errorMessage != null,
         enter = expandVertically(animationSpec = tween(300)),
@@ -80,7 +78,6 @@ fun NetworkStatusBanner(
                         fontWeight = FontWeight.Medium,
                     )
 
-                    // Only show refresh button for network errors
                     if (!isNetworkAvailable) {
                         Text(
                             text = stringResource(R.string.refresh),

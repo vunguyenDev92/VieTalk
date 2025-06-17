@@ -36,25 +36,6 @@ class MessageRepositoryImpl(
             ),
         )
     }
-//
-//    override fun addRemoteMessage(
-//        mid: String,
-//        rid: String,
-//        uid: String,
-//        content: String,
-//        timestamp: String,
-//    ) {
-//        messageRemoteDataSource.addRemoteMessage(
-//            Message(
-//                mid = mid,
-//                rid = rid,
-//                uid = uid,
-//                content = content,
-//                time = timestamp,
-//            ),
-//        )
-//    }
-//
 
     override suspend fun getRemoteMessages(
         rid: String,
