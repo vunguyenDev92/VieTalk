@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
@@ -71,8 +70,6 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
-    val imePadding = WindowInsets.ime.asPaddingValues()
-
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message = error)
@@ -120,10 +117,10 @@ fun ChatScreen(
                             modifier = Modifier.fillMaxSize(),
                             reverseLayout = true,
                             contentPadding = PaddingValues(
-                                horizontal = 12.dp,
-                                vertical = 8.dp,
+                                horizontal = 4.dp,
+                                vertical = 0.dp,
                             ),
-                            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Bottom),
+                            verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Bottom),
                             userScrollEnabled = !isEmojiPickerVisible,
                         ) {
                             items(

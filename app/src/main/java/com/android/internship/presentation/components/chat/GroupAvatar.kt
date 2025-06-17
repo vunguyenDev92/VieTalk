@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,43 +82,5 @@ fun GroupAvatar(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GroupAvatarEmptyPreview() {
-    MaterialTheme {
-        GroupAvatar(
-            avatarUrls = emptyList(),
-            size = 60.dp,
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GroupAvatarSinglePreview() {
-    MaterialTheme {
-        GroupAvatar(
-            avatarUrls = listOf(
-                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-            ),
-            size = 60.dp,
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GroupAvatarMultiplePreview() {
-    MaterialTheme {
-        GroupAvatar(
-            avatarUrls = listOf(
-                "android.resource://com.android.internship/drawable/ic_vietalk",
-                "android.resource://com.android.internship/drawable/ic_vietalk",
-            ),
-            size = 60.dp,
-        )
     }
 }

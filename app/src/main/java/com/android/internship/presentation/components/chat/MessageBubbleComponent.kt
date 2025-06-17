@@ -35,7 +35,6 @@ import com.android.internship.presentation.theme.GreenMess
 import com.android.internship.presentation.theme.GreyMess
 import com.android.internship.presentation.theme.White
 import com.android.internship.presentation.theme.robotoFamily
-
 @Composable
 fun MessageBubbleComponent(
     item: MessageItem.MessageBubbles,
@@ -55,7 +54,7 @@ fun MessageBubbleComponent(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
             )
-            .padding(vertical = 2.dp),
+            .padding(vertical = 0.dp),
     ) {
         if (item.isSeenByExpanded && !item.isCloseToHeader) {
             MessageTimeHeaderComponent(message = item.message)
@@ -71,18 +70,22 @@ fun MessageBubbleComponent(
             if (item.isFromMe) Spacer(modifier = Modifier.weight(1f))
 
             if (!item.isFromMe) {
-                AsyncImage(
-                    model = item.senderAvatarUrl,
-                    contentDescription = "Sender Avatar",
-                    modifier = Modifier.size(40.dp).clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                )
+                if (item.showAvatar) {
+                    AsyncImage(
+                        model = item.senderAvatarUrl,
+                        contentDescription = "Sender Avatar",
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
+                }
             }
 
             Column(horizontalAlignment = alignment) {
-                item.senderName?.let {
+                item.senderName?.let { name ->
                     Text(
-                        text = it,
+                        text = name,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(bottom = 2.dp),
                     )
@@ -105,12 +108,16 @@ fun MessageBubbleComponent(
             }
 
             if (item.isFromMe) {
-                AsyncImage(
-                    model = currentUserAvatarUrl,
-                    contentDescription = "My Avatar",
-                    modifier = Modifier.size(40.dp).clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                )
+                if (item.showAvatar) {
+                    AsyncImage(
+                        model = currentUserAvatarUrl,
+                        contentDescription = "My Avatar",
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
+                }
             }
 
             if (!item.isFromMe) Spacer(modifier = Modifier.weight(1f))
