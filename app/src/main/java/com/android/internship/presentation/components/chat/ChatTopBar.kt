@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
-import com.android.internship.data.model.UserRoom
 import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.TextButtonDialog
 
@@ -41,7 +40,8 @@ fun ChatTopBar(
     subtitle: String,
     avatarUrls: List<String>,
     isSubtitleActive: Boolean,
-    userRoom: UserRoom?,
+    isMuted: Boolean,
+    isBlocked: Boolean,
     onBackClick: () -> Unit = {},
     onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
@@ -78,7 +78,7 @@ fun ChatTopBar(
                 if (showBlockDialog) {
                     CommonDialog(
                         title = "Block $title?",
-                        content = "Are you sure you want to block $title? You won't get messages from them, and this chat will disappear from your inbox.",
+                        content = stringResource(R.string.description_block).replace("\$title", title),
                         onDismissRequest = { showBlockDialog = false },
                         button = {
                             TextButtonDialog(
@@ -97,7 +97,8 @@ fun ChatTopBar(
                     )
                 }
                 BlockMuteMenus(
-                    userRoom = userRoom,
+                    isMuted = isMuted,
+                    isBlocked = isBlocked,
                     onMuteClick = onMuteClick,
                     onBlockClick = { showBlockDialog = true },
                 )

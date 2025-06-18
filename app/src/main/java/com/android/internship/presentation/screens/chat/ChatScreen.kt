@@ -89,16 +89,13 @@ fun ChatScreen(
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
+                isMuted = userRoom?.mute == true,
+                isBlocked = userRoom?.isBlocked == true,
                 onBackClick = { navController.popBackStack() },
                 onBlockClick = {
-//                    viewModel.updateBlockState(userRoom?.isBlocked?.not() ?: true)
-//                    Log.d(tag, "Block action triggered, new isBlocked: ${userRoom?.isBlocked?.not() ?: true}")
                 },
                 onMuteClick = { duration ->
-//                    viewModel.updateMuteState(duration, calculateTurnOnTime(duration))
-//                    Log.d(tag, "Mute action triggered, duration: $duration")
                 },
-                userRoom = userRoom,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

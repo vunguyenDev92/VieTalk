@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.android.internship.presentation.components.chat
 
 import androidx.compose.foundation.background
@@ -10,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +35,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
-import com.android.internship.data.model.UserRoom
 
 enum class MuteDuration {
     MINUTES_30,
@@ -43,7 +45,8 @@ enum class MuteDuration {
 
 @Composable
 fun BlockMuteMenus(
-    userRoom: UserRoom?,
+    isMuted: Boolean,
+    isBlocked: Boolean,
     onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
@@ -75,7 +78,7 @@ fun BlockMuteMenus(
                         Row {
                             Icon(
                                 painter = painterResource(
-                                    id = if (userRoom?.mute == true) R.drawable.ic_mute else R.drawable.ic_unmute,
+                                    id = if (isMuted) R.drawable.ic_mute else R.drawable.ic_unmute,
                                 ),
                                 contentDescription = stringResource(R.string.mute_notification),
                                 tint = MaterialTheme.colorScheme.onSurface,
@@ -84,7 +87,7 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (userRoom?.mute == true) {
+                                text = if (isMuted) {
                                     stringResource(R.string.unmute_notifications)
                                 } else {
                                     stringResource(R.string.mute_notifications)
@@ -97,7 +100,7 @@ fun BlockMuteMenus(
                         }
                     },
                     onClick = {
-                        if (userRoom?.mute == true) {
+                        if (isMuted) {
                             onMuteClick(MuteDuration.INDEFINITELY)
                             expanded = false
                         } else {
@@ -117,7 +120,7 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (userRoom?.isBlocked == true) {
+                                text = if (isBlocked) {
                                     stringResource(R.string.unblock)
                                 } else {
                                     stringResource(R.string.block)
