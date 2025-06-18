@@ -16,6 +16,7 @@ interface MessageDao {
     @Query("SELECT * FROM messages WHERE rid = :rid")
     suspend fun getMessages(rid: String): List<MessageEntity>
 
+    // old to new
     @Query("SELECT * FROM messages WHERE rid = :rid ORDER BY time ASC")
     fun observeMessages(rid: String): Flow<List<MessageEntity>>
 
@@ -42,4 +43,12 @@ interface MessageDao {
             }
         }
     }
+
+    // oldest mess to be cursor
+    @Query("SELECT * FROM messages WHERE rid = :rid ORDER BY time ASC LIMIT 1")
+    suspend fun getOldestMessage(rid: String): MessageEntity?
+
+    // newest mess to listen from remote
+    @Query("SELECT * FROM messages WHERE rid = :rid ORDER BY time DESC LIMIT 1")
+    suspend fun getLatestMessage(rid: String): MessageEntity?
 }

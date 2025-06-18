@@ -2,7 +2,6 @@ package com.android.internship.presentation.components
 
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.User
-
 data class MessageState(
     val room: Room? = null,
     val currentUserId: String = "",
@@ -20,4 +19,5 @@ data class MessageState(
     val isPeerActive: Boolean = false,
     val isNetworkAvailable: Boolean = true,
     val isRefreshing: Boolean = false,
+    val canLoadMore: Boolean = true,
 )

@@ -153,9 +153,10 @@ fun MessageInputComponent(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Box(modifier = Modifier.weight(1f),
-						contentAlignment = Alignment.CenterStart
-					   ) {
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
                         BasicTextField(
                             value = messageText,
                             onValueChange = onMessageChange,
