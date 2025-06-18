@@ -210,6 +210,7 @@ fun ChatListScreen(
                 userAvatarUrl = "https://i.pravatar.cc/150?img=3",
                 onClick = {
                     showDrawer = false
+                    navController.navigate(Screen.EditProfile)
                 },
             )
 
