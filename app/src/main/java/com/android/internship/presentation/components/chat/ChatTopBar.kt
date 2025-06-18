@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.android.internship.presentation.components.chat
 
 import androidx.compose.foundation.layout.Column

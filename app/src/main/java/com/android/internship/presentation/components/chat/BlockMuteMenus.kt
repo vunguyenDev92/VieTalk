@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.android.internship.presentation.components.chat
 
 import androidx.compose.foundation.background
@@ -12,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +44,7 @@ enum class MuteDuration {
 fun BlockMuteMenus(
     isMuted: Boolean,
     isBlocked: Boolean,
-    onMuteClick: (MuteDuration) -> Unit = {},
+    onMuteClick: (duration: MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
