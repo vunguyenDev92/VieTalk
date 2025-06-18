@@ -81,4 +81,28 @@ class MessageRepositoryImpl(
             }
         }
     }
+
+    override suspend fun fetchAndCacheOlderMessages(
+        rid: String,
+        limit: Int,
+    ): Boolean {
+        val oldestLocalMessage = messageLocalDataSource.getOldestMessage(rid)
+
+        val remoteMessages = messageRemoteDataSource.getRemoteMessages(
+            rid = rid,
+            startMessageId = oldestLocalMessage?.mid,
+            limit = limit,
+        )
+
+        return if (remoteMessages != null && remoteMessages.isNotEmpty()) {
+            messageLocalDataSource.saveMessages(remoteMessages)
+            true
+        } else {
+            false
+        }
+    }
+
+    override suspend fun getLatestLocalMessage(rid: String): Message? {
+        return messageLocalDataSource.getLatestMessage(rid)
+    }
 }
