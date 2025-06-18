@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,9 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.android.internship.R
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.MessageItem
@@ -93,6 +99,7 @@ fun ChatScreen(
                 isBlocked = userRoom?.isBlocked == true,
                 onBackClick = { navController.popBackStack() },
                 onBlockClick = {
+                    viewModel.toggleBlockState()
                 },
                 onMuteClick = { duration ->
                 },
@@ -160,19 +167,32 @@ fun ChatScreen(
                         }
                     }
                 }
-
-                MessageInputComponent(
-                    messageText = messageText,
-                    onMessageChange = viewModel::onMessageChange,
-                    onSendMessage = viewModel::sendMessage,
-                    onEmojiClick = {
-                        isEmojiPickerVisible = !isEmojiPickerVisible
-                    },
-                    onEmojiPickerVisibilityChange = { isVisible ->
-                        isEmojiPickerVisible = isVisible
-                    },
-                    modifier = Modifier,
-                )
+                if (userRoom?.isBlocked == true) {
+                    Text(
+                        text = stringResource(R.string.description_isblocked).replace(
+                            "\$title",
+                            uiState.topBarTitle,
+                        ),
+                        modifier = Modifier
+                            .padding(start = 29.dp, top = 35.dp, bottom = 21.dp),
+                        fontWeight = FontWeight.W400,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                } else {
+                    MessageInputComponent(
+                        messageText = messageText,
+                        onMessageChange = viewModel::onMessageChange,
+                        onSendMessage = viewModel::sendMessage,
+                        onEmojiClick = {
+                            isEmojiPickerVisible = !isEmojiPickerVisible
+                        },
+                        onEmojiPickerVisibilityChange = { isVisible ->
+                            isEmojiPickerVisible = isVisible
+                        },
+                        modifier = Modifier,
+                    )
+                }
             }
         }
 

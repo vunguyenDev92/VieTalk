@@ -57,6 +57,12 @@ class UserRoomRemoteDataSource {
             .update("mute", mute, "turnOnTime", turnOnTime)
     }
 
+    fun updateBlock(rid: String, uid: String, isBlocked: Boolean) {
+        firestore.collection("userRooms")
+            .document("${rid}_$uid")
+            .update("isBlocked", isBlocked)
+    }
+
     fun updateTypingTime(rid: String, uid: String, time: String) {
         firestore.collection("userRooms")
             .document("${rid}_$uid")

@@ -15,6 +15,7 @@ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateBlockUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.IConnectivityObserver
@@ -48,6 +49,7 @@ class ChatViewModel(
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
     private val connectivityObserver: IConnectivityObserver,
     private val getMessagesUseCase: GetMessagesUseCase,
+    private val updateBlockUseCase: UpdateBlockUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -249,5 +251,17 @@ class ChatViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun toggleBlockState() {
+        viewModelScope.launch {
+            val currentUserRoom = _userRoom.value ?: return@launch
+            val newIsBlocked = !currentUserRoom.isBlocked
+            try {
+                updateBlockUseCase(roomId, currentUserId, newIsBlocked)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
+            }
+        }
     }
 }

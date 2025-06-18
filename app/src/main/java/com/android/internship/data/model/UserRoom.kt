@@ -7,5 +7,6 @@ data class UserRoom(
     val turnOnTime: String? = null,
     val lastSeenMessages: String? = null,
     val typingTime: String? = null,
+    @JvmField
     val isBlocked: Boolean = false,
 )

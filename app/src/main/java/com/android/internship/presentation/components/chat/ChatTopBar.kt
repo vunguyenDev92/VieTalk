@@ -73,10 +73,13 @@ fun ChatTopBar(
                     )
                 }
 
-                if (showBlockDialog) {
+                if (showBlockDialog && !isBlocked) {
                     CommonDialog(
                         title = "Block $title?",
-                        content = stringResource(R.string.description_block).replace("\$title", title),
+                        content = stringResource(R.string.description_block).replace(
+                            "\$title",
+                            title,
+                        ),
                         onDismissRequest = { showBlockDialog = false },
                         button = {
                             TextButtonDialog(
@@ -93,7 +96,31 @@ fun ChatTopBar(
                             )
                         },
                     )
+                } else if (showBlockDialog) {
+                    CommonDialog(
+                        title = "Unblock $title?",
+                        content = stringResource(R.string.description_unblock).replace(
+                            "\$title",
+                            title,
+                        ),
+                        onDismissRequest = { showBlockDialog = false },
+                        button = {
+                            TextButtonDialog(
+                                text = stringResource(R.string.cancel).uppercase(),
+                                onClick = { showBlockDialog = false },
+                            )
+                            TextButtonDialog(
+                                text = stringResource(R.string.unblock).uppercase(),
+                                onClick = {
+                                    onBlockClick()
+                                    showBlockDialog = false
+                                },
+                                color = Color.Red,
+                            )
+                        },
+                    )
                 }
+
                 BlockMuteMenus(
                     isMuted = isMuted,
                     isBlocked = isBlocked,
