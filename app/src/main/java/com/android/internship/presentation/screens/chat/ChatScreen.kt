@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.android.internship.presentation.screens.chat
 
 import androidx.compose.foundation.layout.Arrangement
@@ -7,18 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,7 +38,6 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
-import com.android.internship.presentation.navigation.Screen
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 
@@ -70,13 +61,11 @@ fun ChatScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val messageText by viewModel.messageText.collectAsState()
-
+    val userRoom by viewModel.userRoom.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
-
-    WindowInsets.ime.asPaddingValues()
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
@@ -101,12 +90,19 @@ fun ChatScreen(
                 avatarUrls = uiState.topBarAvatarUrls,
                 isSubtitleActive = uiState.isPeerActive,
                 onBackClick = { navController.popBackStack() },
-                onBlockClick = { /* ... */ },
-                onMuteClick = { /* ... */ },
+                onBlockClick = {
+//                    viewModel.updateBlockState(userRoom?.isBlocked?.not() ?: true)
+//                    Log.d(tag, "Block action triggered, new isBlocked: ${userRoom?.isBlocked?.not() ?: true}")
+                },
+                onMuteClick = { duration ->
+//                    viewModel.updateMuteState(duration, calculateTurnOnTime(duration))
+//                    Log.d(tag, "Mute action triggered, duration: $duration")
+                },
+                userRoom = userRoom,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
             modifier = Modifier

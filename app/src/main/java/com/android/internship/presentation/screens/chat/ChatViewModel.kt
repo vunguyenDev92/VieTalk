@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.data.model.Room
+import com.android.internship.data.model.UserRoom
 import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetMessagesUseCase
@@ -56,6 +57,8 @@ class ChatViewModel(
 
     private val _messageText = MutableStateFlow(TextFieldValue(""))
     val messageText = _messageText.asStateFlow()
+    private val _userRoom = MutableStateFlow<UserRoom?>(null)
+    val userRoom = _userRoom.asStateFlow()
     private var typingTimeoutJob: Job? = null
 
     private var lastAutoSeenMessageId: String? = null
@@ -64,6 +67,7 @@ class ChatViewModel(
         observeNetworkStatus()
         loadChatData()
         startPeriodicActiveUpdate()
+        observeBlockMute(roomId)
     }
 
     private fun loadChatData() {
@@ -172,10 +176,10 @@ class ChatViewModel(
             }
         }
     }
+
     fun refreshData() {
         if (!uiState.value.isNetworkAvailable) {
             _uiState.update { it.copy(isRefreshing = true) }
-
             viewModelScope.launch {
                 delay(5000)
                 _uiState.update { it.copy(isRefreshing = false) }
@@ -203,6 +207,16 @@ class ChatViewModel(
             }
         } else {
             addTypingUseCase(rid = roomId, isTyping = false)
+        }
+    }
+
+    fun observeBlockMute(rid: String) {
+        viewModelScope.launch {
+            observeUserRoomDetailsUseCase(rid)
+                .collect { userRooms ->
+                    val selectedUserRoom = userRooms.find { it.uid == currentUserId }
+                    _userRoom.value = selectedUserRoom
+                }
         }
     }
 

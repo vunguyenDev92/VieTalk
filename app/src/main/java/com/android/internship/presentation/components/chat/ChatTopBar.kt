@@ -18,13 +18,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.android.internship.R
+import com.android.internship.data.model.UserRoom
+import com.android.internship.presentation.components.CommonDialog
+import com.android.internship.presentation.components.TextButtonDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,12 +41,12 @@ fun ChatTopBar(
     subtitle: String,
     avatarUrls: List<String>,
     isSubtitleActive: Boolean,
-    isMuted: Boolean = false,
-    isBlocked: Boolean = false,
+    userRoom: UserRoom?,
     onBackClick: () -> Unit = {},
     onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
+    var showBlockDialog by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
             Row(
@@ -66,11 +74,32 @@ fun ChatTopBar(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+
+                if (showBlockDialog) {
+                    CommonDialog(
+                        title = "Block $title?",
+                        content = "Are you sure you want to block $title? You won't get messages from them, and this chat will disappear from your inbox.",
+                        onDismissRequest = { showBlockDialog = false },
+                        button = {
+                            TextButtonDialog(
+                                text = stringResource(R.string.cancel).uppercase(),
+                                onClick = { showBlockDialog = false },
+                            )
+                            TextButtonDialog(
+                                text = stringResource(R.string.block).uppercase(),
+                                onClick = {
+                                    onBlockClick()
+                                    showBlockDialog = false
+                                },
+                                color = Color.Red,
+                            )
+                        },
+                    )
+                }
                 BlockMuteMenus(
-                    isMuted = isMuted,
-                    isBlocked = isBlocked,
+                    userRoom = userRoom,
                     onMuteClick = onMuteClick,
-                    onBlockClick = onBlockClick,
+                    onBlockClick = { showBlockDialog = true },
                 )
             }
         },
@@ -90,58 +119,4 @@ fun ChatTopBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
         windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleActivePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "John Doe",
-            subtitle = "Active Now",
-            avatarUrls = listOf("https://example.com/avatar.jpg"),
-            isSubtitleActive = true,
-            isMuted = false,
-            isBlocked = false,
-            onMuteClick = { /* ...  */ },
-            onBlockClick = { /* ... */ },
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleOfflinePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Jane Smith",
-            subtitle = "Offline",
-            avatarUrls = listOf("https://example.com/avatar2.jpg"),
-            isSubtitleActive = false,
-            isMuted = true,
-            isBlocked = false,
-            onMuteClick = { /* ...  */ },
-            onBlockClick = { /* ...  */ },
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarGroupPreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Team Discussion",
-            subtitle = "5 members",
-            avatarUrls = listOf(
-                "https://example.com/avatar1.jpg",
-                "https://example.com/avatar2.jpg",
-            ),
-            isSubtitleActive = false,
-            isMuted = false,
-            isBlocked = true,
-            onMuteClick = { /* ...  */ },
-            onBlockClick = { /* ...  */ },
-        )
-    }
 }

@@ -1,7 +1,5 @@
 package com.android.internship.presentation.components.chat
 
-import android.os.Build.VERSION_CODES.Q
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
+import com.android.internship.data.model.UserRoom
 
 enum class MuteDuration {
     MINUTES_30,
@@ -44,27 +43,29 @@ enum class MuteDuration {
 
 @Composable
 fun BlockMuteMenus(
-    isMuted: Boolean = false,
-    isBlocked: Boolean = false,
-    onMuteClick: (duration: MuteDuration) -> Unit = {},
+    userRoom: UserRoom?,
+    onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var onMute by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier
-            .padding(horizontal = 8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
     ) {
-        IconButton(onClick = { expanded = true }) {
+        IconButton(onClick = {
+            expanded = true
+        }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
                 contentDescription = stringResource(R.string.more_options),
             )
         }
-        if (onMute == false) {
+        if (!onMute) {
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = {
+                    expanded = false
+                },
                 modifier = Modifier
                     .background(Color.White)
                     .advancedShadow(),
@@ -73,13 +74,9 @@ fun BlockMuteMenus(
                     text = {
                         Row {
                             Icon(
-                                painter = if (isMuted) {
-                                    painterResource(R.drawable.ic_mute)
-                                } else {
-                                    painterResource(
-                                        R.drawable.ic_unmute,
-                                    )
-                                },
+                                painter = painterResource(
+                                    id = if (userRoom?.mute == true) R.drawable.ic_mute else R.drawable.ic_unmute,
+                                ),
                                 contentDescription = stringResource(R.string.mute_notification),
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
@@ -87,23 +84,25 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (isMuted) {
+                                text = if (userRoom?.mute == true) {
                                     stringResource(R.string.unmute_notifications)
                                 } else {
-                                    stringResource(
-                                        R.string.mute_notifications,
-                                    )
+                                    stringResource(R.string.mute_notifications)
                                 },
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(start = 8.dp),
+                                modifier = Modifier.padding(start = 8.dp),
                                 fontWeight = FontWeight.W300,
                                 fontSize = 14.sp,
                             )
                         }
                     },
                     onClick = {
-                        onMute = true
+                        if (userRoom?.mute == true) {
+                            onMuteClick(MuteDuration.INDEFINITELY)
+                            expanded = false
+                        } else {
+                            onMute = true
+                        }
                     },
                 )
                 DropdownMenuItem(
@@ -118,12 +117,10 @@ fun BlockMuteMenus(
                                     .size(24.dp),
                             )
                             Text(
-                                text = if (isBlocked) {
+                                text = if (userRoom?.isBlocked == true) {
                                     stringResource(R.string.unblock)
                                 } else {
-                                    stringResource(
-                                        R.string.block,
-                                    )
+                                    stringResource(R.string.block)
                                 },
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(start = 8.dp),
@@ -141,7 +138,10 @@ fun BlockMuteMenus(
         } else {
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = {
+                    expanded = false
+                    onMute = false
+                },
                 shape = RoundedCornerShape(0.dp),
                 modifier = Modifier
                     .background(Color.White)
@@ -152,8 +152,7 @@ fun BlockMuteMenus(
                         Text(
                             text = stringResource(R.string._30_minutes),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 8.dp),
                             fontWeight = FontWeight.W300,
                             fontSize = 14.sp,
                         )
@@ -169,8 +168,7 @@ fun BlockMuteMenus(
                         Text(
                             text = stringResource(R.string._1_hour),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 8.dp),
                             fontWeight = FontWeight.W300,
                             fontSize = 14.sp,
                         )
@@ -186,8 +184,7 @@ fun BlockMuteMenus(
                         Text(
                             text = stringResource(R.string._1_day),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 8.dp),
                             fontWeight = FontWeight.W300,
                             fontSize = 14.sp,
                         )
@@ -203,8 +200,7 @@ fun BlockMuteMenus(
                         Text(
                             text = stringResource(R.string.util_turned_back_on),
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(start = 8.dp),
+                            modifier = Modifier.padding(start = 8.dp),
                             fontWeight = FontWeight.W300,
                             fontSize = 14.sp,
                         )
@@ -220,7 +216,7 @@ fun BlockMuteMenus(
     }
 }
 
-@RequiresApi(Q)
+@Composable
 fun Modifier.advancedShadow(
     color: Color = Color.Black,
     alpha: Float = 0.25f,
