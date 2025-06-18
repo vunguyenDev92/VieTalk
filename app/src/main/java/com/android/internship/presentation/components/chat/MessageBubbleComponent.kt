@@ -140,7 +140,7 @@ fun MessageBubbleComponent(
                 .fillMaxWidth()
                 .padding(
                     top = 2.dp,
-                    end = 48.dp,
+                    end = 5.dp,
                     start = 48.dp,
                 ),
             horizontalArrangement = Arrangement.End,
@@ -160,6 +160,7 @@ fun MessageBubbleComponent(
 @Composable
 private fun SeenByAvatarStack(users: List<User>) {
     Row(
+        modifier = Modifier.padding(end = 5.dp),
         horizontalArrangement = Arrangement.spacedBy((-6).dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -168,7 +169,7 @@ private fun SeenByAvatarStack(users: List<User>) {
                 model = user.avatar,
                 contentDescription = "Seen by ${user.username}",
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(20.dp)
                     .clip(CircleShape)
                     .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
                 contentScale = ContentScale.Crop,

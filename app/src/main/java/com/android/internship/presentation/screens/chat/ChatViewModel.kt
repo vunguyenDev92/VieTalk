@@ -12,6 +12,7 @@ import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveNewMessagesUseCase
+import com.android.internship.domain.usecase.ObserveSingleRoomUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
@@ -30,6 +31,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -54,6 +57,7 @@ class ChatViewModel(
     private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
     private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
     private val connectivityObserver: IConnectivityObserver,
+    private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -80,6 +84,21 @@ class ChatViewModel(
         loadInitialData()
         startPeriodicActiveUpdate()
         startBackgroundSync()
+        observeRoomForAutoSeen()
+    }
+
+    private fun observeRoomForAutoSeen() {
+        viewModelScope.launch {
+            observeSingleRoomUseCase(roomId)
+                .filterNotNull()
+                .distinctUntilChangedBy { it.lastMessage.mid }
+                .collect { room ->
+                    val lastMessage = room.lastMessage
+                    if (lastMessage.mid.isNotEmpty()) {
+                        seenMessageUseCase(roomId, lastMessage.mid)
+                    }
+                }
+        }
     }
 
     private fun loadInitialData() {
@@ -272,12 +291,6 @@ class ChatViewModel(
             addTypingUseCase(rid = roomId, isTyping = false)
 
             resetUIPaginationIfNeeded()
-        }
-    }
-
-    fun markAsSeen(messageId: String) {
-        viewModelScope.launch {
-            seenMessageUseCase(rid = roomId, lastSeenMessageId = messageId)
         }
     }
 

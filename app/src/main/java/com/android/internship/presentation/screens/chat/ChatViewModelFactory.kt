@@ -15,6 +15,7 @@ import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
 import com.android.internship.domain.usecase.ObserveNewMessagesUseCase
+import com.android.internship.domain.usecase.ObserveSingleRoomUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
@@ -56,6 +57,7 @@ class ChatViewModelFactory(
                 observeNewMessagesUseCase = ObserveNewMessagesUseCase(messageRepository),
                 saveLocalMessagesUseCase = SaveLocalMessagesUseCase(messageRepository),
                 getOlderMessagesUseCase = GetOlderMessagesUseCase(messageRepository),
+                observeSingleRoomUseCase = ObserveSingleRoomUseCase(roomRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

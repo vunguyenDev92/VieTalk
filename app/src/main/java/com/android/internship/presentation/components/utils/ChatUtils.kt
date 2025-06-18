@@ -19,19 +19,30 @@ fun processMessagesToItems(
     expandedMessageId: String?,
 ): List<MessageItem> {
     val userMap = usersInRoom.associateBy { it.uid }
-    val userRoomMap = userRoomDetails.associateBy { it.uid }
     val isTrueGroup = room.isGroup && usersInRoom.size > 2
     val items = mutableListOf<MessageItem>()
     var lastMessageTimestamp: LocalDateTime? = null
 
     val sortedMessages = messages.sortedBy { it.time }
     val allMessagesMap = messages.associateBy { it.mid }
+
+    // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 1/3): Thêm lại set này
     val messagesWithTimeHeaderAbove = mutableSetOf<String>()
+
+    val lastSeenMessageIdToUsersMap = mutableMapOf<String, MutableList<User>>()
+    userRoomDetails.forEach { userDetail ->
+        if (userDetail.uid != currentUserId) {
+            userDetail.lastSeenMessages?.let { lastSeenMid ->
+                userMap[userDetail.uid]?.let { user ->
+                    lastSeenMessageIdToUsersMap.getOrPut(lastSeenMid) { mutableListOf() }.add(user)
+                }
+            }
+        }
+    }
 
     sortedMessages.forEachIndexed { index, message ->
         val messageTime = try {
-            val instant = Instant.ofEpochMilli(message.time.toLong())
-            LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(message.time.toLong()), ZoneId.systemDefault())
         } catch (e: Exception) {
             LocalDateTime.now()
         }
@@ -41,41 +52,37 @@ fun processMessagesToItems(
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
+            // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 2/3): Populate lại set
             messagesWithTimeHeaderAbove.add(message.mid)
         }
         lastMessageTimestamp = messageTime
 
         val isFromMe = message.uid == currentUserId
         val senderInfo = userMap[message.uid]
-
         val nextMessage = sortedMessages.getOrNull(index + 1)
         val previousMessage = sortedMessages.getOrNull(index - 1)
-        val showAvatar = shouldShowAvatar(message, nextMessage, sortedMessages, index)
-        val showSenderName = shouldShowSenderName(message, previousMessage, isFromMe, isTrueGroup)
 
-        val senderName = if (showSenderName) {
-            senderInfo?.username ?: "Unknown User"
-        } else {
-            null
-        }
+        val showAvatar = shouldShowAvatar(message, nextMessage)
+        val showSenderName = shouldShowSenderName(message, previousMessage, isFromMe, isTrueGroup)
+        val senderName = if (showSenderName) senderInfo?.username ?: "Unknown User" else null
 
         val currentMessageTimestamp = message.time.toLongOrNull() ?: 0L
 
         val seenByUsers = userRoomDetails.mapNotNull { userDetail ->
-            if (userDetail.uid == message.uid) return@mapNotNull null
-
+            if (userDetail.uid == currentUserId) {
+                return@mapNotNull null
+            }
             val lastSeenMessageId = userDetail.lastSeenMessages ?: return@mapNotNull null
             val lastSeenMessageObject = allMessagesMap[lastSeenMessageId] ?: return@mapNotNull null
             val lastSeenTimestamp = lastSeenMessageObject.time.toLongOrNull() ?: 0L
-
-            if (lastSeenTimestamp >= currentMessageTimestamp) {
-                userMap[userDetail.uid]
-            } else {
-                null
-            }
+            if (lastSeenTimestamp >= currentMessageTimestamp) userMap[userDetail.uid] else null
         }
 
-        val isSeenByExpanded = (message.mid == expandedMessageId) && !messagesWithTimeHeaderAbove.contains(message.mid)
+        val avatarsToShow = lastSeenMessageIdToUsersMap[message.mid] ?: emptyList()
+
+        // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 3/3): Sử dụng lại logic kiểm tra header
+        val isCloseToHeader = messagesWithTimeHeaderAbove.contains(message.mid)
+        val isSeenByExpanded = (message.mid == expandedMessageId) && !isCloseToHeader
 
         items.add(
             MessageItem.MessageBubbles(
@@ -85,7 +92,9 @@ fun processMessagesToItems(
                 senderAvatarUrl = senderInfo?.avatar,
                 seenByUsers = seenByUsers,
                 isSeenByExpanded = isSeenByExpanded,
-                showAvatar = showAvatar, // Thêm property này
+                avatarsOfUsersWhoLastSawThis = avatarsToShow,
+                isCloseToHeader = isCloseToHeader, // Gán giá trị đã tính toán
+                showAvatar = showAvatar,
             ),
         )
     }
@@ -93,26 +102,16 @@ fun processMessagesToItems(
     val typingUsers = userRoomDetails.mapNotNull { detail ->
         val typingTime = detail.typingTime?.toLongOrNull() ?: 0L
         val isRecent = (System.currentTimeMillis() - typingTime) < 5000
-        if (detail.uid != currentUserId && isRecent) {
-            userMap[detail.uid]
-        } else {
-            null
-        }
+        if (detail.uid != currentUserId && isRecent) userMap[detail.uid] else null
     }
 
     if (typingUsers.isNotEmpty()) {
         val displayText = when (val count = typingUsers.size) {
-            1 -> "${typingUsers[0].username} is typing..."
+            1 -> "${typingUsers.first().username} is typing..."
             2 -> "${typingUsers[0].username} and ${typingUsers[1].username} are typing..."
             else -> "${typingUsers[0].username}, ${typingUsers[1].username} and ${count - 2} others are typing..."
         }
-
-        items.add(
-            MessageItem.TypingIndicator(
-                typingUsers = typingUsers,
-                displayText = displayText,
-            ),
-        )
+        items.add(MessageItem.TypingIndicator(typingUsers, displayText))
     }
 
     return items.reversed()
@@ -121,20 +120,11 @@ fun processMessagesToItems(
 private fun shouldShowAvatar(
     currentMessage: Message,
     nextMessage: Message?,
-    allMessages: List<Message>,
-    currentIndex: Int,
 ): Boolean {
-    if (nextMessage == null) return true
-
-    if (nextMessage.uid != currentMessage.uid) return true
-
+    if (nextMessage == null || nextMessage.uid != currentMessage.uid) return true
     val currentTime = currentMessage.time.toLongOrNull() ?: 0L
     val nextTime = nextMessage.time.toLongOrNull() ?: 0L
-    val timeDifferenceMinutes = (nextTime - currentTime) / (1000 * 60)
-
-    if (timeDifferenceMinutes > 60) return true
-
-    return false
+    return (nextTime - currentTime) / (1000 * 60) > 10
 }
 
 private fun shouldShowSenderName(
@@ -143,19 +133,9 @@ private fun shouldShowSenderName(
     isFromMe: Boolean,
     isTrueGroup: Boolean,
 ): Boolean {
-    if (isFromMe) return false
-
-    if (!isTrueGroup) return false
-
-    if (previousMessage == null) return true
-
-    if (previousMessage.uid != currentMessage.uid) return true
-
+    if (isFromMe || !isTrueGroup) return false
+    if (previousMessage == null || previousMessage.uid != currentMessage.uid) return true
     val currentTime = currentMessage.time.toLongOrNull() ?: 0L
     val previousTime = previousMessage.time.toLongOrNull() ?: 0L
-    val timeDifferenceMinutes = (currentTime - previousTime) / (1000 * 60)
-
-    if (timeDifferenceMinutes > 60) return true
-
-    return false
+    return (currentTime - previousTime) / (1000 * 60) > 10
 }
