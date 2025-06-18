@@ -16,7 +16,7 @@ sealed class Route {
 }
 
 @Composable
-fun Navigation(appContainer: AppContainer) {
+fun Navigation(appContainer: AppContainer, startDestination: Screen? = null) {
     val navController = rememberNavController()
 
     NavHost(
@@ -24,6 +24,10 @@ fun Navigation(appContainer: AppContainer) {
         startDestination = Route.Main,
         route = Route.Root::class,
     ) {
-        main(navController, appContainer)
+        if (startDestination != null) {
+            main(navController, appContainer, startDestination)
+        } else {
+            main(navController, appContainer)
+        }
     }
 }

@@ -62,4 +62,6 @@
     <string name="more_options">More options</string>
     <string name="mute_notification">Mute notification</string>
     <string name="description_block">Are you sure you want to block $title? You won\'t get messages from them, and this chat will disappear from your inbox.</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
 </resources>

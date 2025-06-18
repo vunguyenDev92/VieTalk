@@ -95,6 +95,7 @@ fun ChatScreen(
                 onBlockClick = {
                 },
                 onMuteClick = { duration ->
+                    viewModel.muteUser(duration = duration)
                 },
             )
         },

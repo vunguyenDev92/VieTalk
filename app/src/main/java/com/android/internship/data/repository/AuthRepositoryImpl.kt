@@ -2,10 +2,13 @@ package com.android.internship.data.repository
 
 import com.android.internship.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
 class AuthRepositoryImpl : AuthRepository {
     private val auth = FirebaseAuth.getInstance()
+    private val messagingTokens = FirebaseFirestore.getInstance().collection("messaging-tokens")
 
     override suspend fun signIn(
         email: String,
@@ -13,6 +16,9 @@ class AuthRepositoryImpl : AuthRepository {
     ): Result<String> {
         try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
+            FirebaseMessaging.getInstance().token.addOnSuccessListener {
+                messagingTokens.document(result.user?.uid ?: "").set(mapOf("token" to it))
+            }
             return Result.success(result.user?.uid ?: "")
         } catch (e: Exception) {
             return Result.failure(e)
