@@ -29,7 +29,9 @@ class NotificationHelper(private val context: Context) {
             CHANNEL_ID,
             CHANNEL_NAME,
             NotificationManager.IMPORTANCE_DEFAULT,
-        )
+        ).apply {
+            lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+        }
 
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
