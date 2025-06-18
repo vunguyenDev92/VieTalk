@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,15 +24,16 @@ fun ProfileAvatar(
     modifier: Modifier = Modifier,
     avatarSize: Int = 160,
     cameraButtonSize: Int = 36,
-    imageUrl: String? = null,
+    avatarUrl: String? = null,
+    isLoading: Boolean = false,
     onCameraClick: () -> Unit = {},
 ) {
     Box(
-        modifier = modifier,
-        contentAlignment = Alignment.BottomEnd,
+        modifier = modifier.size(avatarSize.dp),
+        contentAlignment = Alignment.Center,
     ) {
         AsyncImage(
-            model = imageUrl,
+            model = avatarUrl,
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.ic_person_color),
@@ -41,17 +44,25 @@ fun ProfileAvatar(
                 .background(Color.Gray.copy(alpha = 0.1f)),
         )
 
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size((avatarSize * 0.8).dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 4.dp,
+            )
+        }
+
         Box(
             modifier = Modifier
-                .size(cameraButtonSize.dp)
+                .align(Alignment.BottomEnd)
                 .clip(CircleShape)
-                .clickable { onCameraClick() },
+                .clickable(enabled = !isLoading) { onCameraClick() },
             contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_camera),
                 contentDescription = "Change profile picture",
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(cameraButtonSize.dp),
             )
         }
     }

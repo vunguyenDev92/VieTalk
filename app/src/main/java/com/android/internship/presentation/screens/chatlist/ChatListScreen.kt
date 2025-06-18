@@ -64,7 +64,7 @@ fun ChatListScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDrawer by remember { mutableStateOf(false) }
     val isConnected by networkMonitor.isConnected.collectAsState()
-
+    val currentUser = chatListScreenState.currentUser
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -206,8 +206,8 @@ fun ChatListScreen(
         closeDrawer = { showDrawer = false },
         content = {
             UserProfileDrawerItem(
-                userName = "Nguyễn Văn A",
-                userAvatarUrl = "https://i.pravatar.cc/150?img=3",
+                userName = currentUser?.username ?: "Loading...",
+                userAvatarUrl = currentUser?.avatar,
                 onClick = {
                     showDrawer = false
                     navController.navigate(Screen.EditProfile)

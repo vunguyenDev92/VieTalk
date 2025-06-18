@@ -11,13 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue // Import kiểu dữ liệu mới
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun NameInputField(
-    name: String,
-    onNameChange: (String) -> Unit,
+    name: TextFieldValue,
+    onNameChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     label: String = "Name",
 ) {

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.android.internship.data.model.User
-import com.android.internship.presentation.components.MessageItem
+import com.android.internship.presentation.screens.chat.MessageItem
 
 @Composable
 fun TypingIndicatorComponent(

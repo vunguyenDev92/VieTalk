@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.android.internship.data.model.User
-import com.android.internship.presentation.components.MessageItem
+import com.android.internship.presentation.screens.chat.MessageItem
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.GreenMess
 import com.android.internship.presentation.theme.GreyMess

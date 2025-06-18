@@ -10,6 +10,7 @@ import com.android.internship.data.model.UserRoom
 import com.android.internship.di.AppContainer
 import com.android.internship.domain.usecase.CreateRoomUseCase
 import com.android.internship.domain.usecase.GetAllUsersInfoUseCase
+import com.android.internship.domain.usecase.GetCurrentUserProfileUseCase
 import com.android.internship.domain.usecase.LogoutUserCase
 import com.android.internship.domain.usecase.ObserveRoomUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomForUserUseCase
@@ -28,12 +29,25 @@ class ChatListViewModel(
     private val observeRoomUseCase: ObserveRoomUseCase,
     private val createRoomUseCase: CreateRoomUseCase,
     private val currentUserId: String?,
+    private val getCurrentUserProfileUseCase: GetCurrentUserProfileUseCase,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatListState())
     val state = _state.asStateFlow()
 
     init {
         loadUserRooms()
+        loadCurrentUserProfile()
+    }
+
+    private fun loadCurrentUserProfile() {
+        viewModelScope.launch {
+            try {
+                val userId = currentUserId
+                val user = getCurrentUserProfileUseCase(userId.toString())
+                _state.update { it.copy(currentUser = user) }
+            } catch (e: Exception) {
+            }
+        }
     }
 
     private fun loadUserRooms() {
@@ -176,6 +190,9 @@ class ChatListViewModel(
                         authRepository = appContainer.authRepository,
                     )
 
+                    val getCurrentUserProfileUseCase = GetCurrentUserProfileUseCase(
+                        userRepository = appContainer.userRepository,
+                    )
                     val getAllUsersInfoUseCase = GetAllUsersInfoUseCase(
                         repository = appContainer.userRepository,
                     )
@@ -202,6 +219,7 @@ class ChatListViewModel(
                         logoutUserCase = logoutUserCase,
                         createRoomUseCase = createRoomUseCase,
                         currentUserId = currentUserId,
+                        getCurrentUserProfileUseCase = getCurrentUserProfileUseCase,
                     ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")

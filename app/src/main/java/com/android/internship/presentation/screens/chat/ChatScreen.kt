@@ -33,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.CommonProgressIndicator
-import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.EmptyChatComponent
 import com.android.internship.presentation.components.chat.MessageBubbleComponent

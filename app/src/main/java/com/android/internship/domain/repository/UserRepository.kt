@@ -9,6 +9,7 @@ interface UserRepository {
     suspend fun getAllUserRemote(): List<User>?
     fun updateActiveTime(uid: String, lastActiveTime: String)
     fun updateAvatar(uid: String, avatar: String)
+    suspend fun updateUserProfile(uid: String, username: String, avatarUrl: String?)
 
     // User Local
     suspend fun getUserLocal(uid: String): User?
