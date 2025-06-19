@@ -26,7 +26,6 @@ fun processMessagesToItems(
     val sortedMessages = messages.sortedBy { it.time }
     val allMessagesMap = messages.associateBy { it.mid }
 
-    // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 1/3): Thêm lại set này
     val messagesWithTimeHeaderAbove = mutableSetOf<String>()
 
     val lastSeenMessageIdToUsersMap = mutableMapOf<String, MutableList<User>>()
@@ -52,7 +51,6 @@ fun processMessagesToItems(
 
         if (shouldShowTimeHeader) {
             items.add(MessageItem.TimeHeader(messageTime))
-            // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 2/3): Populate lại set
             messagesWithTimeHeaderAbove.add(message.mid)
         }
         lastMessageTimestamp = messageTime
@@ -80,7 +78,6 @@ fun processMessagesToItems(
 
         val avatarsToShow = lastSeenMessageIdToUsersMap[message.mid] ?: emptyList()
 
-        // TẠI ĐÂY LÀ SỰ THAY ĐỔI (PHẦN 3/3): Sử dụng lại logic kiểm tra header
         val isCloseToHeader = messagesWithTimeHeaderAbove.contains(message.mid)
         val isSeenByExpanded = (message.mid == expandedMessageId) && !isCloseToHeader
 
@@ -93,7 +90,7 @@ fun processMessagesToItems(
                 seenByUsers = seenByUsers,
                 isSeenByExpanded = isSeenByExpanded,
                 avatarsOfUsersWhoLastSawThis = avatarsToShow,
-                isCloseToHeader = isCloseToHeader, // Gán giá trị đã tính toán
+                isCloseToHeader = isCloseToHeader,
                 showAvatar = showAvatar,
             ),
         )

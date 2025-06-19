@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -164,16 +165,48 @@ private fun SeenByAvatarStack(users: List<User>) {
         horizontalArrangement = Arrangement.spacedBy((-6).dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        users.take(5).forEach { user ->
-            AsyncImage(
-                model = user.avatar,
-                contentDescription = "Seen by ${user.username}",
+        if (users.size <= 4) {
+            users.forEach { user ->
+                AsyncImage(
+                    model = user.avatar,
+                    contentDescription = "Seen by ${user.username}",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        } else {
+            users.take(3).forEach { user ->
+                AsyncImage(
+                    model = user.avatar,
+                    contentDescription = "Seen by ${user.username}",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+
+            val remainingCount = users.size - 3
+            Box(
                 modifier = Modifier
                     .size(20.dp)
                     .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(1.dp, MaterialTheme.colorScheme.background, CircleShape),
-                contentScale = ContentScale.Crop,
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "+$remainingCount",
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }

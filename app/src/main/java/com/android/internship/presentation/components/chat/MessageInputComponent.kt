@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.sp
 import com.android.internship.R
 import com.android.internship.presentation.theme.ButtonSend
 
-// Enum để quản lý trạng thái input
 enum class InputState {
     KEYBOARD,
     EMOJI_PICKER,
