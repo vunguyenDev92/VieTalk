@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +45,7 @@ import com.android.internship.presentation.components.CommonNavigationDrawer
 import com.android.internship.presentation.components.CommonNavigationDrawerItem
 import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.TextButtonDialog
+import com.android.internship.presentation.components.editprofile.UserProfileDrawerItem
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.Red
@@ -62,7 +64,7 @@ fun ChatListScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDrawer by remember { mutableStateOf(false) }
     val isConnected by networkMonitor.isConnected.collectAsState()
-
+    val currentUser = chatListScreenState.currentUser
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -203,6 +205,17 @@ fun ChatListScreen(
         isDrawerOpen = showDrawer,
         closeDrawer = { showDrawer = false },
         content = {
+            UserProfileDrawerItem(
+				userName = currentUser?.username ?: stringResource(R.string.loading),
+                userAvatarUrl = currentUser?.avatar ,
+				onClick = {
+                    showDrawer = false
+                    navController.navigate(Screen.EditProfile)
+                } ,
+            )
+
+            HorizontalDivider()
+
             CommonNavigationDrawerItem(
                 label = stringResource(R.string.log_out),
                 icon = R.drawable.ic_logout,

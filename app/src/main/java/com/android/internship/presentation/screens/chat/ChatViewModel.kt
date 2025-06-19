@@ -19,7 +19,6 @@ import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
-import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi

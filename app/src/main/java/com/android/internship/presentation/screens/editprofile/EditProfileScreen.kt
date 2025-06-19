@@ -1,204 +1,144 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.android.internship.presentation.screens.editprofile
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.android.internship.R
-@OptIn(ExperimentalMaterial3Api::class)
+import com.android.internship.di.AppContainer
+import com.android.internship.presentation.CommonToastManager
+import com.android.internship.presentation.components.CommonDialog
+import com.android.internship.presentation.components.editprofile.EmailDisplay
+import com.android.internship.presentation.components.editprofile.NameInputField
+import com.android.internship.presentation.components.editprofile.ProfileAvatar
+import com.android.internship.presentation.components.editprofile.ProfileTopAppBar
+import com.android.internship.presentation.components.editprofile.SaveButton
+import com.android.internship.presentation.theme.Green
+import com.android.internship.presentation.theme.GreenDark
+import com.android.internship.presentation.theme.GreenLight
+
 @Composable
-fun ProfileScreen(
-    onBackClick: () -> Unit,
-    onSaveClick: () -> Unit,
-    onCameraClick: () -> Unit = {}, // Thêm callback cho camera
-) {
-    var name by remember { mutableStateOf("John Lennon") }
+fun ProfileScreen(navController: NavController) {
+	val context = LocalContext.current
+	val appContainer = remember { AppContainer(context) }
+	val viewModel: EditProfileViewModel = viewModel(
+		factory = EditProfileViewModelFactory(
+			authRepository = appContainer.authRepository,
+			userRepository = appContainer.userRepository,
+			imageRepository = appContainer.imageRepository
+											 )
+												   )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Your Profile",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.Black,
-                        )
-                    }
-                },
-                actions = {
-                    Spacer(modifier = Modifier.width(48.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                ),
-            )
-        },
-        containerColor = Color.White,
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.height(40.dp))
+	val uiState by viewModel.uiState.collectAsState()
 
-            // Avatar section
-            Box(contentAlignment = Alignment.BottomEnd) {
-                Image(
-                    painter = painterResource(id = android.R.drawable.sym_def_app_icon),
-                    contentDescription = "Profile Picture",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray.copy(alpha = 0.1f)),
-                )
+	uiState.successMessage?.let { message ->
+		LaunchedEffect(message) {
+			CommonToastManager.makeToast(
+				icon = R.drawable.ic_success,
+				iconColor = Green,
+				backgroundColor = GreenLight,
+				borderColor = GreenDark,
+										).show(message)
+			viewModel.clearSuccessMessage()
+		}
+	}
 
-                // Camera button với drawable resource
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF007AFF))
-                        .clickable { onCameraClick() },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = "Change profile picture",
-                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White),
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
+	if (uiState.showDialog) {
+		CommonDialog(
+			title = stringResource(R.string.notification),
+			content = uiState.errorMessage ?: "An unexpected error occurred." ,
+			onDismissRequest = { viewModel.dismissDialog() }
+					)
+	}
 
-            Spacer(modifier = Modifier.height(24.dp))
+	val imagePickerLauncher = rememberLauncherForActivityResult(
+		contract = ActivityResultContracts.GetContent()
+															   ) { uri: Uri? ->
+		uri?.let { viewModel.uploadAvatar(it.toString()) }
+	}
 
-            // Email text
-            Text(
-                text = "your_email@gmail.com",
-                color = Color.Gray,
-                fontSize = 16.sp,
-            )
+	Scaffold(
+		topBar = { ProfileTopAppBar(onBackClick = { navController.popBackStack() }) },
+		containerColor = Color.White,
+		modifier = Modifier.imePadding(),
+			) { paddingValues ->
+		Box(modifier = Modifier.fillMaxSize()) {
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.padding(paddingValues),
+				contentAlignment = Alignment.Center
+			   ) {
+				if (uiState.isLoading) {
+					CircularProgressIndicator()
+				} else {
+					Column(
+						modifier = Modifier
+							.fillMaxSize()
+							.padding(horizontal = 24.dp),
+						horizontalAlignment = Alignment.CenterHorizontally,
+						  ) {
+						Spacer(modifier = Modifier.height(20.dp))
 
-            Spacer(modifier = Modifier.height(40.dp))
+						ProfileAvatar(
+							avatarUrl = uiState.userAvatarUrl,
+							isLoading = uiState.isUploadingAvatar,
+							onCameraClick = { imagePickerLauncher.launch("image/*") }
+									 )
 
-            // Name input field
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Text(
-                    text = "Name",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
+						Spacer(modifier = Modifier.height(24.dp))
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFFE0E0E0),
-                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                        cursorColor = Color.Black,
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                    ),
-                )
-            }
+						EmailDisplay(email = uiState.userEmail)
 
-            // Spacer to push save button to bottom
-            Spacer(modifier = Modifier.weight(1f))
+						Spacer(modifier = Modifier.height(20.dp))
 
-            // Save button
-            Button(
-                onClick = onSaveClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE0E0E0),
-                    contentColor = Color(0xFF666666),
-                ),
-            ) {
-                Text(
-                    text = "Save",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
+						NameInputField(
+							name = uiState.userName,
+							onNameChange = viewModel::onNameChange,
+							modifier = Modifier.fillMaxWidth()
+									  )
 
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-    }
-}
+						Spacer(modifier = Modifier.weight(1f))
 
-@Preview(showBackground = true)
-@Composable
-fun YourProfileScreenPreview() {
-    MaterialTheme {
-        ProfileScreen(
-            onBackClick = {},
-            onSaveClick = {},
-            onCameraClick = {},
-        )
-    }
+						Spacer(modifier = Modifier.height(20.dp))
+
+						SaveButton(
+							onSaveClick = viewModel::saveProfile,
+							isEnabled = viewModel.isDataChanged() && !uiState.isSaving,
+							isLoading = uiState.isSaving
+								  )
+
+						Spacer(modifier = Modifier.height(32.dp))
+					}
+				}
+			}
+
+			CommonToastManager.ToastHost()
+		}
+	}
 }

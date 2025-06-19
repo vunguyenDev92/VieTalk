@@ -34,7 +34,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.CommonProgressIndicator
-import com.android.internship.presentation.components.MessageItem
 import com.android.internship.presentation.components.chat.ChatTopBar
 import com.android.internship.presentation.components.chat.EmptyChatComponent
 import com.android.internship.presentation.components.chat.MessageBubbleComponent
@@ -42,6 +41,7 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
+import com.android.internship.presentation.navigation.Screen
 import java.time.ZoneOffset
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

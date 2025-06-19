@@ -1,4 +1,4 @@
-package com.android.internship.presentation.components
+package com.android.internship.presentation.screens.chat
 
 import com.android.internship.data.model.Message
 import com.android.internship.data.model.User
