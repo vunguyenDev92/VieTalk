@@ -77,6 +77,9 @@ dependencies {
 
     // coil
     implementation(libs.coil.kt.coil.compose)
+
+    // cloudinary
+    implementation(libs.cloudinary.android)
 }
 
 // KtLint configuration

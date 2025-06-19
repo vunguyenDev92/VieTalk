@@ -1,9 +1,7 @@
 package com.android.internship.presentation.screens.chatlist
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,26 +10,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.android.internship.R
+import com.android.internship.presentation.components.CommonAvatar
+import com.android.internship.presentation.components.CommonGroupAvatar
 import com.android.internship.presentation.theme.Black
-import com.android.internship.presentation.theme.White
 
 @Composable
 fun ChatRoomItem(
@@ -52,10 +43,17 @@ fun ChatRoomItem(
             .padding(horizontal = 16.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (isGroup && memberAvatars.size >= 2) {
-            AvatarGroup(memberAvatars)
+        if (isGroup) {
+            CommonGroupAvatar(
+                avatars = memberAvatars,
+                size = 70,
+            )
         } else {
-            Avatar(memberAvatars, name, isOnline)
+            CommonAvatar(
+                avatar = memberAvatars.getOrNull(0).toString(),
+                modifier = Modifier.size(70.dp),
+                isOnline = isOnline,
+            )
         }
 
         Spacer(modifier = Modifier.width(14.dp))
@@ -112,79 +110,5 @@ fun ChatRoomItem(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun Avatar(
-    memberAvatars: List<String>,
-    name: String,
-    isOnline: Boolean,
-) {
-    Box(contentAlignment = Alignment.BottomEnd) {
-        AsyncImage(
-            model = memberAvatars.getOrNull(0),
-            contentDescription = "Avatar of $name",
-            placeholder = painterResource(R.drawable.ic_person_color),
-            error = painterResource(R.drawable.ic_person_color),
-            modifier = Modifier
-                .size(70.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-        )
-        if (isOnline) {
-            Canvas(
-                modifier = Modifier,
-            ) {
-                drawCircle(
-                    color = White,
-                    radius = 6.dp.toPx(),
-                    center = Offset(
-                        this.size.width - 8.dp.toPx(),
-                        this.size.height - 8.dp.toPx(),
-                    ),
-                )
-                drawCircle(
-                    color = Color(0xff1ba505),
-                    radius = 5.dp.toPx(),
-                    center = Offset(
-                        this.size.width - 8.dp.toPx(),
-                        this.size.height - 8.dp.toPx(),
-                    ),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AvatarGroup(memberAvatars: List<String>) {
-    Box(
-        modifier = Modifier.size(70.dp),
-    ) {
-        AsyncImage(
-            model = memberAvatars.getOrNull(0),
-            contentDescription = "Avatar of group member 1",
-            placeholder = painterResource(R.drawable.ic_person_color),
-            error = painterResource(R.drawable.ic_person_color),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .size(53.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-        )
-
-        AsyncImage(
-            model = memberAvatars.getOrNull(1),
-            contentDescription = "Avatar of group member 2",
-            placeholder = painterResource(R.drawable.ic_person_color),
-            error = painterResource(R.drawable.ic_person_color),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(53.dp)
-                .clip(CircleShape),
-
-            contentScale = ContentScale.Crop,
-        )
     }
 }

@@ -21,11 +21,12 @@ class SignUpViewModel(
     val state get() = _state.asStateFlow()
 
     fun updateEmailState(email: String) {
-        val errorMessage = validator.emailValidator(email = email)
+        val emailWithoutSpaces = email.replace(Regex("\\s"), "")
+        val errorMessage = validator.emailValidator(email = emailWithoutSpaces)
         _state.update {
             it.copy(
                 emailState = it.emailState.copy(
-                    value = email.trim(),
+                    value = emailWithoutSpaces,
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
@@ -34,11 +35,12 @@ class SignUpViewModel(
     }
 
     fun updatePasswordState(password: String) {
-        val errorMessage = validator.passwordValidator(password = password)
+        val passwordWithoutSpaces = password.replace(Regex("\\s"), "")
+        val errorMessage = validator.passwordValidator(password = passwordWithoutSpaces)
         _state.update {
             it.copy(
                 passwordState = it.passwordState.copy(
-                    value = password.trim(),
+                    value = passwordWithoutSpaces,
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
@@ -48,15 +50,16 @@ class SignUpViewModel(
     }
 
     fun updateConfirmPasswordState(confirmPassword: String) {
+        val confirmPasswordWithoutSpaces = confirmPassword.replace(Regex("\\s"), "")
         val errorMessage = validator.confirmPasswordValidator(
             password = state.value.passwordState.value,
-            confirmPassword = confirmPassword,
+            confirmPassword = confirmPasswordWithoutSpaces,
         )
 
         _state.update {
             it.copy(
                 confirmPasswordState = it.confirmPasswordState.copy(
-                    value = confirmPassword.trim(),
+                    value = confirmPasswordWithoutSpaces,
                     isError = errorMessage != null,
                     errorMessage = errorMessage,
                 ),
@@ -104,16 +107,15 @@ class SignUpViewModel(
     }
 
     companion object {
-        fun factory(context: Context) = object : ViewModelProvider.Factory {
+        fun factory(context: Context, appContainer: AppContainer) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(SignUpViewModel::class.java)) {
                     val validator = Validator(context = context)
-                    val authRepository = AppContainer(context).authRepository
-                    val userRepository = AppContainer(context).userRepository
+
                     val signUpUseCase = SignUpUseCase(
-                        authRepository = authRepository,
-                        userRepository = userRepository,
+                        authRepository = appContainer.authRepository,
+                        userRepository = appContainer.userRepository,
                     )
 
                     return SignUpViewModel(

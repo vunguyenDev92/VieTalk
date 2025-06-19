@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,30 +40,35 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.CommonNavigationDrawer
 import com.android.internship.presentation.components.CommonNavigationDrawerItem
 import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.TextButtonDialog
+import com.android.internship.presentation.components.editprofile.UserProfileDrawerItem
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.Black
 import com.android.internship.presentation.theme.Red
 import com.android.internship.presentation.theme.White
-import com.android.internship.presentation.utils.NetworkMonitor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
     navController: NavController,
+    appContainer: AppContainer,
+    isNetworkAvailable: Boolean,
     modifier: Modifier = Modifier,
-    viewModel: ChatListViewModel = viewModel(factory = ChatListViewModel.factory(navController.context)),
-    networkMonitor: NetworkMonitor = NetworkMonitor(navController.context),
 ) {
+    val viewModel: ChatListViewModel = viewModel(
+        factory = ChatListViewModel.factory(
+            appContainer = appContainer,
+        ),
+    )
     val chatListScreenState by viewModel.state.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDrawer by remember { mutableStateOf(false) }
-    val isConnected by networkMonitor.isConnected.collectAsState()
-
+    val currentUser = chatListScreenState.currentUser
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -121,7 +127,7 @@ fun ChatListScreen(
             },
         )
 
-        if (!isConnected) {
+        if (!isNetworkAvailable) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
@@ -203,6 +209,17 @@ fun ChatListScreen(
         isDrawerOpen = showDrawer,
         closeDrawer = { showDrawer = false },
         content = {
+            UserProfileDrawerItem(
+                userName = currentUser?.username ?: stringResource(R.string.loading),
+                userAvatarUrl = currentUser?.avatar,
+                onClick = {
+                    showDrawer = false
+                    navController.navigate(Screen.EditProfile)
+                },
+            )
+
+            HorizontalDivider()
+
             CommonNavigationDrawerItem(
                 label = stringResource(R.string.log_out),
                 icon = R.drawable.ic_logout,

@@ -1,9 +1,8 @@
 package com.android.internship.domain.usecase
 
 import com.android.internship.domain.repository.AuthRepository
-import javax.inject.Inject
 
-class GetCurrentUserIdUseCase @Inject constructor(
+class GetCurrentUserIdUseCase(
     private val authRepository: AuthRepository,
 ) {
 

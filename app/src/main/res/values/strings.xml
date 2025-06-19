@@ -37,6 +37,7 @@
     <string name="button_to_get_started">" button to get started."</string>
     <string name="create_new_group_icon">Create new group icon</string>
     <string name="no_internet_connection">No internet connection!</string>
+    <string name="Error">Please try again later!</string>
     <!--  Group Editor Screen  -->
     <string name="create_new_group">Create new group</string>
     <string name="remove">Remove</string>
@@ -64,4 +65,8 @@
     <string name="description_block">Are you sure you want to block $title? You won\'t get messages from them, and this chat will disappear from your inbox.</string>
     <string name="title">Title</string>
     <string name="content">Content</string>
+    <string name="your_profile">Your Profile</string>
+    <string name="loading">Loading…</string>
+    <string name="notification">Notification</string>
+    <string name="avatar">Avatar</string>
 </resources>
