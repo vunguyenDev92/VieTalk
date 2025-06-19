@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -66,6 +67,7 @@ fun CommonTextField(
         Box(
             modifier = Modifier
                 .height(48.dp)
+                .fillMaxWidth()
                 .border(
                     1.dp,
                     if (isError) {
@@ -75,6 +77,9 @@ fun CommonTextField(
                     },
                     RoundedCornerShape(5.dp),
                 ),
+        )
+        Box(
+            modifier = Modifier.absoluteOffset(y = (-4).dp),
         ) {
             EditTextField(
                 textFieldState = textFieldState,
@@ -86,7 +91,9 @@ fun CommonTextField(
             )
             if (isTextObscured) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     Box(
@@ -125,7 +132,9 @@ fun CommonTextField(
             text = textFieldState.errorMessage,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 15.dp, bottom = 10.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 7.dp, bottom = 17.dp)
+                .fillMaxWidth(),
         )
     }
 }

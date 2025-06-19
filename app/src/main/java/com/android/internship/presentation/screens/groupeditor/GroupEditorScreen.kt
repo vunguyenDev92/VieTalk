@@ -83,7 +83,12 @@ fun GroupEditorScreen(
                     .padding(start = 15.dp)
                     .size(30.dp)
                     .clickable(
-                        onClick = { navController.popBackStack(Screen.ChatList, inclusive = false) },
+                        onClick = {
+                            navController.navigate(Screen.ChatList) {
+                                popUpTo(Screen.GroupEditor) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                     ),
