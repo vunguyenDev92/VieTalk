@@ -131,7 +131,11 @@ class ChatViewModel(
             )
 
             val currentUser = usersInRoom.find { it.uid == currentUserId }
-
+            val isOtherUserBlocked = if (!room.isGroup) {
+                userRoomDetails.find { it.uid != currentUserId }?.isBlocked == true
+            } else {
+                false
+            }
             _uiState.update {
                 it.copy(
                     isLoading = false,
@@ -143,6 +147,7 @@ class ChatViewModel(
                     topBarSubtitle = topBarSubtitle,
                     topBarAvatarUrls = topBarAvatarUrls,
                     isPeerActive = isPeerActive,
+                    isOtherUserBlocked = isOtherUserBlocked,
                 )
             }
 
@@ -224,7 +229,7 @@ class ChatViewModel(
 
     fun sendMessage() {
         val content = _messageText.value.text.trim()
-        if (content.isNotBlank()) {
+        if (content.isNotBlank() && !_userRoom.value?.isBlocked!!) {
             typingTimeoutJob?.cancel()
 
             val currentUser = _uiState.value.currentUser
@@ -240,6 +245,8 @@ class ChatViewModel(
 
             _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
+        } else if (_userRoom.value?.isBlocked == true) {
+            _uiState.update { it.copy(errorMessage = "You cannot send messages because this user is blocked.") }
         }
     }
 

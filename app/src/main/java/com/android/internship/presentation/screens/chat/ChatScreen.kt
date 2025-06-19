@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,6 +99,7 @@ fun ChatScreen(
                 isSubtitleActive = uiState.isPeerActive,
                 isMuted = userRoom?.mute == true,
                 isBlocked = userRoom?.isBlocked == true,
+                isOtherBlocked = uiState.isOtherUserBlocked,
                 onBackClick = { navController.popBackStack() },
                 onBlockClick = {
                     viewModel.toggleBlockState()
@@ -168,33 +170,49 @@ fun ChatScreen(
                         }
                     }
                 }
-                if (userRoom?.isBlocked == true) {
-                    Text(
-                        text = stringResource(R.string.description_isblocked).replace(
-                            "\$title",
-                            uiState.topBarTitle,
-                        ),
-                        modifier = Modifier
-                            .padding(start = 30.dp, top = 35.dp, bottom = 21.dp),
-                        fontWeight = FontWeight.W400,
-                        fontSize = 12.sp,
-                        fontFamily = robotoFamily,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp,
-                    )
-                } else {
-                    MessageInputComponent(
-                        messageText = messageText,
-                        onMessageChange = viewModel::onMessageChange,
-                        onSendMessage = viewModel::sendMessage,
-                        onEmojiClick = {
-                            isEmojiPickerVisible = !isEmojiPickerVisible
-                        },
-                        onEmojiPickerVisibilityChange = { isVisible ->
-                            isEmojiPickerVisible = isVisible
-                        },
-                        modifier = Modifier,
-                    )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (uiState.room?.isGroup == false && userRoom?.isBlocked == false && uiState.isOtherUserBlocked) {
+                        Text(
+                            text = stringResource(R.string.description_isblocked),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 15.dp, top = 35.dp, bottom = 21.dp, end = 15.dp),
+                            fontWeight = FontWeight.W400,
+                            fontSize = 12.sp,
+                            fontFamily = robotoFamily,
+                            textAlign = TextAlign.Center,
+                        )
+                    } else if (userRoom?.isBlocked == true) {
+                        Text(
+                            text = stringResource(R.string.description_blocked).replace(
+                                "\$title",
+                                uiState.topBarTitle,
+                            ),
+                            modifier = Modifier
+                                .padding(start = 30.dp, top = 35.dp, bottom = 21.dp),
+                            fontWeight = FontWeight.W400,
+                            fontSize = 12.sp,
+                            fontFamily = robotoFamily,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 18.sp,
+                        )
+                    } else {
+                        MessageInputComponent(
+                            messageText = messageText,
+                            onMessageChange = viewModel::onMessageChange,
+                            onSendMessage = viewModel::sendMessage,
+                            onEmojiClick = {
+                                isEmojiPickerVisible = !isEmojiPickerVisible
+                            },
+                            onEmojiPickerVisibilityChange = { isVisible ->
+                                isEmojiPickerVisible = isVisible
+                            },
+                            modifier = Modifier,
+                        )
+                    }
                 }
             }
         }

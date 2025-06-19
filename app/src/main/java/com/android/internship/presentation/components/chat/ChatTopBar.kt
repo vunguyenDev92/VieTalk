@@ -40,6 +40,7 @@ fun ChatTopBar(
     isSubtitleActive: Boolean,
     isMuted: Boolean,
     isBlocked: Boolean,
+    isOtherBlocked: Boolean,
     onBackClick: () -> Unit = {},
     onMuteClick: (MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
@@ -66,7 +67,7 @@ fun ChatTopBar(
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    if (!isBlocked) {
+                    if (!isBlocked && !isOtherBlocked) {
                         Text(
                             text = subtitle,
                             fontSize = 14.sp,
@@ -75,7 +76,7 @@ fun ChatTopBar(
                     }
                 }
 
-                if (showBlockDialog && !isBlocked) {
+                if (showBlockDialog && !isBlocked && !isOtherBlocked) {
                     CommonDialog(
                         title = "Block $title?",
                         content = stringResource(R.string.description_block).replace(
@@ -98,7 +99,7 @@ fun ChatTopBar(
                             )
                         },
                     )
-                } else if (showBlockDialog) {
+                } else if (showBlockDialog && isBlocked && !isOtherBlocked) {
                     CommonDialog(
                         title = "Unblock $title?",
                         content = stringResource(R.string.description_unblock).replace(
@@ -122,13 +123,15 @@ fun ChatTopBar(
                         },
                     )
                 }
-
-                BlockMuteMenus(
-                    isMuted = isMuted,
-                    isBlocked = isBlocked,
-                    onMuteClick = onMuteClick,
-                    onBlockClick = { showBlockDialog = true },
-                )
+                if (!(isBlocked == false && isOtherBlocked)) {
+                    BlockMuteMenus(
+                        isMuted = isMuted,
+                        isBlocked = isBlocked,
+                        isOtherBlocked = isOtherBlocked,
+                        onMuteClick = onMuteClick,
+                        onBlockClick = { showBlockDialog = true },
+                    )
+                }
             }
         },
         navigationIcon = {

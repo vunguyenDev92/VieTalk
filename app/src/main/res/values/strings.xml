@@ -63,5 +63,6 @@
     <string name="mute_notification">Mute notification</string>
     <string name="description_block">Are you sure you want to block $title? You won\'t get messages from them, and this chat will disappear from your inbox.</string>
     <string name="description_unblock">Are you sure you want to unblock $title? After unblocking, this person will be able to contact you and view your public updates.</string>
-    <string name="description_isblocked">$title has been blocked. This means they can \n no longer send you messages, and this chat has been \n moved to your blocked conversations. You can unblock \n them in this chat settings if you change your mind.</string>
+    <string name="description_blocked">$title has been blocked. This means they can \n no longer send you messages, and this chat has been \n moved to your blocked conversations. You can unblock \n them in this chat settings if you change your mind.</string>
+    <string name="description_isblocked">User unavailable</string>
 </resources>

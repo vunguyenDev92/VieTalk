@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
@@ -44,6 +43,7 @@ enum class MuteDuration {
 fun BlockMuteMenus(
     isMuted: Boolean,
     isBlocked: Boolean,
+    isOtherBlocked: Boolean,
     onMuteClick: (duration: MuteDuration) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
@@ -60,190 +60,213 @@ fun BlockMuteMenus(
                 contentDescription = stringResource(R.string.more_options),
             )
         }
-        if (!onMute && !isBlocked) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-                modifier = Modifier
-                    .background(Color.White)
-                    .advancedShadow(),
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Row {
-                            Icon(
-                                painter = painterResource(
-                                    id = if (isMuted) R.drawable.ic_mute else R.drawable.ic_unmute,
-                                ),
-                                contentDescription = stringResource(R.string.mute_notification),
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(end = 10.dp)
-                                    .size(24.dp),
-                            )
+        when {
+            !isBlocked && isOtherBlocked -> {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .advancedShadow(),
+                ) {
+                    DropdownMenuItem(
+                        text = {
                             Text(
-                                text = if (isMuted) {
-                                    stringResource(R.string.unmute_notifications)
-                                } else {
-                                    stringResource(R.string.mute_notifications)
-                                },
+                                text = "You have been blocked",
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(start = 8.dp),
                                 fontWeight = FontWeight.W300,
                                 fontSize = 14.sp,
                             )
-                        }
+                        },
+                        onClick = { expanded = false },
+                        enabled = false,
+                    )
+                }
+            }
+            // Trường hợp currentUser đã block (isBlocked && !isOtherBlocked)
+            isBlocked && !isOtherBlocked -> {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .advancedShadow(),
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Row {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_block),
+                                    contentDescription = stringResource(R.string.unblock),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .padding(end = 10.dp)
+                                        .size(24.dp),
+                                )
+                                Text(
+                                    text = stringResource(R.string.unblock),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    fontWeight = FontWeight.W300,
+                                    fontSize = 14.sp,
+                                )
+                            }
+                        },
+                        onClick = {
+                            onBlockClick()
+                            expanded = false
+                        },
+                    )
+                }
+            }
+            !isBlocked && !onMute -> {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .advancedShadow(),
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Row {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (isMuted) R.drawable.ic_mute else R.drawable.ic_unmute,
+                                    ),
+                                    contentDescription = stringResource(R.string.mute_notification),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .padding(end = 10.dp)
+                                        .size(24.dp),
+                                )
+                                Text(
+                                    text = if (isMuted) {
+                                        stringResource(R.string.unmute_notifications)
+                                    } else {
+                                        stringResource(R.string.mute_notifications)
+                                    },
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    fontWeight = FontWeight.W300,
+                                    fontSize = 14.sp,
+                                )
+                            }
+                        },
+                        onClick = {
+                            if (isMuted) {
+                                onMuteClick(MuteDuration.INDEFINITELY)
+                                expanded = false
+                            } else {
+                                onMute = true
+                            }
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Row {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_block),
+                                    contentDescription = stringResource(R.string.block),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .padding(end = 10.dp)
+                                        .size(24.dp),
+                                )
+                                Text(
+                                    text = stringResource(R.string.block),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    fontWeight = FontWeight.W300,
+                                    fontSize = 14.sp,
+                                )
+                            }
+                        },
+                        onClick = {
+                            onBlockClick()
+                            expanded = false
+                        },
+                    )
+                }
+            }
+            else -> {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                        onMute = false
                     },
-                    onClick = {
-                        if (isMuted) {
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(top = 10.dp, bottom = 10.dp, start = 5.dp, end = 40.dp)
+                        .advancedShadow(),
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string._30_minutes),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontWeight = FontWeight.W300,
+                                fontSize = 14.sp,
+                            )
+                        },
+                        onClick = {
+                            onMuteClick(MuteDuration.MINUTES_30)
+                            expanded = false
+                            onMute = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string._1_hour),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontWeight = FontWeight.W300,
+                                fontSize = 14.sp,
+                            )
+                        },
+                        onClick = {
+                            onMuteClick(MuteDuration.HOUR_1)
+                            expanded = false
+                            onMute = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string._1_day),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontWeight = FontWeight.W300,
+                                fontSize = 14.sp,
+                            )
+                        },
+                        onClick = {
+                            onMuteClick(MuteDuration.DAY_1)
+                            expanded = false
+                            onMute = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(R.string.util_turned_back_on),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontWeight = FontWeight.W300,
+                                fontSize = 14.sp,
+                            )
+                        },
+                        onClick = {
                             onMuteClick(MuteDuration.INDEFINITELY)
                             expanded = false
-                        } else {
-                            onMute = true
-                        }
-                    },
-                )
-                DropdownMenuItem(
-                    text = {
-                        Row {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_block),
-                                contentDescription = "Block",
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(end = 10.dp)
-                                    .size(24.dp),
-                            )
-                            Text(
-                                text = stringResource(R.string.block),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 8.dp),
-                                fontWeight = FontWeight.W300,
-                                fontSize = 14.sp,
-                            )
-                        }
-                    },
-                    onClick = {
-                        onBlockClick()
-                        expanded = false
-                    },
-                )
-            }
-        } else if (isBlocked) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-                shape = RoundedCornerShape(0.dp),
-                modifier = Modifier
-                    .background(Color.White)
-                    .advancedShadow(),
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Row {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_block),
-                                contentDescription = stringResource(R.string.unblock),
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(end = 10.dp)
-                                    .size(24.dp),
-                            )
-                            Text(
-                                text = stringResource(R.string.unblock),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 8.dp),
-                                fontWeight = FontWeight.W300,
-                                fontSize = 14.sp,
-                            )
-                        }
-                    },
-                    onClick = {
-                        onBlockClick()
-                        expanded = false
-                    },
-                )
-            }
-        } else {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                    onMute = false
-                },
-                shape = RoundedCornerShape(0.dp),
-                modifier = Modifier
-                    .background(Color.White)
-                    .padding(top = 10.dp, bottom = 10.dp, start = 5.dp, end = 40.dp),
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(R.string._30_minutes),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontWeight = FontWeight.W300,
-                            fontSize = 14.sp,
-                        )
-                    },
-                    onClick = {
-                        onMuteClick(MuteDuration.MINUTES_30)
-                        expanded = false
-                        onMute = false
-                    },
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(R.string._1_hour),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontWeight = FontWeight.W300,
-                            fontSize = 14.sp,
-                        )
-                    },
-                    onClick = {
-                        onMuteClick(MuteDuration.HOUR_1)
-                        expanded = false
-                        onMute = false
-                    },
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(R.string._1_day),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontWeight = FontWeight.W300,
-                            fontSize = 14.sp,
-                        )
-                    },
-                    onClick = {
-                        onMuteClick(MuteDuration.DAY_1)
-                        expanded = false
-                        onMute = false
-                    },
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(R.string.util_turned_back_on),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp),
-                            fontWeight = FontWeight.W300,
-                            fontSize = 14.sp,
-                        )
-                    },
-                    onClick = {
-                        onMuteClick(MuteDuration.INDEFINITELY)
-                        expanded = false
-                        onMute = false
-                    },
-                )
+                            onMute = false
+                        },
+                    )
+                }
             }
         }
     }
