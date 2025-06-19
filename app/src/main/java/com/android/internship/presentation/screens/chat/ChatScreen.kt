@@ -126,10 +126,10 @@ fun ChatScreen(
                 title = uiState.topBarTitle,
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
-                isSubtitleActive = uiState.isPeerActive,
+                isGroup = uiState.isGroup,
                 onBackClick = {
                     navController.navigate(Screen.ChatList) {
-                        popUpTo(Screen.Chat) { inclusive = true }
+                        popUpTo(Screen.Chat.NAME) { inclusive = true }
                         launchSingleTop = true
                     }
                 },

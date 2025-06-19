@@ -3,26 +3,25 @@ package com.android.internship.presentation.screens.chatlist
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.android.internship.R
+import com.android.internship.presentation.components.CommonCircleAsyncImage
 
 @Composable
 fun ConnectWithOthersItem(
@@ -38,23 +37,20 @@ fun ConnectWithOthersItem(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         )
         LazyRow(
-            modifier = Modifier.padding(start = 20.dp, top = 11.dp, bottom = 15.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item {
+                Spacer(modifier = Modifier.width(6.dp))
+            }
             items(chatItems) { item ->
                 Column(
-                    modifier = Modifier.size(width = 50.dp, height = 64.dp),
+                    modifier = Modifier.padding(end = 10.dp).width(50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    AsyncImage(
-                        model = item.avatar,
-                        contentDescription = "Avatar member 1",
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(R.drawable.ic_person_color),
-                        error = painterResource(R.drawable.ic_person_color),
+                    CommonCircleAsyncImage(
+                        item.avatar,
                         modifier = Modifier
                             .size(50.dp)
-                            .clip(CircleShape)
                             .clickable(
                                 onClick = { onClick(item.id) },
                             ),
@@ -70,6 +66,7 @@ fun ConnectWithOthersItem(
                 }
             }
         }
+        Spacer(modifier = Modifier.height(10.dp))
         HorizontalDivider(thickness = 1.dp)
     }
 }
