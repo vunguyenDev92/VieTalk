@@ -206,12 +206,12 @@ fun ChatListScreen(
         closeDrawer = { showDrawer = false },
         content = {
             UserProfileDrawerItem(
-                userName = currentUser?.username ?: "Loading...",
-                userAvatarUrl = currentUser?.avatar,
-                onClick = {
+				userName = currentUser?.username ?: stringResource(R.string.loading),
+                userAvatarUrl = currentUser?.avatar ,
+				onClick = {
                     showDrawer = false
                     navController.navigate(Screen.EditProfile)
-                },
+                } ,
             )
 
             HorizontalDivider()
