@@ -107,16 +107,15 @@ class SignUpViewModel(
     }
 
     companion object {
-        fun factory(context: Context) = object : ViewModelProvider.Factory {
+        fun factory(context: Context, appContainer: AppContainer) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(SignUpViewModel::class.java)) {
                     val validator = Validator(context = context)
-                    val authRepository = AppContainer(context).authRepository
-                    val userRepository = AppContainer(context).userRepository
+
                     val signUpUseCase = SignUpUseCase(
-                        authRepository = authRepository,
-                        userRepository = userRepository,
+                        authRepository = appContainer.authRepository,
+                        userRepository = appContainer.userRepository,
                     )
 
                     return SignUpViewModel(

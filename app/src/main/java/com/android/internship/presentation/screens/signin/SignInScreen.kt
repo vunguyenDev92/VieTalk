@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.CommonToastManager
 import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.CommonProgressIndicator
@@ -51,9 +52,14 @@ import com.android.internship.presentation.theme.White
 @Composable
 fun SignInScreen(
     navController: NavController,
-    signInViewModel: SignInViewModel =
-        viewModel(factory = SignInViewModel.factory(navController.context)),
+    appContainer: AppContainer,
 ) {
+    val signInViewModel: SignInViewModel = viewModel(
+        factory = SignInViewModel.factory(
+            navController.context,
+            appContainer,
+        ),
+    )
     val signInState by signInViewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
 

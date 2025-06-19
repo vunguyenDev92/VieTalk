@@ -15,11 +15,7 @@ sealed class Screen {
     data object SignUp : Screen()
 
     @Serializable
-    data class Chat(val rid: String) : Screen() {
-        companion object {
-            const val NAME = "chat"
-        }
-    }
+    data class Chat(val rid: String) : Screen()
 
     @Serializable
     data object ChatList : Screen()

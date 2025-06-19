@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.CommonToastManager
 import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.CommonProgressIndicator
@@ -51,9 +51,15 @@ import com.android.internship.presentation.theme.White
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    signUpViewModel: SignUpViewModel =
-        viewModel(factory = SignUpViewModel.factory(context = LocalContext.current)),
+    appContainer: AppContainer,
 ) {
+    val signUpViewModel: SignUpViewModel =
+        viewModel(
+            factory = SignUpViewModel.factory(
+                context = navController.context,
+                appContainer = appContainer,
+            ),
+        )
     val signUpState by signUpViewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
 
