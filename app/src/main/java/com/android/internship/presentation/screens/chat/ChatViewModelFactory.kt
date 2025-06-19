@@ -10,6 +10,7 @@ import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRepository
 import com.android.internship.domain.repository.UserRoomRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
+import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
 import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
 import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
@@ -39,7 +40,6 @@ class ChatViewModelFactory(
             val savedStateHandle = extras.createSavedStateHandle()
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
-                authRepository = authRepository,
                 getRoomsUseCase = GetRoomsUseCase(roomRepository),
                 observeMessagesUseCase = ObserveMessagesUseCase(messageRepository),
                 observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(userRoomRepository),
@@ -58,6 +58,7 @@ class ChatViewModelFactory(
                 saveLocalMessagesUseCase = SaveLocalMessagesUseCase(messageRepository),
                 getOlderMessagesUseCase = GetOlderMessagesUseCase(messageRepository),
                 observeSingleRoomUseCase = ObserveSingleRoomUseCase(roomRepository),
+                getCurrentUserIdUseCase = GetCurrentUserIdUseCase(authRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

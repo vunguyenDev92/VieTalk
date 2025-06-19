@@ -162,7 +162,7 @@ fun MessageBubbleComponent(
 private fun SeenByAvatarStack(users: List<User>) {
     Row(
         modifier = Modifier.padding(end = 5.dp),
-        horizontalArrangement = Arrangement.spacedBy((-6).dp),
+        horizontalArrangement = Arrangement.spacedBy((3).dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (users.size <= 4) {

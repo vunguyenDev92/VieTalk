@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.data.model.Room
-import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
+import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
 import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
 import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
-    authRepository: AuthRepository,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
@@ -60,7 +60,7 @@ class ChatViewModel(
     private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
 ) : ViewModel() {
 
-    private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
+    private val currentUserId: String = checkNotNull(getCurrentUserIdUseCase())
     private val roomId: String = checkNotNull(savedStateHandle["rid"])
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
