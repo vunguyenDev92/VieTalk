@@ -24,11 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.android.internship.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +107,7 @@ fun ChatTopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(24.dp),
                 )
@@ -116,3 +118,44 @@ fun ChatTopBar(
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun ChatTopBarSingleActivePreview() {
+    MaterialTheme {
+        ChatTopBar(
+            title = "John Doe",
+            subtitle = "Active Now",
+            avatarUrls = listOf("https://example.com/avatar.jpg"),
+            isSubtitleActive = true,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatTopBarSingleOfflinePreview() {
+    MaterialTheme {
+        ChatTopBar(
+            title = "Jane Smith",
+            subtitle = "Offline",
+            avatarUrls = listOf("https://example.com/avatar2.jpg"),
+            isSubtitleActive = false,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatTopBarGroupPreview() {
+    MaterialTheme {
+        ChatTopBar(
+            title = "Team Discussion",
+            subtitle = "5 members",
+            avatarUrls = listOf(
+                "https://example.com/avatar1.jpg",
+                "https://example.com/avatar2.jpg",
+            ),
+            isSubtitleActive = false,
+        )
+    }
+}

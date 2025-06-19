@@ -22,4 +22,7 @@ sealed class Screen {
 
     @Serializable
     data object GroupEditor : Screen()
+
+    @Serializable
+    data object EditProfile : Screen()
 }

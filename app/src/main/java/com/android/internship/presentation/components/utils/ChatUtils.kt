@@ -4,7 +4,7 @@ import com.android.internship.data.model.Message
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.User
 import com.android.internship.data.model.UserRoom
-import com.android.internship.presentation.components.MessageItem
+import com.android.internship.presentation.screens.chat.MessageItem
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
