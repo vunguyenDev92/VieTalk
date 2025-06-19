@@ -51,4 +51,5 @@
     <!-- Chat list -->
     <string name="loading_indicator">Loading indicator</string>
     <string name="refresh">Refresh</string>
+    <string name="avatar">Avatar</string>
 </resources>

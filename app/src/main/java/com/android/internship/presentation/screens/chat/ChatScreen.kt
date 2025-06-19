@@ -126,7 +126,7 @@ fun ChatScreen(
                 title = uiState.topBarTitle,
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
-                isSubtitleActive = uiState.isPeerActive,
+                isGroup = uiState.isGroup,
                 onBackClick = { navController.popBackStack() },
                 onCallClick = {},
                 onMoreClick = {},

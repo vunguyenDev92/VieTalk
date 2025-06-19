@@ -180,6 +180,7 @@ class ChatViewModel(
                 topBarAvatarUrls = topBarAvatarUrls,
                 isPeerActive = isPeerActive,
                 canLoadMore = canLoadMoreFromLocal,
+                isGroup = room.isGroup,
             )
 
             if (_uiState.value != newState) {

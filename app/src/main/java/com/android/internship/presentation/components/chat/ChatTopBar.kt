@@ -28,14 +28,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.android.internship.presentation.components.CommonAvatar
+import com.android.internship.presentation.components.CommonGroupAvatar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
     title: String,
     subtitle: String,
+    isGroup: Boolean,
     avatarUrls: List<String>,
-    isSubtitleActive: Boolean,
     onBackClick: () -> Unit = {},
     onCallClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
@@ -45,10 +47,17 @@ fun ChatTopBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GroupAvatar(
-                    avatarUrls = avatarUrls,
-                    size = 40.dp,
-                )
+                if (isGroup) {
+                    CommonGroupAvatar(
+                        avatars = avatarUrls,
+                        size = 40,
+                    )
+                } else {
+                    CommonAvatar(
+                        avatar = avatarUrls.firstOrNull(),
+                        modifier = Modifier.size(40.dp),
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
@@ -120,8 +129,8 @@ private fun ChatTopBarSingleActivePreview() {
         ChatTopBar(
             title = "John Doe",
             subtitle = "Active Now",
+            isGroup = false,
             avatarUrls = listOf("https://example.com/avatar.jpg"),
-            isSubtitleActive = true,
         )
     }
 }
@@ -133,8 +142,8 @@ private fun ChatTopBarSingleOfflinePreview() {
         ChatTopBar(
             title = "Jane Smith",
             subtitle = "Offline",
+            isGroup = false,
             avatarUrls = listOf("https://example.com/avatar2.jpg"),
-            isSubtitleActive = false,
         )
     }
 }
@@ -146,11 +155,11 @@ private fun ChatTopBarGroupPreview() {
         ChatTopBar(
             title = "Team Discussion",
             subtitle = "5 members",
+            isGroup = true,
             avatarUrls = listOf(
                 "https://example.com/avatar1.jpg",
                 "https://example.com/avatar2.jpg",
             ),
-            isSubtitleActive = false,
         )
     }
 }
