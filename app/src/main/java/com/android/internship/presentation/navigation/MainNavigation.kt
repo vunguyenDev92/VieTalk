@@ -9,16 +9,17 @@ import com.android.internship.di.AppContainer
 import com.android.internship.presentation.screens.SplashScreen
 import com.android.internship.presentation.screens.chat.ChatScreen
 import com.android.internship.presentation.screens.chatlist.ChatListScreen
+import com.android.internship.presentation.screens.editprofile.ProfileScreen
 import com.android.internship.presentation.screens.groupeditor.GroupEditorScreen
 import com.android.internship.presentation.screens.signin.SignInScreen
 import com.android.internship.presentation.screens.signup.SignUpScreen
-
 fun NavGraphBuilder.main(
     navController: NavHostController,
     appContainer: AppContainer,
+    startDestination: Screen = Screen.Splash,
 ) {
     navigation(
-        startDestination = Screen.Splash,
+        startDestination = startDestination,
         route = Route.Main::class,
     ) {
         composable<Screen.Splash> {
@@ -35,9 +36,7 @@ fun NavGraphBuilder.main(
 
         composable<Screen.Chat> {
             it.toRoute<Screen.Chat>()
-            ChatScreen(
-                navController = navController,
-            )
+            ChatScreen(navController = navController)
         }
 
         composable<Screen.ChatList> {
@@ -46,6 +45,9 @@ fun NavGraphBuilder.main(
 
         composable<Screen.GroupEditor> {
             GroupEditorScreen(navController)
+        }
+        composable<Screen.EditProfile> {
+            ProfileScreen(navController)
         }
     }
 }

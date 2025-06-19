@@ -6,18 +6,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.UserRoom
-import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
-import com.android.internship.domain.usecase.GetMessagesUseCase
+import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
+import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
+import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
+import com.android.internship.domain.usecase.ObserveNewMessagesUseCase
+import com.android.internship.domain.usecase.ObserveSingleRoomUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
+import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateBlockUseCase
+import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
-import com.android.internship.presentation.components.MessageState
+import com.android.internship.presentation.components.chat.MuteOption
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +34,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -38,7 +46,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
-    authRepository: AuthRepository,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
@@ -47,12 +55,17 @@ class ChatViewModel(
     private val addTypingUseCase: UpdateTypingTimeUseCase,
     private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
+    private val getOlderMessagesUseCase: GetOlderMessagesUseCase,
+    private val getLatestLocalMessageUseCase: GetLatestLocalMessageUseCase,
+    private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
+    private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
     private val connectivityObserver: IConnectivityObserver,
-    private val getMessagesUseCase: GetMessagesUseCase,
     private val updateBlockUseCase: UpdateBlockUseCase,
+    private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
+    private val updateMuteUseCase: UpdateMuteUseCase,
 ) : ViewModel() {
 
-    private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
+    private val currentUserId: String = checkNotNull(getCurrentUserIdUseCase())
     private val roomId: String = checkNotNull(savedStateHandle["rid"])
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
@@ -63,35 +76,84 @@ class ChatViewModel(
     val userRoom = _userRoom.asStateFlow()
     private var typingTimeoutJob: Job? = null
 
-    private var lastAutoSeenMessageId: String? = null
+    companion object {
+        private const val INITIAL_UI_SIZE = 30
+        private const val LOAD_MORE_UI_SIZE = 20
+        private const val REMOTE_PAGING_SIZE = 20
+    }
+
+    @Suppress("ktlint:standard:backing-property-naming")
+    private val _currentUIMessageCount = MutableStateFlow(INITIAL_UI_SIZE)
+    private val currentUIMessageCount = _currentUIMessageCount.asStateFlow()
 
     init {
         observeNetworkStatus()
-        loadChatData()
+        loadInitialData()
         startPeriodicActiveUpdate()
+        startBackgroundSync()
+        observeRoomForAutoSeen()
         observeBlockMute(roomId)
     }
 
-    private fun loadChatData() {
+    private fun observeRoomForAutoSeen() {
+        viewModelScope.launch {
+            observeSingleRoomUseCase(roomId)
+                .filterNotNull()
+                .distinctUntilChangedBy { it.lastMessage.mid }
+                .collect { room ->
+                    val lastMessage = room.lastMessage
+                    if (lastMessage.mid.isNotEmpty()) {
+                        seenMessageUseCase(roomId, lastMessage.mid)
+                    }
+                }
+        }
+    }
+
+    private fun loadInitialData() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+
             try {
-                val room = getRoomsUseCase(listOf(roomId))
-                if (room == null || room.isEmpty()) {
+                val room = getRoomsUseCase(listOf(roomId))?.firstOrNull()
+                if (room == null) {
                     _uiState.update { it.copy(isLoading = false, errorMessage = "Room not found.") }
                     return@launch
                 }
-                observeCombinedData(room.first())
+
+                val localMessages = observeMessagesUseCase(roomId).first()
+
+                if (localMessages.size < INITIAL_UI_SIZE) {
+                    val neededMessages = INITIAL_UI_SIZE - localMessages.size
+                    val fetchSize = maxOf(neededMessages, REMOTE_PAGING_SIZE)
+                    getOlderMessagesUseCase(roomId, fetchSize)
+
+                    delay(500)
+                }
+
+                observeCombinedData(room)
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
             }
         }
     }
 
+    private fun startBackgroundSync() {
+        viewModelScope.launch {
+            val latestMessage = getLatestLocalMessageUseCase(roomId)
+            val latestMessageTime = latestMessage?.time?.toLongOrNull() ?: (System.currentTimeMillis() - 86400000)
+
+            observeNewMessagesUseCase(roomId, latestMessageTime)
+                .collect { newMessages ->
+                    if (newMessages.isNotEmpty()) {
+                        saveLocalMessagesUseCase(newMessages)
+                    }
+                }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeCombinedData(room: Room) = viewModelScope.launch {
         val userRoomDetailsFlow = observeUserRoomDetailsUseCase(roomId)
-
         val usersInRoomFlow = userRoomDetailsFlow.flatMapLatest { userRooms ->
             val userIds = userRooms.map { it.uid }.distinct()
             if (userIds.isNotEmpty()) {
@@ -105,8 +167,9 @@ class ChatViewModel(
             usersInRoomFlow,
             observeMessagesUseCase(roomId),
             userRoomDetailsFlow,
+            currentUIMessageCount,
             _uiState.map { it.expandedMessageId }.distinctUntilChanged(),
-        ) { usersInRoom, messages, userRoomDetails, expandedId ->
+        ) { usersInRoom, allMessages, userRoomDetails, uiMessageCount, expandedId ->
 
             val otherUser = if (!room.isGroup) usersInRoom.find { it.uid != currentUserId } else null
             val topBarTitle = if (room.isGroup) room.name ?: "Group Chat" else otherUser?.username ?: "Chat"
@@ -119,86 +182,96 @@ class ChatViewModel(
                 "Offline"
             }
             val topBarAvatarUrls = if (room.isGroup) usersInRoom.filter { it.uid != currentUserId }.mapNotNull { it.avatar }.take(2) else listOfNotNull(otherUser?.avatar)
-            val roomForProcessing = room.copy(name = topBarTitle, avatar = topBarAvatarUrls.firstOrNull())
+
+            val messagesToShow = allMessages.takeLast(uiMessageCount)
+            val canLoadMoreFromLocal = allMessages.size > uiMessageCount
 
             val processedItems = processMessagesToItems(
-                messages = messages,
-                room = roomForProcessing,
+                messages = messagesToShow,
+                room = room,
                 usersInRoom = usersInRoom,
                 userRoomDetails = userRoomDetails,
                 currentUserId = currentUserId,
                 expandedMessageId = expandedId,
             )
-
             val currentUser = usersInRoom.find { it.uid == currentUserId }
             val isOtherUserBlocked = if (!room.isGroup) {
                 userRoomDetails.find { it.uid != currentUserId }?.isBlocked == true
             } else {
                 false
             }
-            _uiState.update {
-                it.copy(
-                    isLoading = false,
-                    room = roomForProcessing,
-                    messages = processedItems,
-                    userMap = usersInRoom.associateBy { u -> u.uid },
-                    currentUser = currentUser,
-                    topBarTitle = topBarTitle,
-                    topBarSubtitle = topBarSubtitle,
-                    topBarAvatarUrls = topBarAvatarUrls,
-                    isPeerActive = isPeerActive,
-                    isOtherUserBlocked = isOtherUserBlocked,
-                )
-            }
+            val newState = _uiState.value.copy(
+                isLoading = false,
+                room = room,
+                messages = processedItems,
+                userMap = usersInRoom.associateBy { u -> u.uid },
+                currentUser = currentUser,
+                topBarTitle = topBarTitle,
+                topBarSubtitle = topBarSubtitle,
+                topBarAvatarUrls = topBarAvatarUrls,
+                isPeerActive = isPeerActive,
+                canLoadMore = canLoadMoreFromLocal,
+                isGroup = room.isGroup,
+                isOtherUserBlocked = isOtherUserBlocked,
 
-            if (messages.isNotEmpty()) {
-                val latestMessage = messages.last()
-                if (latestMessage.mid != lastAutoSeenMessageId) {
-                    markAsSeen(latestMessage.mid)
-                    lastAutoSeenMessageId = latestMessage.mid
-                }
+            )
+
+            if (_uiState.value != newState) {
+                _uiState.update { newState }
             }
-        }.catch { e ->
-            _uiState.update { it.copy(isLoading = false, errorMessage = "Error loading chat: ${e.message}") }
-        }.collect()
+        }
+            .distinctUntilChanged()
+            .catch { e ->
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Error loading chat: ${e.message}") }
+            }.collect()
     }
 
-    fun toggleSeenByVisibility(messageId: String) {
-        val currentExpandedId = _uiState.value.expandedMessageId
-        val newExpandedId = if (currentExpandedId == messageId) null else messageId
-        _uiState.update { it.copy(expandedMessageId = newExpandedId) }
-    }
+    fun loadMoreMessages() {
+        if (_uiState.value.isLoadingMore || !_uiState.value.canLoadMore) {
+            return
+        }
 
-    private fun observeNetworkStatus() {
         viewModelScope.launch {
-            connectivityObserver.observe().collect { status ->
-                val isAvailable = status == IConnectivityObserver.Status.Available
-                _uiState.update {
-                    it.copy(
-                        isNetworkAvailable = isAvailable,
-                        errorMessage = if (isAvailable) null else it.errorMessage,
-                        isRefreshing = if (isAvailable) false else it.isRefreshing,
-                    )
+            _uiState.update { it.copy(isLoadingMore = true) }
+
+            try {
+                val currentCount = _currentUIMessageCount.value
+                val newCount = currentCount + LOAD_MORE_UI_SIZE
+
+                val totalLocalMessages = observeMessagesUseCase(roomId).first().size
+
+                if (newCount >= totalLocalMessages - 10) {
+                    backgroundFetchOlderMessages()
                 }
+
+                _currentUIMessageCount.value = newCount
+
+                delay(200)
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorMessage = "Failed to load older messages.") }
+            } finally {
+                _uiState.update { it.copy(isLoadingMore = false) }
             }
         }
     }
 
-    fun refreshData() {
-        if (!uiState.value.isNetworkAvailable) {
-            _uiState.update { it.copy(isRefreshing = true) }
-            viewModelScope.launch {
-                delay(5000)
-                _uiState.update { it.copy(isRefreshing = false) }
+    private fun backgroundFetchOlderMessages() {
+        viewModelScope.launch {
+            try {
+                getOlderMessagesUseCase(roomId, REMOTE_PAGING_SIZE)
+            } catch (_: Exception) {
+                null
             }
         }
     }
 
-    private fun startPeriodicActiveUpdate() {
+    private fun resetUIPaginationIfNeeded() {
         viewModelScope.launch {
-            while (true) {
-                updateActiveUserUseCase()
-                delay(4 * 60 * 1000L)
+            val totalMessages = observeMessagesUseCase(roomId).first().size
+            val currentUICount = _currentUIMessageCount.value
+
+            if (totalMessages > currentUICount && currentUICount < INITIAL_UI_SIZE + 10) {
+                _currentUIMessageCount.value = minOf(totalMessages, INITIAL_UI_SIZE)
             }
         }
     }
@@ -231,29 +304,25 @@ class ChatViewModel(
         val content = _messageText.value.text.trim()
         if (content.isNotBlank() && !_userRoom.value?.isBlocked!!) {
             typingTimeoutJob?.cancel()
-
             val currentUser = _uiState.value.currentUser
-            val senderName = currentUser?.username ?: ""
-            val senderAvatar = currentUser?.avatar ?: ""
-
             sendMessageUseCase(
                 content = content,
                 rid = roomId,
-                senderName = senderName,
-                senderAvatar = senderAvatar,
+                senderName = currentUser?.username ?: "",
+                senderAvatar = currentUser?.avatar,
             )
-
             _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
         } else if (_userRoom.value?.isBlocked == true) {
             _uiState.update { it.copy(errorMessage = "You cannot send messages because this user is blocked.") }
+
+            resetUIPaginationIfNeeded()
         }
     }
 
-    fun markAsSeen(messageId: String) {
-        viewModelScope.launch {
-            seenMessageUseCase(rid = roomId, lastSeenMessageId = messageId)
-        }
+    fun toggleSeenByVisibility(messageId: String) {
+        val newExpandedId = if (_uiState.value.expandedMessageId == messageId) null else messageId
+        _uiState.update { it.copy(expandedMessageId = newExpandedId) }
     }
 
     fun clearError() {
@@ -270,6 +339,60 @@ class ChatViewModel(
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
+            }
+        }
+    }
+
+    fun refreshData() {
+        if (!_uiState.value.isNetworkAvailable) {
+            _uiState.update { it.copy(isRefreshing = true) }
+            viewModelScope.launch {
+                delay(5000)
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
+        }
+    }
+
+    private fun observeNetworkStatus() {
+        viewModelScope.launch {
+            connectivityObserver.observe().collect { status ->
+                val isAvailable = status == IConnectivityObserver.Status.Available
+                _uiState.update {
+                    it.copy(
+                        isNetworkAvailable = isAvailable,
+                        isRefreshing = if (isAvailable) false else it.isRefreshing,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun startPeriodicActiveUpdate() {
+        viewModelScope.launch {
+            while (true) {
+                updateActiveUserUseCase()
+                delay(4 * 60 * 1000L)
+            }
+        }
+    }
+
+    fun muteUser(duration: MuteOption) {
+        val currentTime = System.currentTimeMillis()
+        when (duration) {
+            MuteOption.MINUTES_30 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 30 * 60 * 1000).toString())
+            }
+            MuteOption.HOUR_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 60 * 60 * 1000).toString())
+            }
+            MuteOption.DAY_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 24 * 60 * 60 * 1000).toString())
+            }
+            MuteOption.INDEFINITELY -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = null)
+            }
+            MuteOption.TURN_OFF -> {
+                updateMuteUseCase(rid = roomId, mute = false)
             }
         }
     }

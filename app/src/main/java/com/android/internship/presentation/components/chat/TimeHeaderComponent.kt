@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.data.model.Message
-import com.android.internship.presentation.components.MessageItem
+import com.android.internship.presentation.screens.chat.MessageItem
 import com.android.internship.presentation.theme.robotoFamily
 import java.time.Instant
 import java.time.LocalDate

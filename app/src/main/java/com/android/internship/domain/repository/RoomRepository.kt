@@ -14,4 +14,5 @@ interface RoomRepository {
     suspend fun getRoomsLocal(rids: List<String>): List<Room>?
     suspend fun saveRoomsLocal(rooms: List<Room>)
     fun observeRooms(): Flow<List<Room>>
+    fun observeRoom(rid: String): Flow<Room?>
 }

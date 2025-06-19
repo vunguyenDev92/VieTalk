@@ -45,4 +45,11 @@ class UserRemoteDataSource {
             emptyList()
         }
     }
+    suspend fun updateUserProfile(uid: String, username: String, avatarUrl: String?) {
+        val updates = mapOf(
+            "username" to username,
+            "avatar" to avatarUrl,
+        )
+        fireStore.collection("users").document(uid).update(updates).await()
+    }
 }

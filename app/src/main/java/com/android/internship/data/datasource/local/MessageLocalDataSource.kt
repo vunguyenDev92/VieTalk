@@ -42,4 +42,18 @@ class MessageLocalDataSource(context: Context) {
             limit = MESSAGE_CACHE_LIMIT,
         )
     }
+
+    suspend fun saveMessages(messages: List<Message>) {
+        messageDao.insertMessages(
+            messages.map { message -> MessageEntity.fromMessage(message) },
+        )
+    }
+
+    suspend fun getOldestMessage(rid: String): Message? {
+        return messageDao.getOldestMessage(rid)?.toMessage()
+    }
+
+    suspend fun getLatestMessage(rid: String): Message? {
+        return messageDao.getLatestMessage(rid)?.toMessage()
+    }
 }

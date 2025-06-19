@@ -25,9 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
+import com.android.internship.presentation.components.CommonAvatar
+import com.android.internship.presentation.components.CommonGroupAvatar
 import com.android.internship.presentation.components.CommonDialog
 import com.android.internship.presentation.components.TextButtonDialog
 
@@ -36,13 +39,13 @@ import com.android.internship.presentation.components.TextButtonDialog
 fun ChatTopBar(
     title: String,
     subtitle: String,
+    isGroup: Boolean,
     avatarUrls: List<String>,
-    isSubtitleActive: Boolean,
     isMuted: Boolean,
     isBlocked: Boolean,
     isOtherBlocked: Boolean,
     onBackClick: () -> Unit = {},
-    onMuteClick: (MuteDuration) -> Unit = {},
+    onMuteClick: (MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var showBlockDialog by remember { mutableStateOf(false) }
@@ -51,10 +54,17 @@ fun ChatTopBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GroupAvatar(
-                    avatarUrls = avatarUrls,
-                    size = 40.dp,
-                )
+                if (isGroup) {
+                    CommonGroupAvatar(
+                        avatars = avatarUrls,
+                        size = 40,
+                    )
+                } else {
+                    CommonAvatar(
+                        avatar = avatarUrls.firstOrNull(),
+                        modifier = Modifier.size(40.dp),
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
@@ -66,6 +76,8 @@ fun ChatTopBar(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis,
                     )
                     if (!isBlocked && !isOtherBlocked) {
                         Text(
@@ -141,7 +153,7 @@ fun ChatTopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(24.dp),
                 )

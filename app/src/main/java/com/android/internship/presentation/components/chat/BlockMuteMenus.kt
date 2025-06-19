@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
@@ -32,11 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 
-enum class MuteDuration {
+enum class MuteOption {
     MINUTES_30,
     HOUR_1,
     DAY_1,
     INDEFINITELY,
+    TURN_OFF,
 }
 
 @Composable
@@ -44,7 +46,7 @@ fun BlockMuteMenus(
     isMuted: Boolean,
     isBlocked: Boolean,
     isOtherBlocked: Boolean,
-    onMuteClick: (duration: MuteDuration) -> Unit = {},
+    onMuteClick: (duration: MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -61,30 +63,6 @@ fun BlockMuteMenus(
             )
         }
         when {
-            !isBlocked && isOtherBlocked -> {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .background(Color.White)
-                        .advancedShadow(),
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = "You have been blocked",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 8.dp),
-                                fontWeight = FontWeight.W300,
-                                fontSize = 14.sp,
-                            )
-                        },
-                        onClick = { expanded = false },
-                        enabled = false,
-                    )
-                }
-            }
-            // Trường hợp currentUser đã block (isBlocked && !isOtherBlocked)
             isBlocked && !isOtherBlocked -> {
                 DropdownMenu(
                     expanded = expanded,
@@ -156,7 +134,7 @@ fun BlockMuteMenus(
                         },
                         onClick = {
                             if (isMuted) {
-                                onMuteClick(MuteDuration.INDEFINITELY)
+                                onMuteClick(MuteOption.TURN_OFF)
                                 expanded = false
                             } else {
                                 onMute = true
@@ -197,10 +175,10 @@ fun BlockMuteMenus(
                         expanded = false
                         onMute = false
                     },
+                    shape = RoundedCornerShape(0.dp),
                     modifier = Modifier
                         .background(Color.White)
                         .padding(top = 10.dp, bottom = 10.dp, start = 5.dp, end = 40.dp)
-                        .advancedShadow(),
                 ) {
                     DropdownMenuItem(
                         text = {
@@ -213,7 +191,7 @@ fun BlockMuteMenus(
                             )
                         },
                         onClick = {
-                            onMuteClick(MuteDuration.MINUTES_30)
+                            onMuteClick(MuteOption.MINUTES_30)
                             expanded = false
                             onMute = false
                         },
@@ -229,7 +207,7 @@ fun BlockMuteMenus(
                             )
                         },
                         onClick = {
-                            onMuteClick(MuteDuration.HOUR_1)
+                            onMuteClick(MuteOption.HOUR_1)
                             expanded = false
                             onMute = false
                         },
@@ -245,7 +223,7 @@ fun BlockMuteMenus(
                             )
                         },
                         onClick = {
-                            onMuteClick(MuteDuration.DAY_1)
+                            onMuteClick(MuteOption.DAY_1)
                             expanded = false
                             onMute = false
                         },
@@ -261,7 +239,7 @@ fun BlockMuteMenus(
                             )
                         },
                         onClick = {
-                            onMuteClick(MuteDuration.INDEFINITELY)
+                            onMuteClick(MuteOption.INDEFINITELY)
                             expanded = false
                             onMute = false
                         },

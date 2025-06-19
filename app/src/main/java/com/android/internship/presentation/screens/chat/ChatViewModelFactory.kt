@@ -10,14 +10,20 @@ import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRepository
 import com.android.internship.domain.repository.UserRoomRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
-import com.android.internship.domain.usecase.GetMessagesUseCase
+import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
+import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
+import com.android.internship.domain.usecase.GetOlderMessagesUseCase
 import com.android.internship.domain.usecase.GetRoomsUseCase
 import com.android.internship.domain.usecase.ObserveMessagesUseCase
+import com.android.internship.domain.usecase.ObserveNewMessagesUseCase
+import com.android.internship.domain.usecase.ObserveSingleRoomUseCase
 import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
+import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateBlockUseCase
+import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 
@@ -36,17 +42,26 @@ class ChatViewModelFactory(
             val savedStateHandle = extras.createSavedStateHandle()
             return ChatViewModel(
                 savedStateHandle = savedStateHandle,
-                authRepository = authRepository,
                 getRoomsUseCase = GetRoomsUseCase(roomRepository),
                 observeMessagesUseCase = ObserveMessagesUseCase(messageRepository),
                 observeUserRoomDetailsUseCase = ObserveUserRoomDetailsUseCase(userRoomRepository),
-                sendMessageUseCase = SendMessagesUseCase(authRepository, messageRepository, roomRepository),
+                sendMessageUseCase = SendMessagesUseCase(
+                    authRepository,
+                    messageRepository,
+                    roomRepository,
+                ),
                 seenMessageUseCase = SeenMessageUseCase(authRepository, userRoomRepository),
                 addTypingUseCase = UpdateTypingTimeUseCase(authRepository, userRoomRepository),
                 updateActiveUserUseCase = UpdateActiveTimeUseCase(authRepository, userRepository),
                 connectivityObserver = connectivityObserver,
                 getAllUsersInRoomUseCase = GetAllUsersInRoomUseCase(userRepository),
-                getMessagesUseCase = GetMessagesUseCase(messageRepository),
+                getLatestLocalMessageUseCase = GetLatestLocalMessageUseCase(messageRepository),
+                observeNewMessagesUseCase = ObserveNewMessagesUseCase(messageRepository),
+                saveLocalMessagesUseCase = SaveLocalMessagesUseCase(messageRepository),
+                getOlderMessagesUseCase = GetOlderMessagesUseCase(messageRepository),
+                observeSingleRoomUseCase = ObserveSingleRoomUseCase(roomRepository),
+                getCurrentUserIdUseCase = GetCurrentUserIdUseCase(authRepository),
+                updateMuteUseCase = UpdateMuteUseCase(authRepository, userRoomRepository),
                 updateBlockUseCase = UpdateBlockUseCase(userRoomRepository),
             ) as T
         }
