@@ -19,4 +19,8 @@ interface MessageRepository {
     // merge
     suspend fun syncRemoteMessagesToLocal(rid: String)
     suspend fun fetchAndCacheInitialMessages(rid: String, limit: Int)
+
+    suspend fun fetchAndCacheOlderMessages(rid: String, limit: Int): Boolean
+
+    suspend fun getLatestLocalMessage(rid: String): Message?
 }

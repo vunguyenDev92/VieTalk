@@ -1,8 +1,11 @@
 package com.android.internship.presentation.screens.chatlist
 
+import com.android.internship.data.model.User
+
 data class ChatListState(
     val chatRoomItems: List<ChatRoomItemState> = emptyList(),
     val chatUserItems: List<ChatUserItemState> = emptyList(),
+    val currentUser: User? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
 ) {

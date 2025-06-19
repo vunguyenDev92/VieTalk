@@ -55,4 +55,22 @@ class RoomRemoteDataSource {
             .document(rid)
             .update(roomUpdates)
     }
+
+    fun observeRoom(rid: String): Flow<Room?> {
+        return callbackFlow {
+            val listenerRegistration = roomsCollection.document(rid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
+                    if (snapshot != null && snapshot.exists()) {
+                        trySend(snapshot.toObject<Room>())
+                    } else {
+                        trySend(null)
+                    }
+                }
+            awaitClose { listenerRegistration.remove() }
+        }
+    }
 }

@@ -4,10 +4,13 @@ import com.android.internship.data.datasource.local.UserLocalDataSource
 import com.android.internship.data.datasource.remote.UserRemoteDataSource
 import com.android.internship.data.model.User
 import com.android.internship.domain.repository.UserRepository
+import com.android.internship.presentation.components.utils.IConnectivityObserver
+import kotlinx.coroutines.flow.first
 
 class UserRepositoryImpl(
     private val userLocalDataSource: UserLocalDataSource,
     private val userRemoteDataSource: UserRemoteDataSource,
+    private val connectivityObserver: IConnectivityObserver,
 ) : UserRepository {
 
     override fun addUserRemote(
@@ -40,6 +43,40 @@ class UserRepositoryImpl(
 
     override fun updateAvatar(uid: String, avatar: String) {
         userRemoteDataSource.updateAvatar(uid = uid, avatar = avatar)
+    }
+
+    override suspend fun updateUserProfile(
+        uid: String,
+        username: String,
+        avatarUrl: String?,
+    ) {
+        if (connectivityObserver.observe().first() != IConnectivityObserver.Status.Available) {
+            throw Exception("No internet connection. Please try again.")
+        }
+
+        userRemoteDataSource.updateUserProfile(
+            uid = uid,
+            username = username,
+            avatarUrl = avatarUrl,
+        )
+
+        val currentUser = userLocalDataSource.getUser(uid)
+
+        if (currentUser != null) {
+            val updatedUser = currentUser.copy(
+                username = username,
+                avatar = avatarUrl,
+            )
+            userLocalDataSource.insertUser(updatedUser)
+        } else {
+            val newUserToCache = User(
+                uid = uid,
+                username = username,
+                avatar = avatarUrl,
+                lastActiveTime = "",
+            )
+            userLocalDataSource.insertUser(newUserToCache)
+        }
     }
 
     override suspend fun getUserLocal(uid: String): User? {
