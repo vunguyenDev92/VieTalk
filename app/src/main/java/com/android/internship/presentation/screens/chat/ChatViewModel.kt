@@ -19,7 +19,6 @@ import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
-import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -55,12 +54,11 @@ class ChatViewModel(
     private val getLatestLocalMessageUseCase: GetLatestLocalMessageUseCase,
     private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
     private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
-    private val connectivityObserver: IConnectivityObserver,
     private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(getCurrentUserIdUseCase())
-    private val roomId: String = checkNotNull(savedStateHandle["rid"])
+    val roomId: String = checkNotNull(savedStateHandle["rid"])
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
 
@@ -79,7 +77,6 @@ class ChatViewModel(
     private val currentUIMessageCount = _currentUIMessageCount.asStateFlow()
 
     init {
-        observeNetworkStatus()
         loadInitialData()
         startPeriodicActiveUpdate()
         startBackgroundSync()
@@ -302,26 +299,10 @@ class ChatViewModel(
     }
 
     fun refreshData() {
-        if (!_uiState.value.isNetworkAvailable) {
-            _uiState.update { it.copy(isRefreshing = true) }
-            viewModelScope.launch {
-                delay(5000)
-                _uiState.update { it.copy(isRefreshing = false) }
-            }
-        }
-    }
-
-    private fun observeNetworkStatus() {
+        _uiState.update { it.copy(isRefreshing = true) }
         viewModelScope.launch {
-            connectivityObserver.observe().collect { status ->
-                val isAvailable = status == IConnectivityObserver.Status.Available
-                _uiState.update {
-                    it.copy(
-                        isNetworkAvailable = isAvailable,
-                        isRefreshing = if (isAvailable) false else it.isRefreshing,
-                    )
-                }
-            }
+            delay(5000)
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 
