@@ -129,7 +129,7 @@ fun ChatScreen(
                 isGroup = uiState.isGroup,
                 onBackClick = {
                     navController.navigate(Screen.ChatList) {
-                        popUpTo(Screen.Chat) { inclusive = true }
+                        popUpTo(Screen.Chat.NAME) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
