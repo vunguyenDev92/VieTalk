@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.UserRoom
-import com.android.internship.domain.repository.AuthRepository
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
 import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
@@ -21,9 +20,7 @@ import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
 import com.android.internship.domain.usecase.UpdateMuteUseCase
-import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
-import com.android.internship.presentation.components.MessageState
 import com.android.internship.presentation.components.chat.MuteOption
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
@@ -242,7 +239,7 @@ class ChatViewModel(
                 _currentUIMessageCount.value = newCount
 
                 delay(200)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.update { it.copy(errorMessage = "Failed to load older messages.") }
             } finally {
                 _uiState.update { it.copy(isLoadingMore = false) }
@@ -254,14 +251,8 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 getOlderMessagesUseCase(roomId, REMOTE_PAGING_SIZE)
-            } catch (e: Exception) {
-
-    fun refreshData() {
-        if (!uiState.value.isNetworkAvailable) {
-            _uiState.update { it.copy(isRefreshing = true) }
-            viewModelScope.launch {
-                delay(5000)
-                _uiState.update { it.copy(isRefreshing = false) }
+            } catch (_: Exception) {
+                null
             }
         }
     }
