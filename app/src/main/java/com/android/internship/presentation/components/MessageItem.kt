@@ -17,6 +17,7 @@ sealed class MessageItem {
         val seenByUsers: List<User> = emptyList(),
         val isSeenByExpanded: Boolean = false,
         val avatarsOfUsersWhoLastSawThis: List<User> = emptyList(),
+        val seenByAvatars: List<User> = emptyList(),
         val isCloseToHeader: Boolean = false,
         val showAvatar: Boolean = true,
     ) : MessageItem()

@@ -61,7 +61,7 @@ private fun AvatarStack(users: List<User>) {
     val remainingCount = users.size - usersToShow.size
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy((-12).dp), // Tăng độ chồng lấn
+        horizontalArrangement = Arrangement.spacedBy((-12).dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         usersToShow.forEach { user ->
@@ -71,7 +71,7 @@ private fun AvatarStack(users: List<User>) {
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant) // Thêm màu nền fallback
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
                 contentScale = ContentScale.Crop,
                 onState = { state ->

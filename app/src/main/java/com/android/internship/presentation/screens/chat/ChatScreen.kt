@@ -175,11 +175,6 @@ fun ChatScreen(
                                     TimeHeaderComponent(item = messageItem)
                                 }
                                 is MessageItem.MessageBubbles -> {
-                                    if (!messageItem.isFromMe) {
-                                        LaunchedEffect(messageItem.message.mid) {
-                                            viewModel.markAsSeen(messageItem.message.mid)
-                                        }
-                                    }
                                     MessageBubbleComponent(
                                         item = messageItem,
                                         currentUserAvatarUrl = uiState.currentUser?.avatar,
