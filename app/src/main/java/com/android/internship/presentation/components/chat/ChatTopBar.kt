@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +61,8 @@ fun ChatTopBar(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = subtitle,
@@ -113,44 +116,3 @@ fun ChatTopBar(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleActivePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "John Doe",
-            subtitle = "Active Now",
-            avatarUrls = listOf("https://example.com/avatar.jpg"),
-            isSubtitleActive = true,
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleOfflinePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Jane Smith",
-            subtitle = "Offline",
-            avatarUrls = listOf("https://example.com/avatar2.jpg"),
-            isSubtitleActive = false,
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarGroupPreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Team Discussion",
-            subtitle = "5 members",
-            avatarUrls = listOf(
-                "https://example.com/avatar1.jpg",
-                "https://example.com/avatar2.jpg",
-            ),
-            isSubtitleActive = false,
-        )
-    }
-}

@@ -127,7 +127,7 @@ fun MessageInputComponent(
                                     InputState.KEYBOARD -> {
                                         focusRequester.freeFocus()
                                         keyboardController?.hide()
-                                        inputState = InputState.EMOJI_PICKER
+                                        inputState = InputState.NONE
                                     }
                                     InputState.NONE -> {
                                         focusRequester.freeFocus()
@@ -173,9 +173,9 @@ fun MessageInputComponent(
                                 onSend = {
                                     if (messageText.text.isNotBlank()) {
                                         onSendMessage()
-                                        focusRequester.freeFocus()
-                                        keyboardController?.hide()
-                                        inputState = InputState.NONE
+                                        if (inputState != InputState.EMOJI_PICKER) {
+                                            inputState = InputState.NONE
+                                        }
                                     }
                                 },
                             ),
@@ -212,9 +212,9 @@ fun MessageInputComponent(
                 onClick = {
                     if (messageText.text.isNotBlank()) {
                         onSendMessage()
-                        focusRequester.freeFocus()
-                        keyboardController?.hide()
-                        inputState = InputState.NONE
+                        if (inputState != InputState.EMOJI_PICKER) {
+                            inputState = InputState.NONE
+                        }
                     }
                 },
                 enabled = isEnabled && messageText.text.isNotBlank(),

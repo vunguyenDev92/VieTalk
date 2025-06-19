@@ -37,6 +37,7 @@
     <string name="button_to_get_started">" button to get started."</string>
     <string name="create_new_group_icon">Create new group icon</string>
     <string name="no_internet_connection">No internet connection!</string>
+    <string name="Error">Please try again later!</string>
     <!--  Group Editor Screen  -->
     <string name="create_new_group">Create new group</string>
     <string name="remove">Remove</string>

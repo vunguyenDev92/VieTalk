@@ -204,7 +204,6 @@ class ChatViewModel(
                 val currentCount = _currentUIMessageCount.value
                 val newCount = currentCount + LOAD_MORE_UI_SIZE
 
-                // Get total messages available in local DB
                 val totalLocalMessages = observeMessagesUseCase(roomId).first().size
 
                 if (newCount >= totalLocalMessages - 10) {
@@ -227,7 +226,6 @@ class ChatViewModel(
             try {
                 getOlderMessagesUseCase(roomId, REMOTE_PAGING_SIZE)
             } catch (e: Exception) {
-                // Handle error silently or update UI state if needed
             }
         }
     }
