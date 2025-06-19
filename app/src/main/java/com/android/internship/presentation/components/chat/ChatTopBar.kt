@@ -66,11 +66,13 @@ fun ChatTopBar(
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Text(
-                        text = subtitle,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    if (!isBlocked) {
+                        Text(
+                            text = subtitle,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
 
                 if (showBlockDialog && !isBlocked) {
