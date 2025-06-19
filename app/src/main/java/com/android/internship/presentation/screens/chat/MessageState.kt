@@ -1,7 +1,8 @@
-package com.android.internship.presentation.components
+package com.android.internship.presentation.screens.chat
 
 import com.android.internship.data.model.Room
 import com.android.internship.data.model.User
+
 data class MessageState(
     val room: Room? = null,
     val currentUserId: String = "",

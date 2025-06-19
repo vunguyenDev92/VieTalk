@@ -5,16 +5,19 @@ import com.android.internship.data.datasource.local.MessageLocalDataSource
 import com.android.internship.data.datasource.local.RoomLocalDataSource
 import com.android.internship.data.datasource.local.UserLocalDataSource
 import com.android.internship.data.datasource.local.UserRoomLocalDataSource
+import com.android.internship.data.datasource.remote.ImageUploadDataSource
 import com.android.internship.data.datasource.remote.MessageRemoteDataSource
 import com.android.internship.data.datasource.remote.RoomRemoteDataSource
 import com.android.internship.data.datasource.remote.UserRemoteDataSource
 import com.android.internship.data.datasource.remote.UserRoomRemoteDataSource
 import com.android.internship.data.repository.AuthRepositoryImpl
+import com.android.internship.data.repository.ImageRepositoryImpl
 import com.android.internship.data.repository.MessageRepositoryImpl
 import com.android.internship.data.repository.RoomRepositoryImpl
 import com.android.internship.data.repository.UserRepositoryImpl
 import com.android.internship.data.repository.UserRoomRepositoryImpl
 import com.android.internship.domain.repository.AuthRepository
+import com.android.internship.domain.repository.ImageRepository
 import com.android.internship.domain.repository.MessageRepository
 import com.android.internship.domain.repository.RoomRepository
 import com.android.internship.domain.repository.UserRepository
@@ -40,7 +43,7 @@ class AppContainer(context: Context) {
     }
 
     val userRepository: UserRepository by lazy {
-        UserRepositoryImpl(userLocalDataSource, userRemoteDataSource)
+        UserRepositoryImpl(userLocalDataSource, userRemoteDataSource, connectivityObserver)
     }
 
     // Room
@@ -84,5 +87,13 @@ class AppContainer(context: Context) {
 
     val connectivityObserver: IConnectivityObserver by lazy {
         ConnectivityObserver(context.applicationContext)
+    }
+
+    private val imageUploadDataSource: ImageUploadDataSource by lazy {
+        ImageUploadDataSource(appContext)
+    }
+
+    val imageRepository: ImageRepository by lazy {
+        ImageRepositoryImpl(imageUploadDataSource, connectivityObserver)
     }
 }

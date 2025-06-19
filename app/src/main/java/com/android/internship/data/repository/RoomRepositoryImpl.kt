@@ -32,6 +32,10 @@ class RoomRepositoryImpl(
         return roomRemoteDataSource.observeRooms()
     }
 
+    override fun observeRoom(rid: String): Flow<Room?> {
+        return roomRemoteDataSource.observeRoom(rid)
+    }
+
     override fun updateLastMessage(rid: String, message: Message) {
         roomRemoteDataSource.updateLastMessage(rid, message)
     }

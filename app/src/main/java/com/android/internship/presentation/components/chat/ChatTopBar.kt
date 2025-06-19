@@ -24,10 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.android.internship.R
 import com.android.internship.presentation.components.CommonAvatar
 import com.android.internship.presentation.components.CommonGroupAvatar
 
@@ -69,6 +72,8 @@ fun ChatTopBar(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = subtitle,
@@ -111,7 +116,7 @@ fun ChatTopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(24.dp),
                 )
@@ -120,46 +125,4 @@ fun ChatTopBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
         windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleActivePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "John Doe",
-            subtitle = "Active Now",
-            isGroup = false,
-            avatarUrls = listOf("https://example.com/avatar.jpg"),
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarSingleOfflinePreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Jane Smith",
-            subtitle = "Offline",
-            isGroup = false,
-            avatarUrls = listOf("https://example.com/avatar2.jpg"),
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ChatTopBarGroupPreview() {
-    MaterialTheme {
-        ChatTopBar(
-            title = "Team Discussion",
-            subtitle = "5 members",
-            isGroup = true,
-            avatarUrls = listOf(
-                "https://example.com/avatar1.jpg",
-                "https://example.com/avatar2.jpg",
-            ),
-        )
-    }
 }
