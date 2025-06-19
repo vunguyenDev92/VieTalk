@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
 import com.android.internship.domain.usecase.GetCurrentUserProfileUseCase
-import com.android.internship.domain.usecase.profile.UpdateUserProfileUseCase
-import com.android.internship.domain.usecase.profile.UploadAvatarUseCase
+import com.android.internship.domain.usecase.UpdateUserProfileUseCase
+import com.android.internship.domain.usecase.UploadAvatarUseCase
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

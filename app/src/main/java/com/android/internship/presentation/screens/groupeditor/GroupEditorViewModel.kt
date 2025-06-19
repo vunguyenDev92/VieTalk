@@ -1,6 +1,5 @@
 package com.android.internship.presentation.screens.groupeditor
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.android.internship.di.AppContainer
@@ -104,12 +103,10 @@ class GroupEditorViewModel(
         private const val ERROR_MESSAGE_GROUP_NAME_AND_MEMBERS_EMPTY = "Group name and at least one other member are required."
         private const val GROUP_CREATED_SUCCESSFULLY = "Group created successfully."
 
-        fun factory(context: Context, groupName: String, members: Set<String>) = object : ViewModelProvider.Factory {
+        fun factory(appContainer: AppContainer, groupName: String, members: Set<String>) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(GroupEditorViewModel::class.java)) {
-                    val appContainer = AppContainer(context)
-
                     val createRoomUseCase = CreateRoomUseCase(
                         roomRepository = appContainer.roomRepository,
                         userRoomRepository = appContainer.userRoomRepository,

@@ -52,10 +52,6 @@
     <!-- Chat list -->
     <string name="loading_indicator">Loading indicator</string>
     <string name="refresh">Refresh</string>
-    <string name="your_profile">Your Profile</string>
-    <string name="loading">Loading...</string>
-    <string name="notification">Notification</string>
-    <string name="avatar">Avatar</string>
     <string name="unmute_notifications">Unmute Notifications</string>
     <string name="mute_notifications">Mute Notifications</string>
     <string name="unblock">Unblock</string>
@@ -69,4 +65,8 @@
     <string name="description_block">Are you sure you want to block $title? You won\'t get messages from them, and this chat will disappear from your inbox.</string>
     <string name="title">Title</string>
     <string name="content">Content</string>
+    <string name="your_profile">Your Profile</string>
+    <string name="loading">Loading…</string>
+    <string name="notification">Notification</string>
+    <string name="avatar">Avatar</string>
 </resources>

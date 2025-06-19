@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -47,18 +46,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
     navController: NavController,
+    appContainer: AppContainer,
+    isNetworkAvailable: Boolean,
 ) {
-    val context = LocalContext.current
-    val appContainer = remember { AppContainer(context.applicationContext) }
-
     val viewModel: ChatViewModel = viewModel(
         factory = ChatViewModelFactory(
-            authRepository = appContainer.authRepository,
-            roomRepository = appContainer.roomRepository,
-            userRepository = appContainer.userRepository,
-            messageRepository = appContainer.messageRepository,
-            userRoomRepository = appContainer.userRoomRepository,
-            connectivityObserver = appContainer.connectivityObserver,
+            appContainer = appContainer,
         ),
     )
 
@@ -67,7 +60,7 @@ fun ChatScreen(
     val userRoom by viewModel.userRoom.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val snackBarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     var isEmojiPickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(listState, uiState.messages.size, uiState.canLoadMore, uiState.isLoadingMore) {
@@ -94,10 +87,11 @@ fun ChatScreen(
 
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {
-            snackBarHostState.showSnackbar(message = error)
+            snackbarHostState.showSnackbar(message = error)
             viewModel.clearError()
         }
     }
+
     LaunchedEffect(uiState.messages.isNotEmpty(), uiState.isLoading) {
         if (uiState.messages.isNotEmpty() && !uiState.isLoading) {
             listState.scrollToItem(0)
@@ -123,12 +117,11 @@ fun ChatScreen(
                 title = uiState.topBarTitle,
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
-                isGroup = uiState.isGroup,
                 isMuted = userRoom?.mute == true,
                 isBlocked = userRoom?.isBlocked == true,
                 onBackClick = {
                     navController.navigate(Screen.ChatList) {
-                        popUpTo(Screen.Chat.NAME) { inclusive = true }
+                        popUpTo(Screen.Chat(viewModel.roomId)) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -137,9 +130,10 @@ fun ChatScreen(
                 onMuteClick = { duration ->
                     viewModel.muteUser(duration = duration)
                 },
+                isGroup = uiState.isGroup,
             )
         },
-        snackbarHost = { SnackbarHost(snackBarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.ime,
     ) { paddingValues ->
         Column(
@@ -209,7 +203,7 @@ fun ChatScreen(
         }
 
         NetworkStatusBanner(
-            isNetworkAvailable = uiState.isNetworkAvailable,
+            isNetworkAvailable = isNetworkAvailable,
             isRefreshing = uiState.isRefreshing,
             onRefreshClick = viewModel::refreshData,
             modifier = Modifier.padding(top = 50.dp),

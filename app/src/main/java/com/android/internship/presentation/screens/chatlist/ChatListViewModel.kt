@@ -1,6 +1,5 @@
 package com.android.internship.presentation.screens.chatlist
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -179,12 +178,10 @@ class ChatListViewModel(
     }
 
     companion object {
-        fun factory(context: Context) = object : ViewModelProvider.Factory {
+        fun factory(appContainer: AppContainer) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(ChatListViewModel::class.java)) {
-                    val appContainer = AppContainer(context)
-
                     val observeUserRoomForUserUseCase = ObserveUserRoomForUserUseCase(
                         userRoomRepository = appContainer.userRoomRepository,
                         authRepository = appContainer.authRepository,
