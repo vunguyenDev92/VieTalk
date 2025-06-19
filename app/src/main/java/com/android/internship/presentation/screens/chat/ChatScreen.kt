@@ -44,6 +44,7 @@ import com.android.internship.presentation.components.chat.MessageInputComponent
 import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
+import com.android.internship.presentation.theme.robotoFamily
 import java.time.ZoneOffset
 import kotlinx.coroutines.launch
 
@@ -174,10 +175,12 @@ fun ChatScreen(
                             uiState.topBarTitle,
                         ),
                         modifier = Modifier
-                            .padding(start = 29.dp, top = 35.dp, bottom = 21.dp),
+                            .padding(start = 30.dp, top = 35.dp, bottom = 21.dp),
                         fontWeight = FontWeight.W400,
                         fontSize = 12.sp,
+                        fontFamily = robotoFamily,
                         textAlign = TextAlign.Center,
+                        lineHeight = 18.sp,
                     )
                 } else {
                     MessageInputComponent(

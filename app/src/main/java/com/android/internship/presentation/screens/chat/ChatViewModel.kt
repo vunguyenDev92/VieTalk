@@ -258,7 +258,9 @@ class ChatViewModel(
             val currentUserRoom = _userRoom.value ?: return@launch
             val newIsBlocked = !currentUserRoom.isBlocked
             try {
-                updateBlockUseCase(roomId, currentUserId, newIsBlocked)
+                if (uiState.value.isNetworkAvailable) {
+                    updateBlockUseCase(roomId, currentUserId, newIsBlocked)
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
             }
