@@ -229,7 +229,7 @@ fun ChatScreen(
                                 uiState.topBarTitle,
                             ),
                             modifier = Modifier
-                                .padding(start = 30.dp, top = 35.dp, bottom = 21.dp),
+                                .padding(start = 15.dp, top = 35.dp, bottom = 21.dp, end = 15.dp),
                             fontWeight = FontWeight.W400,
                             fontSize = 12.sp,
                             fontFamily = robotoFamily,

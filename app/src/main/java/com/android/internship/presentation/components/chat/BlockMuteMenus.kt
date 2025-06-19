@@ -45,6 +45,7 @@ enum class MuteOption {
 fun BlockMuteMenus(
     isMuted: Boolean,
     isBlocked: Boolean,
+    isGroup: Boolean,
     isOtherBlocked: Boolean,
     onMuteClick: (duration: MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
@@ -141,31 +142,33 @@ fun BlockMuteMenus(
                             }
                         },
                     )
-                    DropdownMenuItem(
-                        text = {
-                            Row {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_block),
-                                    contentDescription = stringResource(R.string.block),
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier
-                                        .padding(end = 10.dp)
-                                        .size(24.dp),
-                                )
-                                Text(
-                                    text = stringResource(R.string.block),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    fontWeight = FontWeight.W300,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                        },
-                        onClick = {
-                            onBlockClick()
-                            expanded = false
-                        },
-                    )
+                    if (isGroup == false) {
+                        DropdownMenuItem(
+                            text = {
+                                Row {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_block),
+                                        contentDescription = stringResource(R.string.block),
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .padding(end = 10.dp)
+                                            .size(24.dp),
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.block),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        fontWeight = FontWeight.W300,
+                                        fontSize = 14.sp,
+                                    )
+                                }
+                            },
+                            onClick = {
+                                onBlockClick()
+                                expanded = false
+                            },
+                        )
+                    }
                 }
             }
             else -> {
@@ -178,7 +181,7 @@ fun BlockMuteMenus(
                     shape = RoundedCornerShape(0.dp),
                     modifier = Modifier
                         .background(Color.White)
-                        .padding(top = 10.dp, bottom = 10.dp, start = 5.dp, end = 40.dp)
+                        .padding(top = 10.dp, bottom = 10.dp, start = 5.dp, end = 40.dp),
                 ) {
                     DropdownMenuItem(
                         text = {

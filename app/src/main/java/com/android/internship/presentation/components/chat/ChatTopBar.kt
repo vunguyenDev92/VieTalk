@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 import com.android.internship.presentation.components.CommonAvatar
-import com.android.internship.presentation.components.CommonGroupAvatar
 import com.android.internship.presentation.components.CommonDialog
+import com.android.internship.presentation.components.CommonGroupAvatar
 import com.android.internship.presentation.components.TextButtonDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,8 +76,8 @@ fun ChatTopBar(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface,
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     if (!isBlocked && !isOtherBlocked) {
                         Text(
@@ -139,6 +139,7 @@ fun ChatTopBar(
                     BlockMuteMenus(
                         isMuted = isMuted,
                         isBlocked = isBlocked,
+                        isGroup = isGroup,
                         isOtherBlocked = isOtherBlocked,
                         onMuteClick = onMuteClick,
                         onBlockClick = { showBlockDialog = true },
