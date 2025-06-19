@@ -16,9 +16,10 @@ import com.android.internship.presentation.screens.signup.SignUpScreen
 fun NavGraphBuilder.main(
     navController: NavHostController,
     appContainer: AppContainer,
+    startDestination: Screen = Screen.Splash,
 ) {
     navigation(
-        startDestination = Screen.Splash,
+        startDestination = startDestination,
         route = Route.Main::class,
     ) {
         composable<Screen.Splash> {

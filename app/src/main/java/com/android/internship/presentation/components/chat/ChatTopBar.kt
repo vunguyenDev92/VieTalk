@@ -41,7 +41,7 @@ fun ChatTopBar(
     isMuted: Boolean,
     isBlocked: Boolean,
     onBackClick: () -> Unit = {},
-    onMuteClick: (MuteDuration) -> Unit = {},
+    onMuteClick: (MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var showBlockDialog by remember { mutableStateOf(false) }

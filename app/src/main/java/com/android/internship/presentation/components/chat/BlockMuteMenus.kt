@@ -33,18 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.internship.R
 
-enum class MuteDuration {
+enum class MuteOption {
     MINUTES_30,
     HOUR_1,
     DAY_1,
     INDEFINITELY,
+    TURN_OFF,
 }
 
 @Composable
 fun BlockMuteMenus(
     isMuted: Boolean,
     isBlocked: Boolean,
-    onMuteClick: (duration: MuteDuration) -> Unit = {},
+    onMuteClick: (duration: MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -98,7 +99,7 @@ fun BlockMuteMenus(
                     },
                     onClick = {
                         if (isMuted) {
-                            onMuteClick(MuteDuration.INDEFINITELY)
+                            onMuteClick(MuteOption.TURN_OFF)
                             expanded = false
                         } else {
                             onMute = true
@@ -158,7 +159,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick(MuteDuration.MINUTES_30)
+                        onMuteClick(MuteOption.MINUTES_30)
                         expanded = false
                         onMute = false
                     },
@@ -174,7 +175,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick(MuteDuration.HOUR_1)
+                        onMuteClick(MuteOption.HOUR_1)
                         expanded = false
                         onMute = false
                     },
@@ -190,7 +191,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick(MuteDuration.DAY_1)
+                        onMuteClick(MuteOption.DAY_1)
                         expanded = false
                         onMute = false
                     },
@@ -206,7 +207,7 @@ fun BlockMuteMenus(
                         )
                     },
                     onClick = {
-                        onMuteClick(MuteDuration.INDEFINITELY)
+                        onMuteClick(MuteOption.INDEFINITELY)
                         expanded = false
                         onMute = false
                     },

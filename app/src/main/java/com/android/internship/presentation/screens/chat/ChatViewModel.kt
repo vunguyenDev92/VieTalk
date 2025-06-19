@@ -15,8 +15,10 @@ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.MessageState
+import com.android.internship.presentation.components.chat.MuteOption
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +50,7 @@ class ChatViewModel(
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
     private val connectivityObserver: IConnectivityObserver,
     private val getMessagesUseCase: GetMessagesUseCase,
+    private val updateMuteUseCase: UpdateMuteUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(authRepository.getCurrentUserId())
@@ -249,5 +252,26 @@ class ChatViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun muteUser(duration: MuteOption) {
+        val currentTime = System.currentTimeMillis()
+        when (duration) {
+            MuteOption.MINUTES_30 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 30 * 60 * 1000).toString())
+            }
+            MuteOption.HOUR_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 60 * 60 * 1000).toString())
+            }
+            MuteOption.DAY_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 24 * 60 * 60 * 1000).toString())
+            }
+            MuteOption.INDEFINITELY -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = null)
+            }
+            MuteOption.TURN_OFF -> {
+                updateMuteUseCase(rid = roomId, mute = false)
+            }
+        }
     }
 }

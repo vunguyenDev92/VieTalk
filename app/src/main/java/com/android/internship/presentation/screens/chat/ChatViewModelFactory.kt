@@ -17,6 +17,7 @@ import com.android.internship.domain.usecase.ObserveUserRoomDetailsUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.utils.IConnectivityObserver
 
@@ -46,6 +47,7 @@ class ChatViewModelFactory(
                 connectivityObserver = connectivityObserver,
                 getAllUsersInRoomUseCase = GetAllUsersInRoomUseCase(userRepository),
                 getMessagesUseCase = GetMessagesUseCase(messageRepository),
+                updateMuteUseCase = UpdateMuteUseCase(authRepository, userRoomRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
