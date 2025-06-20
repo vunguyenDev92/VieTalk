@@ -43,6 +43,7 @@ fun ChatTopBar(
     avatarUrls: List<String>,
     isMuted: Boolean,
     isBlocked: Boolean,
+    isOtherBlocked: Boolean,
     onBackClick: () -> Unit = {},
     onMuteClick: (MuteOption) -> Unit = {},
     onBlockClick: () -> Unit = {},
@@ -83,12 +84,22 @@ fun ChatTopBar(
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    if (!isBlocked && !isOtherBlocked) {
+                        Text(
+                            text = subtitle,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
 
-                if (showBlockDialog) {
+                if (showBlockDialog && !isBlocked && !isOtherBlocked) {
                     CommonDialog(
                         title = "Block $title?",
-                        content = stringResource(R.string.description_block).replace("\$title", title),
+                        content = stringResource(R.string.description_block).replace(
+                            "\$title",
+                            title,
+                        ),
                         onDismissRequest = { showBlockDialog = false },
                         button = {
                             TextButtonDialog(
@@ -105,13 +116,40 @@ fun ChatTopBar(
                             )
                         },
                     )
+                } else if (showBlockDialog && isBlocked && !isOtherBlocked) {
+                    CommonDialog(
+                        title = "Unblock $title?",
+                        content = stringResource(R.string.description_unblock).replace(
+                            "\$title",
+                            title,
+                        ),
+                        onDismissRequest = { showBlockDialog = false },
+                        button = {
+                            TextButtonDialog(
+                                text = stringResource(R.string.cancel).uppercase(),
+                                onClick = { showBlockDialog = false },
+                            )
+                            TextButtonDialog(
+                                text = stringResource(R.string.unblock).uppercase(),
+                                onClick = {
+                                    onBlockClick()
+                                    showBlockDialog = false
+                                },
+                                color = Color.Red,
+                            )
+                        },
+                    )
                 }
-                BlockMuteMenus(
-                    isMuted = isMuted,
-                    isBlocked = isBlocked,
-                    onMuteClick = onMuteClick,
-                    onBlockClick = { showBlockDialog = true },
-                )
+                if (!(isBlocked == false && isOtherBlocked)) {
+                    BlockMuteMenus(
+                        isMuted = isMuted,
+                        isBlocked = isBlocked,
+                        isGroup = isGroup,
+                        isOtherBlocked = isOtherBlocked,
+                        onMuteClick = onMuteClick,
+                        onBlockClick = { showBlockDialog = true },
+                    )
+                }
             }
         },
         navigationIcon = {

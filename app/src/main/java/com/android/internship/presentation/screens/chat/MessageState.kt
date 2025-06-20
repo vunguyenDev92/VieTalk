@@ -19,6 +19,7 @@ data class MessageState(
     val topBarAvatarUrls: List<String> = emptyList(),
     val isPeerActive: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isOtherUserBlocked: Boolean = true,
     val canLoadMore: Boolean = true,
     val isGroup: Boolean = false,
 )

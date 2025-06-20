@@ -18,6 +18,7 @@ import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateBlockUseCase
 import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 
@@ -44,6 +45,7 @@ class ChatViewModelFactory(private val appContainer: AppContainer) : ViewModelPr
                 observeSingleRoomUseCase = ObserveSingleRoomUseCase(appContainer.roomRepository),
                 getCurrentUserIdUseCase = GetCurrentUserIdUseCase(appContainer.authRepository),
                 updateMuteUseCase = UpdateMuteUseCase(appContainer.authRepository, appContainer.userRoomRepository),
+                updateBlockUseCase = UpdateBlockUseCase(appContainer.userRoomRepository),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

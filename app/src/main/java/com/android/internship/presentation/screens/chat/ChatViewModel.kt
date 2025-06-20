@@ -19,6 +19,7 @@ import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateBlockUseCase
 import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.chat.MuteOption
@@ -58,6 +59,7 @@ class ChatViewModel(
     private val getLatestLocalMessageUseCase: GetLatestLocalMessageUseCase,
     private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
     private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
+    private val updateBlockUseCase: UpdateBlockUseCase,
     private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
 ) : ViewModel() {
 
@@ -190,7 +192,11 @@ class ChatViewModel(
                 expandedMessageId = expandedId,
             )
             val currentUser = usersInRoom.find { it.uid == currentUserId }
-
+            val isOtherUserBlocked = if (!room.isGroup) {
+                userRoomDetails.find { it.uid != currentUserId }?.isBlocked == true
+            } else {
+                false
+            }
             val newState = _uiState.value.copy(
                 isLoading = false,
                 room = room,
@@ -203,6 +209,8 @@ class ChatViewModel(
                 isPeerActive = isPeerActive,
                 canLoadMore = canLoadMoreFromLocal,
                 isGroup = room.isGroup,
+                isOtherUserBlocked = isOtherUserBlocked,
+
             )
 
             if (_uiState.value != newState) {
@@ -290,7 +298,7 @@ class ChatViewModel(
 
     fun sendMessage() {
         val content = _messageText.value.text.trim()
-        if (content.isNotBlank()) {
+        if (content.isNotBlank() && !_userRoom.value?.isBlocked!!) {
             typingTimeoutJob?.cancel()
             val currentUser = _uiState.value.currentUser
             sendMessageUseCase(
@@ -301,6 +309,8 @@ class ChatViewModel(
             )
             _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
+        } else if (_userRoom.value?.isBlocked == true) {
+            _uiState.update { it.copy(errorMessage = "You cannot send messages because this user is blocked.") }
 
             resetUIPaginationIfNeeded()
         }
@@ -313,6 +323,18 @@ class ChatViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun toggleBlockState() {
+        viewModelScope.launch {
+            val currentUserRoom = _userRoom.value ?: return@launch
+            val newIsBlocked = !currentUserRoom.isBlocked
+            try {
+                updateBlockUseCase(roomId, currentUserId, newIsBlocked)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
+            }
+        }
     }
 
     fun refreshData() {
