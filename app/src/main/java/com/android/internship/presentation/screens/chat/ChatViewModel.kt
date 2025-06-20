@@ -23,7 +23,6 @@ import com.android.internship.domain.usecase.UpdateBlockUseCase
 import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
 import com.android.internship.presentation.components.chat.MuteOption
-import com.android.internship.presentation.components.utils.IConnectivityObserver
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -46,7 +45,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
-    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
+    getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
@@ -55,18 +54,17 @@ class ChatViewModel(
     private val addTypingUseCase: UpdateTypingTimeUseCase,
     private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
+    private val updateMuteUseCase: UpdateMuteUseCase,
     private val getOlderMessagesUseCase: GetOlderMessagesUseCase,
     private val getLatestLocalMessageUseCase: GetLatestLocalMessageUseCase,
     private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
     private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
-    private val connectivityObserver: IConnectivityObserver,
     private val updateBlockUseCase: UpdateBlockUseCase,
     private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
-    private val updateMuteUseCase: UpdateMuteUseCase,
 ) : ViewModel() {
 
     private val currentUserId: String = checkNotNull(getCurrentUserIdUseCase())
-    private val roomId: String = checkNotNull(savedStateHandle["rid"])
+    val roomId: String = checkNotNull(savedStateHandle["rid"])
     private val _uiState = MutableStateFlow(MessageState(currentUserId = currentUserId))
     val uiState = _uiState.asStateFlow()
 
@@ -87,12 +85,11 @@ class ChatViewModel(
     private val currentUIMessageCount = _currentUIMessageCount.asStateFlow()
 
     init {
-        observeNetworkStatus()
         loadInitialData()
+        observeBlockMute(roomId)
         startPeriodicActiveUpdate()
         startBackgroundSync()
         observeRoomForAutoSeen()
-        observeBlockMute(roomId)
     }
 
     private fun observeRoomForAutoSeen() {
@@ -260,7 +257,6 @@ class ChatViewModel(
             try {
                 getOlderMessagesUseCase(roomId, REMOTE_PAGING_SIZE)
             } catch (_: Exception) {
-                null
             }
         }
     }
@@ -334,9 +330,7 @@ class ChatViewModel(
             val currentUserRoom = _userRoom.value ?: return@launch
             val newIsBlocked = !currentUserRoom.isBlocked
             try {
-                if (uiState.value.isNetworkAvailable) {
-                    updateBlockUseCase(roomId, currentUserId, newIsBlocked)
-                }
+                updateBlockUseCase(roomId, currentUserId, newIsBlocked)
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
             }
@@ -344,26 +338,10 @@ class ChatViewModel(
     }
 
     fun refreshData() {
-        if (!_uiState.value.isNetworkAvailable) {
-            _uiState.update { it.copy(isRefreshing = true) }
-            viewModelScope.launch {
-                delay(5000)
-                _uiState.update { it.copy(isRefreshing = false) }
-            }
-        }
-    }
-
-    private fun observeNetworkStatus() {
+        _uiState.update { it.copy(isRefreshing = true) }
         viewModelScope.launch {
-            connectivityObserver.observe().collect { status ->
-                val isAvailable = status == IConnectivityObserver.Status.Available
-                _uiState.update {
-                    it.copy(
-                        isNetworkAvailable = isAvailable,
-                        isRefreshing = if (isAvailable) false else it.isRefreshing,
-                    )
-                }
-            }
+            delay(5000)
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 

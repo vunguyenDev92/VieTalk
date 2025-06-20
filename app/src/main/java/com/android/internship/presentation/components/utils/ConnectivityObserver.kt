@@ -3,6 +3,7 @@ package com.android.internship.presentation.components.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -53,11 +54,20 @@ class ConnectivityObserver(
 
             connectivityManager.registerDefaultNetworkCallback(callback)
 
-            launch { send(if (NetworkUtil.isConnected(context)) IConnectivityObserver.Status.Available else IConnectivityObserver.Status.Unavailable) }
+            launch { send(if (isConnected(context)) IConnectivityObserver.Status.Available else IConnectivityObserver.Status.Unavailable) }
 
             awaitClose {
                 connectivityManager.unregisterNetworkCallback(callback)
             }
         }.distinctUntilChanged()
+    }
+
+    private fun isConnected(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 }

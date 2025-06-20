@@ -79,6 +79,11 @@ fun ChatTopBar(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
+                    Text(
+                        text = subtitle,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                     if (!isBlocked && !isOtherBlocked) {
                         Text(
                             text = subtitle,

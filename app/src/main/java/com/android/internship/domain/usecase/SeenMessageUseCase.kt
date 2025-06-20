@@ -7,7 +7,7 @@ class SeenMessageUseCase(
     private val authRepository: AuthRepository,
     private val userRoomRepository: UserRoomRepository,
 ) {
-    suspend operator fun invoke(rid: String, lastSeenMessageId: String) {
+    operator fun invoke(rid: String, lastSeenMessageId: String) {
         val uid = authRepository.getCurrentUserId()
 
         uid?.let {

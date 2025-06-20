@@ -1,4 +1,4 @@
-package com.android.internship.domain.usecase.profile
+package com.android.internship.domain.usecase
 
 import com.android.internship.domain.repository.ImageRepository
 

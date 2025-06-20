@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.android.internship.R
+import com.android.internship.di.AppContainer
 import com.android.internship.presentation.navigation.Screen
 import com.android.internship.presentation.theme.BlueLight
 import com.android.internship.presentation.theme.GreyLight
@@ -46,21 +47,26 @@ import com.android.internship.presentation.theme.White
 @Composable
 fun GroupEditorScreen(
     navController: NavController,
+    appContainer: AppContainer,
     modifier: Modifier = Modifier,
     isCreate: Boolean = true,
     initialName: String = "",
     initialMembers: Set<String> = emptySet(),
-    viewModel: GroupEditorViewModel = viewModel(
-        factory = GroupEditorViewModel.factory(navController.context, initialName, initialMembers),
-    ),
 ) {
+    val viewModel: GroupEditorViewModel = viewModel(
+        factory = GroupEditorViewModel.factory(
+            appContainer = appContainer,
+            groupName = initialName,
+            members = initialMembers,
+        ),
+    )
     val groupEditorState by viewModel.state.collectAsState()
 
     if (groupEditorState.isSuccess) {
         groupEditorState.groupId?.let {
             navController.navigate(Screen.Chat(it)) {
+                popUpTo(Screen.GroupEditor) { inclusive = true }
                 launchSingleTop = true
-                popUpTo(Screen.ChatList) { inclusive = true }
             }
         }
     }
