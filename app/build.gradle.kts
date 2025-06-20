@@ -16,7 +16,7 @@ android {
         applicationId = "com.android.internship"
         minSdk = 28
         targetSdk = 35
-        versionCode = 6
+        versionCode = 8
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -66,6 +66,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging.ktx)
 
     // room
     implementation(libs.androidx.room.runtime)

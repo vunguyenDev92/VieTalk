@@ -65,8 +65,8 @@ fun GroupEditorScreen(
     if (groupEditorState.isSuccess) {
         groupEditorState.groupId?.let {
             navController.navigate(Screen.Chat(it)) {
+                popUpTo(Screen.GroupEditor) { inclusive = true }
                 launchSingleTop = true
-                popUpTo(Screen.ChatList) { inclusive = true }
             }
         }
     }

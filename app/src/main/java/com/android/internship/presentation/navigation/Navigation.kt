@@ -18,7 +18,7 @@ sealed class Route {
 }
 
 @Composable
-fun Navigation(appContainer: AppContainer) {
+fun Navigation(appContainer: AppContainer, startDestination: Screen? = null) {
     val navController = rememberNavController()
     val networkStatus = appContainer.connectivityObserver.observe().collectAsState(initial = IConnectivityObserver.Status.Unavailable)
     val isNetworkAvailable = networkStatus.value == IConnectivityObserver.Status.Available
@@ -28,6 +28,19 @@ fun Navigation(appContainer: AppContainer) {
         startDestination = Route.Main,
         route = Route.Root::class,
     ) {
-        main(navController, appContainer, isNetworkAvailable)
+        if (startDestination != null) {
+            main(
+                navController = navController,
+                appContainer = appContainer,
+                startDestination = startDestination,
+                isNetworkAvailable = isNetworkAvailable,
+            )
+        } else {
+            main(
+                navController = navController,
+                appContainer = appContainer,
+                isNetworkAvailable = isNetworkAvailable,
+            )
+        }
     }
 }

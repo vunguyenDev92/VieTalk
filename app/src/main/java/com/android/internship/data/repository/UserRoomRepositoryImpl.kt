@@ -32,6 +32,10 @@ class UserRoomRepositoryImpl(
         userRoomRemoteDataSource.updateMute(rid, uid, mute, turnOnTime)
     }
 
+    override fun updateBlock(rid: String, uid: String, isBlocked: Boolean) {
+        userRoomRemoteDataSource.updateBlock(rid, uid, isBlocked)
+    }
+
     override fun updateLastSeenMessages(
         rid: String,
         uid: String,

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.android.internship.presentation.screens.chat
 
 import androidx.compose.foundation.layout.Arrangement
@@ -8,15 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,9 +27,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.android.internship.R
 import com.android.internship.di.AppContainer
 import com.android.internship.presentation.components.CommonProgressIndicator
 import com.android.internship.presentation.components.chat.ChatTopBar
@@ -41,6 +45,7 @@ import com.android.internship.presentation.components.chat.NetworkStatusBanner
 import com.android.internship.presentation.components.chat.TimeHeaderComponent
 import com.android.internship.presentation.components.chat.TypingIndicatorComponent
 import com.android.internship.presentation.navigation.Screen
+import com.android.internship.presentation.theme.robotoFamily
 import java.time.ZoneOffset
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -60,7 +65,7 @@ fun ChatScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val messageText by viewModel.messageText.collectAsState()
-
+    val userRoom by viewModel.userRoom.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -120,15 +125,22 @@ fun ChatScreen(
                 title = uiState.topBarTitle,
                 subtitle = uiState.topBarSubtitle,
                 avatarUrls = uiState.topBarAvatarUrls,
-                isGroup = uiState.isGroup,
+                isMuted = userRoom?.mute == true,
+                isBlocked = userRoom?.isBlocked == true,
+                isOtherBlocked = uiState.isOtherUserBlocked,
                 onBackClick = {
                     navController.navigate(Screen.ChatList) {
                         popUpTo(Screen.Chat(viewModel.roomId)) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
-                onCallClick = {},
-                onMoreClick = {},
+                onBlockClick = {
+                    viewModel.toggleBlockState()
+                },
+                onMuteClick = { duration ->
+                    viewModel.muteUser(duration = duration)
+                },
+                isGroup = uiState.isGroup,
             )
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
@@ -189,14 +201,50 @@ fun ChatScreen(
                         EmptyChatComponent()
                     }
                 }
-
-                MessageInputComponent(
-                    messageText = messageText,
-                    onMessageChange = viewModel::onMessageChange,
-                    onSendMessage = viewModel::sendMessage,
-                    onEmojiClick = { isEmojiPickerVisible = !isEmojiPickerVisible },
-                    onEmojiPickerVisibilityChange = { isVisible -> isEmojiPickerVisible = isVisible },
-                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (uiState.room?.isGroup == false && userRoom?.isBlocked == false && uiState.isOtherUserBlocked) {
+                        Text(
+                            text = stringResource(R.string.description_isblocked),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 15.dp, top = 35.dp, bottom = 21.dp, end = 15.dp),
+                            fontWeight = FontWeight.W400,
+                            fontSize = 12.sp,
+                            fontFamily = robotoFamily,
+                            textAlign = TextAlign.Center,
+                        )
+                    } else if (userRoom?.isBlocked == true) {
+                        Text(
+                            text = stringResource(R.string.description_blocked).replace(
+                                "\$title",
+                                uiState.topBarTitle,
+                            ),
+                            modifier = Modifier
+                                .padding(start = 15.dp, top = 35.dp, bottom = 21.dp, end = 15.dp),
+                            fontWeight = FontWeight.W400,
+                            fontSize = 12.sp,
+                            fontFamily = robotoFamily,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 18.sp,
+                        )
+                    } else {
+                        MessageInputComponent(
+                            messageText = messageText,
+                            onMessageChange = viewModel::onMessageChange,
+                            onSendMessage = viewModel::sendMessage,
+                            onEmojiClick = {
+                                isEmojiPickerVisible = !isEmojiPickerVisible
+                            },
+                            onEmojiPickerVisibilityChange = { isVisible ->
+                                isEmojiPickerVisible = isVisible
+                            },
+                            modifier = Modifier,
+                        )
+                    }
+                }
             }
         }
 

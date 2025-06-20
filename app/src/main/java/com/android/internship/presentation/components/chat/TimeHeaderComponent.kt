@@ -122,7 +122,7 @@ private fun formatFullMessageTime(timestamp: LocalDateTime): String {
         else -> {
             val dayOfWeekFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)
             val dayOfWeekText = timestamp.format(dayOfWeekFormatter)
-            val fullDateText = timestamp.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH))
+            timestamp.format(DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH))
             "$dayOfWeekText AT $timeText"
         }
     }

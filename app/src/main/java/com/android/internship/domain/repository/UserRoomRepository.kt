@@ -10,6 +10,7 @@ interface UserRoomRepository {
     suspend fun getUserRoomsForRoomRemote(rid: String): List<UserRoom>
     fun updateTypingTime(rid: String, uid: String, time: String)
     fun updateMute(rid: String, uid: String, mute: Boolean, turnOnTime: String? = null)
+    fun updateBlock(rid: String, uid: String, isBlocked: Boolean)
     fun updateLastSeenMessages(rid: String, uid: String, lastSeenMessageId: String? = null)
     fun observeUserRoomDetails(rid: String): Flow<List<UserRoom>>
 

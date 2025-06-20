@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.internship.data.model.Room
+import com.android.internship.data.model.UserRoom
 import com.android.internship.domain.usecase.GetAllUsersInRoomUseCase
 import com.android.internship.domain.usecase.GetCurrentUserIdUseCase
 import com.android.internship.domain.usecase.GetLatestLocalMessageUseCase
@@ -18,7 +19,10 @@ import com.android.internship.domain.usecase.SaveLocalMessagesUseCase
 import com.android.internship.domain.usecase.SeenMessageUseCase
 import com.android.internship.domain.usecase.SendMessagesUseCase
 import com.android.internship.domain.usecase.UpdateActiveTimeUseCase
+import com.android.internship.domain.usecase.UpdateBlockUseCase
+import com.android.internship.domain.usecase.UpdateMuteUseCase
 import com.android.internship.domain.usecase.UpdateTypingTimeUseCase
+import com.android.internship.presentation.components.chat.MuteOption
 import com.android.internship.presentation.components.utils.processMessagesToItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -41,7 +45,7 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     savedStateHandle: SavedStateHandle,
-    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
+    getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
     private val observeMessagesUseCase: ObserveMessagesUseCase,
     private val observeUserRoomDetailsUseCase: ObserveUserRoomDetailsUseCase,
@@ -50,10 +54,12 @@ class ChatViewModel(
     private val addTypingUseCase: UpdateTypingTimeUseCase,
     private val updateActiveUserUseCase: UpdateActiveTimeUseCase,
     private val getAllUsersInRoomUseCase: GetAllUsersInRoomUseCase,
+    private val updateMuteUseCase: UpdateMuteUseCase,
     private val getOlderMessagesUseCase: GetOlderMessagesUseCase,
     private val getLatestLocalMessageUseCase: GetLatestLocalMessageUseCase,
     private val saveLocalMessagesUseCase: SaveLocalMessagesUseCase,
     private val observeNewMessagesUseCase: ObserveNewMessagesUseCase,
+    private val updateBlockUseCase: UpdateBlockUseCase,
     private val observeSingleRoomUseCase: ObserveSingleRoomUseCase,
 ) : ViewModel() {
 
@@ -64,6 +70,8 @@ class ChatViewModel(
 
     private val _messageText = MutableStateFlow(TextFieldValue(""))
     val messageText = _messageText.asStateFlow()
+    private val _userRoom = MutableStateFlow<UserRoom?>(null)
+    val userRoom = _userRoom.asStateFlow()
     private var typingTimeoutJob: Job? = null
 
     companion object {
@@ -78,6 +86,7 @@ class ChatViewModel(
 
     init {
         loadInitialData()
+        observeBlockMute(roomId)
         startPeriodicActiveUpdate()
         startBackgroundSync()
         observeRoomForAutoSeen()
@@ -183,7 +192,11 @@ class ChatViewModel(
                 expandedMessageId = expandedId,
             )
             val currentUser = usersInRoom.find { it.uid == currentUserId }
-
+            val isOtherUserBlocked = if (!room.isGroup) {
+                userRoomDetails.find { it.uid != currentUserId }?.isBlocked == true
+            } else {
+                false
+            }
             val newState = _uiState.value.copy(
                 isLoading = false,
                 room = room,
@@ -196,6 +209,8 @@ class ChatViewModel(
                 isPeerActive = isPeerActive,
                 canLoadMore = canLoadMoreFromLocal,
                 isGroup = room.isGroup,
+                isOtherUserBlocked = isOtherUserBlocked,
+
             )
 
             if (_uiState.value != newState) {
@@ -229,7 +244,7 @@ class ChatViewModel(
                 _currentUIMessageCount.value = newCount
 
                 delay(200)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _uiState.update { it.copy(errorMessage = "Failed to load older messages.") }
             } finally {
                 _uiState.update { it.copy(isLoadingMore = false) }
@@ -241,7 +256,7 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 getOlderMessagesUseCase(roomId, REMOTE_PAGING_SIZE)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
     }
@@ -271,9 +286,19 @@ class ChatViewModel(
         }
     }
 
+    fun observeBlockMute(rid: String) {
+        viewModelScope.launch {
+            observeUserRoomDetailsUseCase(rid)
+                .collect { userRooms ->
+                    val selectedUserRoom = userRooms.find { it.uid == currentUserId }
+                    _userRoom.value = selectedUserRoom
+                }
+        }
+    }
+
     fun sendMessage() {
         val content = _messageText.value.text.trim()
-        if (content.isNotBlank()) {
+        if (content.isNotBlank() && !_userRoom.value?.isBlocked!!) {
             typingTimeoutJob?.cancel()
             val currentUser = _uiState.value.currentUser
             sendMessageUseCase(
@@ -284,6 +309,8 @@ class ChatViewModel(
             )
             _messageText.value = TextFieldValue("")
             addTypingUseCase(rid = roomId, isTyping = false)
+        } else if (_userRoom.value?.isBlocked == true) {
+            _uiState.update { it.copy(errorMessage = "You cannot send messages because this user is blocked.") }
 
             resetUIPaginationIfNeeded()
         }
@@ -296,6 +323,18 @@ class ChatViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun toggleBlockState() {
+        viewModelScope.launch {
+            val currentUserRoom = _userRoom.value ?: return@launch
+            val newIsBlocked = !currentUserRoom.isBlocked
+            try {
+                updateBlockUseCase(roomId, currentUserId, newIsBlocked)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "Unable to update block status: ${e.message}") }
+            }
+        }
     }
 
     fun refreshData() {
@@ -311,6 +350,27 @@ class ChatViewModel(
             while (true) {
                 updateActiveUserUseCase()
                 delay(4 * 60 * 1000L)
+            }
+        }
+    }
+
+    fun muteUser(duration: MuteOption) {
+        val currentTime = System.currentTimeMillis()
+        when (duration) {
+            MuteOption.MINUTES_30 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 30 * 60 * 1000).toString())
+            }
+            MuteOption.HOUR_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 60 * 60 * 1000).toString())
+            }
+            MuteOption.DAY_1 -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = (currentTime + 24 * 60 * 60 * 1000).toString())
+            }
+            MuteOption.INDEFINITELY -> {
+                updateMuteUseCase(rid = roomId, mute = true, turnOnTime = null)
+            }
+            MuteOption.TURN_OFF -> {
+                updateMuteUseCase(rid = roomId, mute = false)
             }
         }
     }
