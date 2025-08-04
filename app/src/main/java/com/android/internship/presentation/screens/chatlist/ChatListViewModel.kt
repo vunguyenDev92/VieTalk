@@ -37,6 +37,7 @@ class ChatListViewModel(
         loadUserRooms()
         loadCurrentUserProfile()
     }
+    //
 
     private fun loadCurrentUserProfile() {
         viewModelScope.launch {
