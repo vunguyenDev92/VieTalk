@@ -3,7 +3,7 @@ Internal Chat Application (Android)
 This project is an Android chat application developed during my internship at SupremeTech.
 The app is designed to enable seamless communication within an internal network, without the need for friend requests or manual contact management.
 
-🚀 Key Features
+🚀## Key Features
 
 + Instant Messaging – Register an account and start chatting right away with anyone who has already registered.
 
@@ -15,11 +15,11 @@ The app is designed to enable seamless communication within an internal network,
 
 + User-Friendly Interface – Simple and intuitive UI for a smooth user experience.
 
-🎯 Purpose
+🎯## Purpose
 
 The main goal of this application is to provide a lightweight and efficient internal chat system, making communication faster and more convenient for teams or communities. Unlike traditional chat apps, there is no need for sending or accepting friend requests — just sign up and start connecting.
 
-🛠️ Tech Stack
+🛠️## Tech Stack
 
 + Android (Kotlin)
 
@@ -29,7 +29,7 @@ The main goal of this application is to provide a lightweight and efficient inte
 
 + Real-time Database
 
-📖 Experience Gained
+📖## Experience Gained
 
 + This project was built during my internship at SupremeTech, where I had the opportunity to:
 
@@ -39,7 +39,7 @@ The main goal of this application is to provide a lightweight and efficient inte
 
 + Gain hands-on experience in building a scalable, real-time communication app.
 
-📸 Screenshots
+📸## Screenshots
 
 <img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/b437f695-15e9-4842-b16d-5f23a7f3b01d" />
 <img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/2ad57292-c6d2-483e-896f-35f8f01e7a9a" />
@@ -51,7 +51,7 @@ The main goal of this application is to provide a lightweight and efficient inte
 <img width="200" height="400" alt="image" src="https://github.com/user-attachments/assets/2a859b29-fde8-41a4-a38b-ac986a791c1e" />
 
 
-📸 Videos Demo
+📸## Video Demo
 
 https://github.com/user-attachments/assets/50e9c439-0065-4c3f-b670-b5a7808424a9
 
